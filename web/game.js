@@ -973,7 +973,7 @@
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
     manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
-    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapExits: $('single-map-exits'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
+    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
     routeMap: $('route-map'), routeMapProgress: $('route-map-progress'), routeCards: $('route-cards'), routeMerit: $('route-merit'), routeShopHint: $('route-shop-hint'),
@@ -1070,7 +1070,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.6';
+  const GAME_VERSION = '0.29.7';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -4005,13 +4005,13 @@
 
     const first = nodes[0];
     const finalBossPlan = SINGLE_MAP_BOSS_PLANS[Math.min(finalRegion, SINGLE_MAP_BOSS_PLANS.length - 1)];
-    const map = { version: 8, pace, quick, longRun, regionCount, finalRegion, hiddenThemes: hiddenTemplates.map((template) => ({ id: template.id, title: template.title, accent: template.accent })), rooms: nodes, nodes, paths, transitions, pickups, interactions, doors, chests, npcs, traps, chestsOpened: [], bounds: { minX: 0, maxX: 0, minY: 0, maxY: 0 }, puzzleSolved, hiddenAreas, currentId: first.id, regionIndex: 0, cleared: [first.id], visited: [first.id], collected: 0, lastSavedRoom: first.id, charts: Array.from({ length: regionCount }, (_, index) => index === 0), nearbyAction: null, triggering: false, player: { x: first.x, y: first.y, layer: 0, r: 17, facing: 'right', moving: false, sprinting: false, walkPhase: 0, sprintBurstUntil: 0 }, bossType: finalBossPlan.typeId, bossTitle: finalBossPlan.title, bossScale: finalBossPlan.scale, bosses: nodes.filter((node) => node.type === 'boss').map((node) => ({ id: node.id, region: node.region, title: node.bossTitle, typeId: node.enemy.typeId })), respawnId: first.id, respawnLit: false, hiddenMapUnlocked: false };
+    const map = { version: 8, pace, quick, longRun, regionCount, finalRegion, hiddenThemes: hiddenTemplates.map((template) => ({ id: template.id, title: template.title, accent: template.accent })), rooms: nodes, nodes, paths, transitions, pickups, interactions, doors, chests, npcs, traps, chestsOpened: [], bounds: { minX: 0, maxX: 0, minY: 0, maxY: 0 }, puzzleSolved, hiddenAreas, currentId: first.id, regionIndex: 0, cleared: [first.id], visited: [first.id], collected: 0, lastSavedRoom: first.id, charts: Array.from({ length: regionCount }, (_, index) => index === 0), nearbyAction: null, triggering: false, player: { x: first.x, y: first.y, layer: 0, r: 17, facing: 'right', moving: false, sprinting: false, walkPhase: 0, sprintBurstUntil: 0, vx: 0, vy: 0, wallSlideSign: 0 }, bossType: finalBossPlan.typeId, bossTitle: finalBossPlan.title, bossScale: finalBossPlan.scale, bosses: nodes.filter((node) => node.type === 'boss').map((node) => ({ id: node.id, region: node.region, title: node.bossTitle, typeId: node.enemy.typeId })), respawnId: first.id, respawnLit: false, hiddenMapUnlocked: false };
     appendMasterVault(map);
     const allPoints = map.nodes.concat(map.paths.flatMap((path) => path.points));
     map.bounds = { minX: Math.min(...allPoints.map((point) => point.x)) - 210, maxX: Math.max(...allPoints.map((point) => point.x)) + 210, minY: Math.min(...allPoints.map((point) => point.y)) - 190, maxY: Math.max(...allPoints.map((point) => point.y)) + 190 };
     if (!separateSingleMapInteractionPoints(map)) {
       if (separationAttempt < 12) return generateSingleMap(pace, separationAttempt + 1);
-      throw new Error('无法生成互不重叠的山河图交互点');
+      throw new Error(`无法生成互不重叠的山河图交互点 ${JSON.stringify(map.interactionSeparationFailure || {})}`);
     }
     return map;
   }
@@ -4057,26 +4057,27 @@
     return map;
   }
   const SINGLE_MAP_POINT_GAP = 96;
-  const SINGLE_MAP_INTERACTION_SEPARATION_VERSION = 3;
+  const SINGLE_MAP_INTERACTION_SEPARATION_VERSION = 4;
   function singleMapInteractionPoints(map) {
     const points = [];
-    const add = (kind, id, layer, x, y, region, pathId, radius, apply) => points.push({
+    const add = (kind, id, layer, x, y, region, pathId, radius, apply, hiddenArea = false) => points.push({
       kind, id, layer: Number.isFinite(layer) ? layer : 0,
       x: Number.isFinite(x) ? x : 0, y: Number.isFinite(y) ? y : 0,
       region: Number.isFinite(region) ? region : 0,
-      pathId: pathId || '', radius: Math.max(1, radius || 1), apply
+      pathId: pathId || '', radius: Math.max(1, radius || 1), apply,
+      hiddenArea: !!hiddenArea
     });
-    (map.rooms || []).forEach((room) => add('room', `room:${room.id}`, room.layer, room.x, room.y, room.region, '', 1, null));
+    (map.rooms || []).forEach((room) => add('room', `room:${room.id}`, room.layer, room.x, room.y, room.region, '', 1, null, room.hiddenArea));
     (map.transitions || []).forEach((transition) => {
-      add('transition', `${transition.id}:a`, transition.aLayer, transition.aX, transition.aY, transition.region, '', 52, (x, y) => { transition.aX = x; transition.aY = y; });
-      add('transition', `${transition.id}:b`, transition.bLayer, transition.bX, transition.bY, transition.region, '', 52, (x, y) => { transition.bX = x; transition.bY = y; });
+      add('transition', `${transition.id}:a`, transition.aLayer, transition.aX, transition.aY, transition.region, '', 52, (x, y) => { transition.aX = x; transition.aY = y; }, transition.requiresHiddenArea);
+      add('transition', `${transition.id}:b`, transition.bLayer, transition.bX, transition.bY, transition.region, '', 52, (x, y) => { transition.bX = x; transition.bY = y; }, transition.requiresHiddenArea);
     });
-    (map.doors || []).forEach((door) => add('door', door.id, door.layer, door.x, door.y, door.region, door.pathId, 66, (x, y) => { door.x = x; door.y = y; }));
-    (map.chests || []).forEach((chest) => add('chest', chest.id, chest.layer, chest.x, chest.y, chest.region, chest.pathId, 62, (x, y) => { chest.x = x; chest.y = y; }));
-    (map.npcs || []).forEach((npc) => add('npc', npc.id, npc.layer, npc.x, npc.y, npc.region, '', 68, (x, y) => { npc.x = x; npc.y = y; }));
-    (map.traps || []).forEach((trap) => add('trap', trap.id, trap.layer, trap.x, trap.y, trap.region, trap.pathId, 76, (x, y) => { trap.x = x; trap.y = y; }));
-    (map.pickups || []).forEach((pickup) => add('pickup', pickup.id, pickup.layer, pickup.x, pickup.y, pickup.region, '', mapPickupInteractRadius(pickup), (x, y) => { pickup.x = x; pickup.y = y; }));
-    (map.interactions || []).forEach((item) => add('interaction', item.id, item.layer, item.x, item.y, item.region, item.targetPathId, 72, (x, y) => { item.x = x; item.y = y; }));
+    (map.doors || []).forEach((door) => add('door', door.id, door.layer, door.x, door.y, door.region, door.pathId, 66, (x, y) => { door.x = x; door.y = y; }, door.hiddenArea));
+    (map.chests || []).forEach((chest) => add('chest', chest.id, chest.layer, chest.x, chest.y, chest.region, chest.pathId, 62, (x, y) => { chest.x = x; chest.y = y; }, chest.hiddenArea));
+    (map.npcs || []).forEach((npc) => add('npc', npc.id, npc.layer, npc.x, npc.y, npc.region, '', 68, (x, y) => { npc.x = x; npc.y = y; }, npc.hiddenArea));
+    (map.traps || []).forEach((trap) => add('trap', trap.id, trap.layer, trap.x, trap.y, trap.region, trap.pathId, 76, (x, y) => { trap.x = x; trap.y = y; }, trap.hiddenArea));
+    (map.pickups || []).forEach((pickup) => add('pickup', pickup.id, pickup.layer, pickup.x, pickup.y, pickup.region, '', mapPickupInteractRadius(pickup), (x, y) => { pickup.x = x; pickup.y = y; }, pickup.hiddenArea));
+    (map.interactions || []).forEach((item) => add('interaction', item.id, item.layer, item.x, item.y, item.region, item.targetPathId, 72, (x, y) => { item.x = x; item.y = y; }, item.hiddenArea));
     return points;
   }
 
@@ -4085,25 +4086,50 @@
     (map.paths || []).forEach((path) => {
       if (path.region !== region || path.layer !== layer || (pathId && path.id !== pathId)) return;
       if (!includeUnavailable && ((path.secret && !path.open) || (path.hidden && !path.revealed) || (path.hiddenArea && !map.hiddenAreas?.[path.region]) || singleMapBlockedBy(map, path))) return;
+      const laneWidth = Math.max(0, Math.min(path.width * .34, path.width / 2 - 16));
       for (let index = 1; index < path.points.length; index++) {
         const a = path.points[index - 1], b = path.points[index];
-        const steps = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.y - a.y) / 24));
+        const dx = b.x - a.x, dy = b.y - a.y, length = Math.hypot(dx, dy) || 1;
+        const nx = -dy / length, ny = dx / length;
+        const steps = Math.max(1, Math.ceil(length / 14));
         for (let step = index === 1 ? 0 : 1; step <= steps; step++) {
-          const t = step / steps;
-          samples.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+          const t = step / steps, x = a.x + dx * t, y = a.y + dy * t;
+          for (const offset of [0, laneWidth, -laneWidth, laneWidth * .5, -laneWidth * .5]) samples.push({ x: x + nx * offset, y: y + ny * offset });
         }
       }
     });
     return samples;
   }
 
-  function singleMapPointReachable(map, point, candidate) {
-    const nearRoom = (map.rooms || []).some((room) => room.region === point.region && room.layer === point.layer && Math.hypot(candidate.x - room.x, candidate.y - room.y) <= room.r + 12);
-    if (nearRoom) return true;
+  function singleMapPathAllowedForPoint(path, point) {
+    if (!path || path.region !== point.region || path.layer !== point.layer) return false;
+    if (point.pathId && path.id === point.pathId) return true;
+    if (point.hiddenArea) return !!path.hiddenArea || (!path.hidden && (!path.secret || path.open));
+    return !path.hiddenArea && !path.hidden && (!path.secret || path.open);
+  }
+
+  function singleMapPointSurfaceClearance(point) {
+    if (point.kind === 'pickup') return 14;
+    if (point.kind === 'chest' || point.kind === 'door') return 11;
+    return 9;
+  }
+
+  function singleMapPointOnWalkableSurface(map, point, candidate) {
+    const clearance = singleMapPointSurfaceClearance(point);
+    const insideRoom = (map.rooms || []).some((room) =>
+      room.region === point.region && room.layer === point.layer &&
+      Math.hypot(candidate.x - room.x, candidate.y - room.y) <= Math.max(2, room.r - clearance)
+    );
+    if (insideRoom) return true;
     return (map.paths || []).some((path) => {
-      if (path.region !== point.region || path.layer !== point.layer) return false;
-      return path.points.some((_, index) => index > 0 && mapSegmentDistance(candidate.x, candidate.y, path.points[index - 1], path.points[index]) <= path.width / 2 + 54);
+      if (!singleMapPathAllowedForPoint(path, point)) return false;
+      const usableHalfWidth = Math.max(2, path.width / 2 - clearance);
+      return path.points.some((_, index) => index > 0 && mapSegmentDistance(candidate.x, candidate.y, path.points[index - 1], path.points[index]) <= usableHalfWidth);
     });
+  }
+
+  function singleMapPointReachable(map, point, candidate) {
+    return singleMapPointOnWalkableSurface(map, point, candidate);
   }
 
   function singleMapInteractionMinimumGap(a, b) {
@@ -4118,11 +4144,10 @@
   function separateSingleMapInteractionPoints(map) {
     if (!map || map.interactionSeparationVersion >= SINGLE_MAP_INTERACTION_SEPARATION_VERSION) return map;
     const points = singleMapInteractionPoints(map);
-    const fixed = points.filter((point) => point.kind === 'room');
     const movable = points.filter((point) => point.kind !== 'room');
     const order = { door: 0, transition: 1, chest: 2, npc: 3, trap: 4, pickup: 5, interaction: 6 };
     movable.sort((a, b) => (order[a.kind] ?? 9) - (order[b.kind] ?? 9) || a.id.localeCompare(b.id));
-    const placed = fixed.map((point) => ({ ...point }));
+    const placed = [];
     const collisions = (candidate, point) => placed.some((other) => singleMapInteractionPointsOverlap(other, { ...point, ...candidate }));
     const place = (point, candidate) => {
       if (point.apply) point.apply(candidate.x, candidate.y);
@@ -4139,17 +4164,17 @@
           seen.add(key); candidates.push(sample);
         });
       };
-      const strictPathId = point.kind === 'door' ? point.pathId : '';
+      const strictPathId = point.pathId || '';
       appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId));
       appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId, true));
       const bounds = map.bounds || {};
       const clampX = (x) => Number.isFinite(bounds.minX) && Number.isFinite(bounds.maxX) ? clamp(x, bounds.minX + 40, bounds.maxX - 40) : x;
       const clampY = (y) => Number.isFinite(bounds.minY) && Number.isFinite(bounds.maxY) ? clamp(y, bounds.minY + 40, bounds.maxY - 40) : y;
       if (point.kind !== 'door') {
-        for (let ring = 1; ring <= 7; ring++) {
-          const distance = SINGLE_MAP_POINT_GAP + (ring - 1) * 34;
-          for (let direction = 0; direction < 20; direction++) {
-            const angle = direction * Math.PI * 2 / 20 + ring * .17;
+        for (let ring = 1; ring <= 10; ring++) {
+          const distance = SINGLE_MAP_POINT_GAP + (ring - 1) * 28;
+          for (let direction = 0; direction < 32; direction++) {
+            const angle = direction * Math.PI * 2 / 32 + ring * .17;
             const candidate = { x: clampX(point.x + Math.cos(angle) * distance), y: clampY(point.y + Math.sin(angle) * distance) };
             const key = `${candidate.x.toFixed(2)}:${candidate.y.toFixed(2)}`;
             if (!seen.has(key)) { seen.add(key); candidates.push(candidate); }
@@ -4160,13 +4185,22 @@
       if (!target) { map.interactionSeparationFailure = { kind: point.kind, id: point.id, region: point.region, layer: point.layer, pathId: point.pathId, candidates: candidates.length }; return false; }
       place(point, target);
     }
-    const verified = singleMapInteractionPoints(map);
-    for (let a = 0; a < verified.length; a++) for (let b = a + 1; b < verified.length; b++) {
-      if (singleMapInteractionPointsOverlap(verified[a], verified[b])) return false;
-    }
+    if (!singleMapPlacementIsValid(map)) return false;
     delete map.interactionSeparationFailure;
     map.interactionSeparationVersion = SINGLE_MAP_INTERACTION_SEPARATION_VERSION;
     return map;
+  }
+
+  function singleMapPlacementIsValid(map) {
+    const points = singleMapInteractionPoints(map);
+    for (const point of points) {
+      if (point.kind !== 'room' && !singleMapPointOnWalkableSurface(map, point, point)) return false;
+    }
+    const interactive = points.filter((point) => point.kind !== 'room');
+    for (let a = 0; a < interactive.length; a++) for (let b = a + 1; b < interactive.length; b++) {
+      if (singleMapInteractionPointsOverlap(interactive[a], interactive[b])) return false;
+    }
+    return true;
   }
   function singleMapRoom(map, id) { return map?.rooms?.find((room) => room.id === id) || null; }
   function singleMapRoomAt(map, x, y) {
@@ -4281,7 +4315,10 @@
     if (!Array.isArray(map.pickups)) map.pickups = [];
     if (!Array.isArray(map.interactions)) map.interactions = [];
     repairSingleMapInteractionKinds(map);
-    for (let separationAttempt = 0; separationAttempt < 8 && map.interactionSeparationVersion < SINGLE_MAP_INTERACTION_SEPARATION_VERSION; separationAttempt++) {
+    if (map.interactionSeparationVersion >= SINGLE_MAP_INTERACTION_SEPARATION_VERSION && !singleMapPlacementIsValid(map)) {
+      map.interactionSeparationVersion = 0;
+    }
+    for (let separationAttempt = 0; separationAttempt < 12 && map.interactionSeparationVersion < SINGLE_MAP_INTERACTION_SEPARATION_VERSION; separationAttempt++) {
       if (separateSingleMapInteractionPoints(map)) break;
     }
     const regionCount = map.regionCount || Math.max(3, ...(map.rooms || []).map((room) => room.region + 1));
@@ -4299,6 +4336,9 @@
     const walkPhase = Number(map.player.walkPhase);
     map.player.walkPhase = Number.isFinite(walkPhase) ? ((walkPhase % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2) : 0;
     map.player.sprinting = false;
+    if (!Number.isFinite(map.player.vx)) map.player.vx = 0;
+    if (!Number.isFinite(map.player.vy)) map.player.vy = 0;
+    if (!Number.isFinite(map.player.wallSlideSign)) map.player.wallSlideSign = 0;
     dom.singleMapEyebrow.textContent = map.pace === 'quick' ? '山河寻路 · 快速模式' : `山河寻路 · 普通模式 · ${difficultyLabel()}`;
     dom.singleMapLayerName.textContent = SINGLE_LAYER_NAMES[map.player.layer] || '地表';
     dom.singleMapTitle.textContent = map.pace === 'quick' ? '四层山河图' : '长征山河长卷';
@@ -4306,7 +4346,6 @@
     dom.singleMapChartCount.textContent = `${map.charts.filter(Boolean).length} / ${regionCount}`;
     dom.singleMapCollectCount.textContent = String(map.collected || 0);
     dom.singleMapProgressCount.textContent = `${map.cleared.length} / ${map.rooms.length}`;
-    dom.singleMapExits.innerHTML = `<span>地表 · 崖上层 · 河谷下层 · 地下暗渠四层互通</span><span>精英与首领守关，击败后通行</span><span>石缝、绞盘与冰锁后通往另一块暗渠区域</span>${map.hiddenMapUnlocked ? '<span class="map-secret-hint">高级隐藏军需线已显示</span>' : ''}`;
     const room = singleMapRoom(map, map.currentId) || map.rooms[0];
     dom.singleMapRoomRegion.textContent = SINGLE_REGIONS[room.region].name;
     dom.singleMapRoomName.textContent = room.name;
@@ -4526,6 +4565,9 @@
       map.player.x = target.x;
       map.player.y = target.y;
       map.player.layer = target.layer;
+      map.player.vx = 0;
+      map.player.vy = 0;
+      map.player.wallSlideSign = 0;
       map.currentId = target.id;
       map.regionIndex = target.region;
       if (!map.visited.includes(target.id)) map.visited.push(target.id);
@@ -4541,30 +4583,92 @@
     }
     resolveSingleRoom(singleMapRoom(map, action.id));
   }
+  function singleMapMovementRadius(map) {
+    return Math.max(10, (map?.player?.r || 17) - 5);
+  }
+
+  function singleMapMovementClear(map, x, y, radius) {
+    const bounds = map.bounds;
+    if (!bounds || x < bounds.minX + radius || x > bounds.maxX - radius || y < bounds.minY + radius || y > bounds.maxY - radius) return false;
+    return singleMapPointWalkable(map, x, y, radius);
+  }
+
+  function resolveSingleMapMovement(map, moveX, moveY) {
+    const p = map?.player;
+    if (!p) return { x: 0, y: 0, dx: 0, dy: 0, collided: false };
+    const distance = Math.hypot(moveX, moveY);
+    if (distance < .001) return { x: p.x, y: p.y, dx: 0, dy: 0, collided: false };
+    const radius = singleMapMovementRadius(map);
+    const steps = Math.max(1, Math.ceil(distance / 4));
+    const stepX = moveX / steps, stepY = moveY / steps, stepLength = Math.hypot(stepX, stepY);
+    const baseAngle = Math.atan2(stepY, stepX);
+    const offsetDeck = [.24, -.24, .46, -.46, .7, -.7, .96, -.96, 1.24, -1.24];
+    let x = p.x, y = p.y, collided = false;
+    for (let step = 0; step < steps; step++) {
+      if (singleMapMovementClear(map, x + stepX, y + stepY, radius)) {
+        x += stepX; y += stepY;
+        if (!collided) p.wallSlideSign = 0;
+        continue;
+      }
+      collided = true;
+      const preference = p.wallSlideSign || 1;
+      let best = null;
+      for (const scale of [1, .7, .4]) {
+        for (const offset of offsetDeck) {
+          const angle = baseAngle + offset;
+          const candidateX = Math.cos(angle) * stepLength * scale;
+          const candidateY = Math.sin(angle) * stepLength * scale;
+          if (!singleMapMovementClear(map, x + candidateX, y + candidateY, radius)) continue;
+          const affinity = Math.sign(offset) === preference ? .025 : 0;
+          const score = Math.cos(offset) * scale + affinity;
+          if (!best || score > best.score) best = { x: candidateX, y: candidateY, offset, score };
+        }
+      }
+      if (!best) break;
+      x += best.x; y += best.y;
+      p.wallSlideSign = Math.sign(best.offset) || preference;
+    }
+    return { x, y, dx: x - p.x, dy: y - p.y, collided };
+  }
+
   function updateSingleMap(now, dt) {
     const map = state.singleMap; if (!map) return;
     let dx = (movementInput.right ? 1 : 0) - (movementInput.left ? 1 : 0) + (controllerInput.right ? 1 : 0) - (controllerInput.left ? 1 : 0);
     let dy = (movementInput.down ? 1 : 0) - (movementInput.up ? 1 : 0) + (controllerInput.down ? 1 : 0) - (controllerInput.up ? 1 : 0);
     if (dx && dy) { dx *= .707; dy *= .707; }
-    const sprinting = !!(movementInput.sprint || controllerInput.sprint) && (!!dx || !!dy);
-    if (sprinting && !map.player.sprinting) map.player.sprintBurstUntil = now + 260;
-    const burst = now < (map.player.sprintBurstUntil || 0);
-    const speed = burst ? 760 : sprinting ? 440 : 235;
-    const oldX = map.player.x, oldY = map.player.y;
-    const nx = map.player.x + dx * speed * dt, ny = map.player.y + dy * speed * dt;
-    map.player.x = Math.max(map.bounds.minX, nx); if (!singleMapPointWalkable(map, map.player.x, map.player.y, map.player.r)) map.player.x = oldX;
-    map.player.y = Math.max(map.bounds.minY, ny); if (!singleMapPointWalkable(map, map.player.x, map.player.y, map.player.r)) map.player.y = oldY;
-    const moved = Math.hypot(map.player.x - oldX, map.player.y - oldY);
-    map.player.moving = moved > .05; map.player.sprinting = map.player.moving && sprinting;
-    if (moved > .05) {
-      map.player.walkPhase = (map.player.walkPhase + moved * (sprinting ? .042 : .075)) % (Math.PI * 2);
-      if (Math.abs(dx) > .08) map.player.facing = dx < 0 ? 'left' : 'right';
+    const hasInput = !!dx || !!dy;
+    const p = map.player;
+    if (!Number.isFinite(p.vx)) p.vx = 0;
+    if (!Number.isFinite(p.vy)) p.vy = 0;
+    if (!Number.isFinite(p.wallSlideSign)) p.wallSlideSign = 0;
+    const sprinting = !!(movementInput.sprint || controllerInput.sprint) && hasInput;
+    if (sprinting && !p.sprinting) p.sprintBurstUntil = now + 260;
+    const burst = now < (p.sprintBurstUntil || 0);
+    const speed = burst ? 780 : sprinting ? 460 : 255;
+    const response = 1 - Math.exp(-(hasInput ? 18 : 26) * Math.max(0, dt));
+    p.vx += (dx * speed - p.vx) * response;
+    p.vy += (dy * speed - p.vy) * response;
+    if (!hasInput && Math.hypot(p.vx, p.vy) < 2) { p.vx = 0; p.vy = 0; }
+    const oldX = p.x, oldY = p.y;
+    const movement = resolveSingleMapMovement(map, p.vx * dt, p.vy * dt);
+    p.x = movement.x; p.y = movement.y;
+    const moved = Math.hypot(p.x - oldX, p.y - oldY);
+    if (moved > .02 && dt > 0) {
+      p.vx = movement.dx / dt;
+      p.vy = movement.dy / dt;
+    } else if (movement.collided) {
+      p.vx *= .25;
+      p.vy *= .25;
     }
-    const moving = !!dx || !!dy;
-    if (moving && now - singleMapSaveAt > 900) { singleMapSaveAt = now; saveCurrentRun('map'); }
-    else if (!moving && singleMapWasMoving) { singleMapSaveAt = now; saveCurrentRun('map'); }
-    singleMapWasMoving = moving;
-    if (sprinting && map.player.moving) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === map.player.layer && Math.hypot(map.player.x - trap.x, map.player.y - trap.y) < 30); if (sprung) { triggerMapTrap(sprung); return; } }
+    p.moving = moved > .05; p.sprinting = p.moving && sprinting;
+    if (moved > .05) {
+      p.walkPhase = (p.walkPhase + moved * (sprinting ? .042 : .075)) % (Math.PI * 2);
+      if (Math.abs(movement.dx) > .08) p.facing = movement.dx < 0 ? 'left' : 'right';
+    }
+    if ((hasInput || p.moving) && now - singleMapSaveAt > 900) { singleMapSaveAt = now; saveCurrentRun('map'); }
+    else if (!hasInput && !p.moving && singleMapWasMoving) { singleMapSaveAt = now; saveCurrentRun('map'); }
+    singleMapWasMoving = hasInput || p.moving;
+    if (sprinting && p.moving) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === p.layer && Math.hypot(p.x - trap.x, p.y - trap.y) < 30); if (sprung) { triggerMapTrap(sprung); return; } }
     const room = singleMapRoomAt(map, map.player.x, map.player.y);
     if (room && room.id !== map.currentId) {
       map.currentId = room.id;
@@ -4621,7 +4725,10 @@
     const ctx = canvas.getContext('2d'), width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = Math.min(2, window.devicePixelRatio || 1);
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
-    const bounds = map.bounds, maxCamX = Math.max(bounds.minX, bounds.maxX - width), maxCamY = Math.max(bounds.minY, bounds.maxY - height), camX = clamp(map.player.x - width / 2, bounds.minX, maxCamX), camY = clamp(map.player.y - height / 2, bounds.minY, maxCamY);
+    const bounds = map.bounds, mapWidth = bounds.maxX - bounds.minX, mapHeight = bounds.maxY - bounds.minY;
+    const maxCamX = Math.max(bounds.minX, bounds.maxX - width), maxCamY = Math.max(bounds.minY, bounds.maxY - height);
+    const camX = mapWidth <= width ? bounds.minX - (width - mapWidth) / 2 : clamp(map.player.x - width / 2, bounds.minX, maxCamX);
+    const camY = mapHeight <= height ? bounds.minY - (height - mapHeight) / 2 : clamp(map.player.y - height / 2, bounds.minY, maxCamY);
     ctx.save(); ctx.translate(-camX, -camY);
     const regionCenters = Array.from({ length: map.regionCount || 3 }, (_, region) => { const rooms = map.rooms.filter((room) => room.region === region && !room.hiddenArea); if (!rooms.length) return null; return { region, x: rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y: rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length, palette: SINGLE_MAP_PALETTES[(region + 1) % SINGLE_MAP_PALETTES.length] }; }).filter(Boolean);
     regionCenters.forEach((region) => { const gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720); gradient.addColorStop(0, region.palette.ground); gradient.addColorStop(1, 'rgba(11,9,7,0)'); ctx.fillStyle = gradient; ctx.fillRect(region.x - 760, region.y - 520, 1520, 1040); ctx.fillStyle = 'rgba(236,218,178,.3)'; ctx.font = 'bold 18px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(SINGLE_REGIONS[region.region].name, region.x, region.y - 365); });
@@ -6978,7 +7085,7 @@
       title: dom.continueRunBtn && !dom.continueRunBtn.classList.contains('hidden') ? dom.continueRunBtn : dom.startBtn,
       mode: dom.modeCards?.querySelector('[data-mode-choice]'),
       difficulty: dom.difficultyOptions?.querySelector('[data-difficulty-choice]'),
-      map: dom.singleMapExits?.querySelector('[data-map-move]') || dom.singleMapBoard?.querySelector('[data-map-move]'),
+      map: dom.singleMapBoard?.querySelector('[data-map-move]'),
       squad: dom.squadCards?.querySelector('[data-squad-card]'),
       route: dom.routeCards?.querySelector('[data-route-card]'),
       event: dom.eventCards?.querySelector('[data-event-card]'),
@@ -13310,5 +13417,9 @@ function breakPlayerPosture() {
   window.__longMarch.separateSingleMapInteractionPoints = separateSingleMapInteractionPoints;
   window.__longMarch.singleMapInteractionPointsOverlap = singleMapInteractionPointsOverlap;
   window.__longMarch.SINGLE_MAP_POINT_GAP = SINGLE_MAP_POINT_GAP;
+  window.__longMarch.validateSingleMapPlacement = singleMapPlacementIsValid;
+  window.__longMarch.singleMapPointOnWalkableSurface = singleMapPointOnWalkableSurface;
+  window.__longMarch.resolveSingleMapMovement = resolveSingleMapMovement;
+  window.__longMarch.updateSingleMap = updateSingleMap;
   document.addEventListener('DOMContentLoaded', init);
 })();

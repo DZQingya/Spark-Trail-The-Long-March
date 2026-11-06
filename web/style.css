@@ -362,12 +362,6 @@ body.performance-mode .screen.active { animation: none; }
 .single-map-room-info span { color: #c8a45f; font-size: calc(12px * var(--font-scale)); letter-spacing: .1em; }
 .single-map-room-info h3 { margin: 4px 0 7px; color: #f7e6c5; font-size: calc(24px * var(--font-scale)); }
 .single-map-room-info p { margin: 0; color: #aa987d; line-height: 1.55; }
-.single-map-exits { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 8px; align-content: stretch; }
-.map-secret-hint { color: #f1ca79; border-color: rgba(224,174,78,.42) !important; background: rgba(100,62,25,.22) !important; }
-.single-map-exit { min-height: 72px; padding: 10px 12px; border: 1px solid rgba(215,166,76,.3); background: linear-gradient(145deg, rgba(57,37,25,.72), rgba(15,11,9,.92)); color: #e6d0aa; text-align: left; cursor: pointer; }
-.single-map-exit:hover, .single-map-exit:focus-visible { border-color: #f0c76d; outline: none; transform: translateY(-1px); }
-.single-map-exit b { display: block; color: #ffe1a0; font-size: calc(15px * var(--font-scale)); }
-.single-map-exit small { display: block; margin-top: 4px; color: #9f8d73; font-size: calc(11px * var(--font-scale)); }
 @media (max-width: 800px) {
   .single-map-title { align-items: flex-start; flex-direction: column; }
   .single-map-bottom { grid-template-columns: 1fr; }
@@ -2532,3 +2526,80 @@ body[data-screen="title"] #save-manager-toggle { display: none !important; }
   .gameplay-entry.attention { animation: none; }
 }
 body.performance-mode .gameplay-entry.attention { animation: none; }
+
+/* v0.29.7 responsive exploration viewport, wall-slide assistance and compact map footer */
+#screen-map.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  padding: clamp(5px, .7vw, 10px) clamp(8px, 1.2vw, 16px) clamp(7px, 1vw, 12px);
+}
+.single-map-title {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0 0 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 5px 16px;
+}
+.single-map-title > div:first-child { min-width: 0; }
+.single-map-title .eyebrow { margin-bottom: 2px; font-size: calc(10px * var(--font-scale)); }
+.single-map-title h2 { font-size: clamp(20px, 2.15vw, 32px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.single-map-stats { gap: 5px; justify-content: flex-end; }
+.single-map-stats span { padding: 4px 7px; font-size: calc(11px * var(--font-scale)); }
+.single-map-stats strong { margin-left: 3px; }
+.single-map-board {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: none;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  margin: 0;
+}
+.single-map-canvas { width: 100%; height: 100%; }
+.single-map-bottom {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 6px 0 0;
+  display: block;
+}
+.single-map-room-info {
+  min-height: 0;
+  padding: 7px 11px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 12px;
+}
+.single-map-room-info span { flex: 0 0 auto; font-size: calc(10px * var(--font-scale)); }
+.single-map-room-info h3 { flex: 0 0 auto; margin: 0; font-size: calc(18px * var(--font-scale)); }
+.single-map-room-info p {
+  flex: 1 1 320px;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: calc(12px * var(--font-scale));
+}
+.single-map-action-hint { bottom: 38px; }
+.single-map-controls-hint { bottom: 8px; }
+@media (max-width: 780px) {
+  .single-map-title { align-items: flex-start; }
+  .single-map-title h2 { font-size: calc(20px * var(--font-scale)); }
+  .single-map-stats { flex: 1 1 100%; justify-content: flex-start; }
+  .single-map-stats span { padding: 3px 6px; font-size: calc(10px * var(--font-scale)); }
+  .single-map-action-hint { bottom: 34px; width: 88%; }
+}
+@media (max-height: 700px) {
+  .single-map-title .eyebrow { display: none; }
+  .single-map-title h2 { font-size: calc(21px * var(--font-scale)); }
+  .single-map-room-info p { display: none; }
+  .single-map-room-info { padding-top: 5px; padding-bottom: 5px; }
+  .single-map-room-info h3 { font-size: calc(16px * var(--font-scale)); }
+}
