@@ -1,0 +1,26 @@
+# Runtime saves and logs
+web/存档/
+saves/
+*.log
+
+# Build and release outputs
+build/
+dist/
+outputs/
+release-*/
+browser-release-*/
+installer-*/
+*.zip
+*.exe.tmp
+
+# Local tools and caches
+node_modules/
+__pycache__/
+*.pyc
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Machine-specific files
+*.lnk
