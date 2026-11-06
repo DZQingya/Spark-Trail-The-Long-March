@@ -972,8 +972,8 @@
   const dom = {
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
-    testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
-    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapExits: $('single-map-exits'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialBtn: $('tutorial-btn'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
+    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
+    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapExits: $('single-map-exits'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
     routeMap: $('route-map'), routeMapProgress: $('route-map-progress'), routeCards: $('route-cards'), routeMerit: $('route-merit'), routeShopHint: $('route-shop-hint'),
@@ -991,7 +991,7 @@
     bossStart: $('boss-start'), endingEyebrow: $('ending-eyebrow'), endingTitle: $('ending-title'),
     endingCopy: $('ending-copy'), endingStats: $('ending-stats'), endingMark: $('ending-mark'),
     endingScreen: $('screen-ending'), endingRestart: $('ending-restart'), endingSources: $('ending-sources'),
-    practicalTutorialBtn: $('practical-tutorial-btn'), tutorialPractice: $('tutorial-practice'), trainingGuide: $('training-guide'), trainingStepCount: $('training-step-count'), trainingStepTitle: $('training-step-title'), trainingStepDesc: $('training-step-desc'), trainingSelect: $('training-select'), trainingExit: $('training-exit'), trainingQuickSkip: $('training-quick-skip'), trainingCue: $('training-cue'), trainingCueKey: $('training-cue-key'), trainingCueTitle: $('training-cue-title'), trainingCueText: $('training-cue-text'), trainingMenuOverlay: $('training-menu-overlay'), trainingMenuClose: $('training-menu-close'), trainingMenuSkip: $('training-menu-skip'), trainingStartFull: $('training-start-full'), trainingLessonGrid: $('training-lesson-grid'), trainingBriefOverlay: $('training-brief-overlay'), trainingBriefKicker: $('training-brief-kicker'), trainingBriefTitle: $('training-brief-title'), trainingBriefText: $('training-brief-text'), trainingBriefKey: $('training-brief-key'), trainingBriefSecondary: $('training-brief-secondary'), trainingBriefSkip: $('training-brief-skip'), trainingBriefConfirm: $('training-brief-confirm'), restartConfirmOverlay: $('restart-confirm-overlay'), restartConfirmCancel: $('restart-confirm-cancel'), restartConfirmButton: $('restart-confirm-button'), endingSourcePanel: $('ending-source-panel'), toast: $('toast'), levelToast: $('level-toast'), achievementToastStack: $('achievement-toast-stack'),
+    tutorialPractice: $('tutorial-practice'), trainingGuide: $('training-guide'), trainingStepCount: $('training-step-count'), trainingStepTitle: $('training-step-title'), trainingStepDesc: $('training-step-desc'), trainingSelect: $('training-select'), trainingExit: $('training-exit'), trainingQuickSkip: $('training-quick-skip'), trainingCue: $('training-cue'), trainingCueKey: $('training-cue-key'), trainingCueTitle: $('training-cue-title'), trainingCueText: $('training-cue-text'), trainingMenuOverlay: $('training-menu-overlay'), trainingMenuClose: $('training-menu-close'), trainingMenuSkip: $('training-menu-skip'), trainingStartFull: $('training-start-full'), trainingLessonGrid: $('training-lesson-grid'), trainingBriefOverlay: $('training-brief-overlay'), trainingBriefKicker: $('training-brief-kicker'), trainingBriefTitle: $('training-brief-title'), trainingBriefText: $('training-brief-text'), trainingBriefKey: $('training-brief-key'), trainingBriefSecondary: $('training-brief-secondary'), trainingBriefSkip: $('training-brief-skip'), trainingBriefConfirm: $('training-brief-confirm'), restartConfirmOverlay: $('restart-confirm-overlay'), restartConfirmCancel: $('restart-confirm-cancel'), restartConfirmButton: $('restart-confirm-button'), endingSourcePanel: $('ending-source-panel'), toast: $('toast'), levelToast: $('level-toast'), achievementToastStack: $('achievement-toast-stack'),
     canvas: $('battle-canvas'), sound: null
   };
 
@@ -1013,6 +1013,7 @@
 
   function setScreen(name) {
     state.screen = name;
+    document.body.dataset.screen = name;
     setMusicMode(desiredMusicModeForScreen(name));
     if (name !== 'battle' && name !== 'map') {
       movementInput.left = movementInput.right = movementInput.up = movementInput.down = movementInput.sprint = false;
@@ -1055,8 +1056,8 @@
         : state.runMode === 'single' && state.player
           ? `山河寻路 · ${SINGLE_REGIONS[state.singleMap?.regionIndex || 0]?.name || '未知区域'}`
           : state.boss ? '终章 · 最后封锁线' : CHAPTERS[state.chapter] ? `${CHAPTERS[state.chapter].act} · ${CHAPTERS[state.chapter].name}` : '等待出发';
-    dom.metaChapter.textContent = chapter;
-    dom.metaSeed.textContent = `行军种子 ${state.seed || '—'}`;
+    if (dom.metaChapter) dom.metaChapter.textContent = chapter;
+    if (dom.metaSeed) dom.metaSeed.textContent = `行军种子 ${state.seed || '—'}`;
     if (dom.metaMerit) dom.metaMerit.textContent = String(Math.round(state.player?.merit || 0));
     dom.meritHud?.classList.toggle('hidden', !state.player);
     dom.restartBtn.classList.toggle('hidden', !state.player || state.screen === 'title' || !!state.training?.active || state.testMode);
@@ -1069,7 +1070,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.5';
+  const GAME_VERSION = '0.29.6';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -2088,7 +2089,35 @@
     dom.tutorialNext.textContent = tutorialStep === dom.tutorialSlides.length - 1 ? '开始行军' : '下一步';
   }
 
+  function openManualMenu() {
+    dom.manualMenuOverlay?.classList.remove('hidden');
+    setTimeout(() => {
+      if (activeGamepad && dom.manualGuideBtn) focusGamepadElement(dom.manualGuideBtn);
+      else dom.manualGuideBtn?.focus({ preventScroll: true });
+    }, 0);
+  }
+
+  function closeManualMenu(restoreFocus = true) {
+    dom.manualMenuOverlay?.classList.add('hidden');
+    if (!restoreFocus) return;
+    setTimeout(() => {
+      if (activeGamepad && dom.tutorialBtn) focusGamepadElement(dom.tutorialBtn);
+      else dom.tutorialBtn?.focus({ preventScroll: true });
+    }, 0);
+  }
+
+  function openManualGuide() {
+    closeManualMenu(false);
+    openTutorial();
+  }
+
+  function openManualPractice() {
+    closeManualMenu(false);
+    openTrainingMenu();
+  }
+
   function openTutorial() {
+    dom.manualMenuOverlay?.classList.add('hidden');
     tutorialStep = 0;
     renderTutorialStep();
     dom.tutorialOverlay.classList.remove('hidden');
@@ -2202,7 +2231,7 @@
 
   function closeTrainingMenu() {
     dom.trainingMenuOverlay?.classList.add('hidden');
-    setTimeout(() => dom.practicalTutorialBtn?.focus({ preventScroll: true }), 0);
+    setTimeout(() => dom.tutorialBtn?.focus({ preventScroll: true }), 0);
   }
 
   function skipTrainingMenu() {
@@ -2672,7 +2701,7 @@
   }
 
   function showLevelToast(level) {
-    dom.levelToast.textContent = `队伍升至 ${level} 级`;
+    dom.levelToast.textContent = `升级 · 技能树可加点`;
     dom.levelToast.classList.remove('hidden');
     dom.levelToast.style.animation = 'none';
     void dom.levelToast.offsetHeight;
@@ -3064,6 +3093,7 @@
     player.equipmentInventory.push(unit);
     if (options.autoEquip && player.equippedEquipment.length < equipmentSlotLimit(player)) equipEquipmentUnit(unit.uid, { silent: true });
     if (!options.silent && player === state.player) queueAcquisition({ type: 'equipment', kicker: options.kicker || '获得军备', name: item.name, icon: item.icon, meta: `${EQUIPMENT_RARITIES[item.rarity].name} · ${item.category}`, desc: item.desc, effects: item.effects.map((effect) => `${effect.label} ${effect.value}`), note: options.autoEquip && player.equippedEquipment.includes(unit.uid) ? '已自动装入当前空余军备槽。' : '可在“军备”界面自由装备或卸下。' });
+    if (player === state.player) updateMetaBars();
     return unit;
   }
   function applyEquipmentStats(item, sign, level = 1) { if (item?.apply) item.apply(state.player, sign * Math.max(1, level)); }
@@ -3649,7 +3679,13 @@
       dom.growthToggle.classList.toggle('attention', availableTalentPoints > 0);
     }
     if (dom.growthEntryMeta) dom.growthEntryMeta.textContent = availableTalentPoints > 0 ? `${availableTalentPoints} 点可分配` : `等级 ${p.level} · 天赋树`;
-    if (dom.equipmentEntryMeta) dom.equipmentEntryMeta.textContent = `已装备 ${p.equippedEquipment?.length || 0} / ${equipmentSlotLimit(p)}`;
+    const equippedCount = p.equippedEquipment?.length || 0;
+    const unequippedCount = Math.max(0, (p.equipmentInventory?.length || 0) - equippedCount);
+    if (dom.equipmentToggle) {
+      dom.equipmentToggle.classList.toggle('attention', unequippedCount > 0);
+      dom.equipmentToggle.title = unequippedCount > 0 ? `有 ${unequippedCount} 件军备可更换` : '查看军备栏';
+    }
+    if (dom.equipmentEntryMeta) dom.equipmentEntryMeta.textContent = unequippedCount > 0 ? `可更换 · ${unequippedCount}` : `已装备 ${equippedCount} / ${equipmentSlotLimit(p)}`;
     updateQuickItemHud();
     updateEliteHealthHud();
   }
@@ -6003,7 +6039,7 @@
     const root = document.documentElement;
     root.style.setProperty('--font-scale', fontScale.toFixed(3));
     root.style.setProperty('--ui-scale', uiScale.toFixed(3));
-    root.style.setProperty('--topbar-height', `${Math.round(90 * uiScale)}px`);
+    root.style.setProperty('--topbar-height', `${Math.round(58 * uiScale)}px`);
   }
 
   function canvasFont(size, family = 'serif', weight = '') {
@@ -6764,13 +6800,13 @@
       return [...dom.settingsSelectPopover.querySelectorAll('button:not([disabled])')]
         .filter((element) => element.getClientRects().length > 0);
     }
-    const modal = [dom.acquisitionOverlay, dom.relicDetailOverlay, dom.growthOverlay, dom.equipmentOverlay, dom.npcOverlay, dom.restartConfirmOverlay, dom.saveManagerOverlay, dom.runHistoryOverlay, dom.enemyCodexOverlay, dom.trainingBriefOverlay, dom.trainingMenuOverlay, dom.testModeOverlay, dom.settingsOverlay, dom.buffDetailOverlay, dom.eventDetailOverlay, dom.choiceDetailOverlay, dom.tutorialOverlay]
+    const modal = [dom.acquisitionOverlay, dom.relicDetailOverlay, dom.growthOverlay, dom.equipmentOverlay, dom.npcOverlay, dom.restartConfirmOverlay, dom.saveManagerOverlay, dom.runHistoryOverlay, dom.enemyCodexOverlay, dom.manualMenuOverlay, dom.trainingBriefOverlay, dom.trainingMenuOverlay, dom.testModeOverlay, dom.settingsOverlay, dom.buffDetailOverlay, dom.eventDetailOverlay, dom.choiceDetailOverlay, dom.tutorialOverlay]
       .find((overlay) => overlay && !overlay.classList.contains('hidden'));
     const screen = document.querySelector('.screen.active');
     const root = modal || screen || document;
     const nodes = [...root.querySelectorAll('button:not([disabled]), [role="button"][tabindex], [data-gamepad-focusable="true"], input:not([type="text"]), select:not([disabled])')];
     if (!modal) {
-      [dom.pauseToggle, dom.buffDetailBtn, dom.growthToggle, dom.equipmentToggle, dom.testModeToggle, dom.saveManagerToggle, dom.settingsToggle, dom.exitGameBtn, ...(dom.relicHud ? [...dom.relicHud.querySelectorAll('button')] : [])].filter(Boolean).reverse().forEach((node) => {
+      [dom.pauseToggle, dom.buffDetailBtn, dom.growthToggle, dom.equipmentToggle, dom.testModeToggle, dom.saveManagerToggle, dom.settingsToggle, ...(dom.relicHud ? [...dom.relicHud.querySelectorAll('button')] : [])].filter(Boolean).reverse().forEach((node) => {
         if (node.getClientRects().length && !node.classList.contains('hidden')) nodes.unshift(node);
       });
     }
@@ -6921,6 +6957,7 @@
 
   function gamepadPrimaryElement() {
     if (dom.restartConfirmOverlay && !dom.restartConfirmOverlay.classList.contains('hidden')) return dom.restartConfirmCancel;
+    if (dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden')) return dom.manualGuideBtn || dom.manualPracticeBtn;
     if (dom.saveManagerOverlay && !dom.saveManagerOverlay.classList.contains('hidden')) return dom.saveSlotNew || dom.saveManagerDone;
     if (dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden')) return dom.runHistoryDone;
     if (dom.enemyCodexOverlay && !dom.enemyCodexOverlay.classList.contains('hidden')) return dom.enemyCodexDone;
@@ -7090,6 +7127,7 @@
     if (dom.buffDetailOverlay && !dom.buffDetailOverlay.classList.contains('hidden')) { closeBuffDetails(); return; }
     if (dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden')) { closeRunHistory(); return; }
     if (dom.enemyCodexOverlay && !dom.enemyCodexOverlay.classList.contains('hidden')) { closeEnemyCodex(); return; }
+    if (dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden')) { closeManualMenu(); return; }
     if (dom.trainingMenuOverlay && !dom.trainingMenuOverlay.classList.contains('hidden')) { closeTrainingMenu(); return; }
     if (dom.testModeOverlay && !dom.testModeOverlay.classList.contains('hidden')) { closeTestMode(); return; }
     if (dom.trainingBriefOverlay && !dom.trainingBriefOverlay.classList.contains('hidden')) { dom.trainingBriefSecondary.click(); return; }
@@ -7179,6 +7217,7 @@
     const runHistoryOpen = !!dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden');
     const saveManagerOpen = !!dom.saveManagerOverlay && !dom.saveManagerOverlay.classList.contains('hidden');
     const enemyCodexOpen = !!dom.enemyCodexOverlay && !dom.enemyCodexOverlay.classList.contains('hidden');
+    const manualMenuOpen = !!dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden');
     const trainingMenuOpen = !!dom.trainingMenuOverlay && !dom.trainingMenuOverlay.classList.contains('hidden');
     const trainingBriefOpen = !!dom.trainingBriefOverlay && !dom.trainingBriefOverlay.classList.contains('hidden');
     const testModeOpen = !!dom.testModeOverlay && !dom.testModeOverlay.classList.contains('hidden');
@@ -7190,7 +7229,7 @@
     const bonfireOpen = !!dom.bonfireOverlay && !dom.bonfireOverlay.classList.contains('hidden');
     const restartOpen = !!dom.restartConfirmOverlay && !dom.restartConfirmOverlay.classList.contains('hidden');
     const detailOpen = (dom.choiceDetailOverlay && !dom.choiceDetailOverlay.classList.contains('hidden')) || (dom.eventDetailOverlay && !dom.eventDetailOverlay.classList.contains('hidden'));
-    const anyModalOpen = settingsOpen || pauseOpen || buffOpen || tutorialOpen || runHistoryOpen || enemyCodexOpen || saveManagerOpen || trainingMenuOpen || trainingBriefOpen || testModeOpen || acquisitionOpen || relicDetailOpen || growthOpen || equipmentOpen || npcOpen || bonfireOpen || restartOpen || detailOpen;
+    const anyModalOpen = settingsOpen || pauseOpen || buffOpen || tutorialOpen || runHistoryOpen || enemyCodexOpen || saveManagerOpen || manualMenuOpen || trainingMenuOpen || trainingBriefOpen || testModeOpen || acquisitionOpen || relicDetailOpen || growthOpen || equipmentOpen || npcOpen || bonfireOpen || restartOpen || detailOpen;
     const battleActive = state.screen === 'battle' && state.combat && !state.combat.finished && !state.player.postureBroken;
     const [axisX, axisY] = gamepadAxes(pad);
     let menuAxisX = Math.abs(axisX) >= GAMEPAD_MENU_DEADZONE ? Math.sign(axisX) : 0;
@@ -9004,7 +9043,8 @@ function breakPlayerPosture() {
         grade: null, narrow, quick, thrust, eliteMove, comboStep, comboTotal,
         sequenceLabel, style: options.style || intent.type, title: options.title || ''
       };
-      dom.parryOverlay.className = `parry-overlay${narrow ? ' narrow' : ''}${quick ? ' quick' : ''}${comboStep ? ' combo' : ''}${thrust ? ' thrust' : ''}${eliteMove ? ' elite' : ''}`;
+      const trainingPrompt = !!state.training?.active;
+      dom.parryOverlay.className = `parry-overlay${narrow ? ' narrow' : ''}${quick ? ' quick' : ''}${comboStep ? ' combo' : ''}${thrust ? ' thrust' : ''}${eliteMove ? ' elite' : ''}${trainingPrompt ? '' : ' minimal-cue'}`;
       resetParryButton();
       setTimeout(() => dom.parryButton.focus({ preventScroll: true }), 0);
       dom.parryOverlay.classList.remove('hidden');
@@ -9030,10 +9070,10 @@ function breakPlayerPosture() {
               : quick
                 ? `敌人抬手后会极快落下，看到刀锋前压立即按 ${inputBindingLabel('guard')}`
                 : `观察手臂和武器，在武器即将触及队伍时按 ${inputBindingLabel('guard')} 或点击下方按钮格挡`;
-      dom.parryKicker.textContent = options.kicker || (comboStep ? `${sequenceLabel || '连斩'} · 第 ${comboStep} 刀` : eliteMove ? '精英绝技' : thrust ? '枪刃突刺' : narrow ? '重击将至' : '敌将出招');
-      dom.parryTitle.textContent = options.title || defaultTitle;
-      dom.parryHint.textContent = options.hint || defaultHint;
-      dom.parryResult.textContent = state.combat.blockHeld ? `防御中 · 金光一闪后点按 ${inputBindingLabel('guard')}` : '等待金光提示';
+      dom.parryKicker.textContent = trainingPrompt ? (options.kicker || (comboStep ? `${sequenceLabel || '连斩'} · 第 ${comboStep} 刀` : eliteMove ? '精英绝技' : thrust ? '枪刃突刺' : narrow ? '重击将至' : '敌将出招')) : '';
+      dom.parryTitle.textContent = trainingPrompt ? (options.title || defaultTitle) : (thrust ? '识破' : '');
+      dom.parryHint.textContent = trainingPrompt ? (options.hint || defaultHint) : '';
+      dom.parryResult.textContent = trainingPrompt ? (state.combat.blockHeld ? `防御中 · 金光一闪后点按 ${inputBindingLabel('guard')}` : '等待金光提示') : '';
       const trainingDodgeStep = state.training?.active && state.training.step === 3;
       if (thrust || trainingDodgeStep) dom.dodgeButton.classList.remove('hidden');
       if (trainingDodgeStep) dom.parryButton.classList.add('hidden');
@@ -9108,10 +9148,11 @@ function breakPlayerPosture() {
       const duration = timeWarp ? timeWarpDuration(timeWarp) : baseDuration;
       const start = performance.now();
       scene.shotAim = { enemyIndex, start, duration, baseDuration, timeWarp, aimX, fired: false, parried: false };
-      dom.parryOverlay.className = 'parry-overlay shot';
-      dom.parryTitle.textContent = options.title || '枪线锁定！';
-      dom.parryHint.textContent = options.hint || `${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveRight'))} 或左摇杆横移躲枪线；枪响前点按 ${inputBindingLabel('guard')} 弹开子弹，按住只能护住要害`;
-      dom.parryResult.textContent = `等待金光 · 闪光后点按 ${inputBindingLabel('guard')} 弹反`;
+      const trainingPrompt = !!state.training?.active;
+      dom.parryOverlay.className = `parry-overlay shot${trainingPrompt ? '' : ' minimal-cue'}`;
+      dom.parryTitle.textContent = trainingPrompt ? (options.title || '枪线锁定！') : '';
+      dom.parryHint.textContent = trainingPrompt ? (options.hint || `${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveRight'))} 或左摇杆横移躲枪线；枪响前点按 ${inputBindingLabel('guard')} 弹开子弹，按住只能护住要害`) : '';
+      dom.parryResult.textContent = trainingPrompt ? `等待金光 · 闪光后点按 ${inputBindingLabel('guard')} 弹反` : '';
       dom.parryButton.innerHTML = '<span>F</span> 弹反子弹';
       dom.dodgeButton.classList.remove('hidden');
       dom.parryOverlay.classList.remove('hidden');
@@ -11844,13 +11885,6 @@ function breakPlayerPosture() {
       ctx.lineTo(pos.x - 106, postureBarY + 22);
       ctx.lineTo(pos.x - 106, postureBarY + 34);
       ctx.closePath(); ctx.fill();
-      ctx.font = canvasFont(13, '"Noto Serif SC", serif', 'bold');
-      const approachLabel = enemy.intent.type === 'whirlwind' ? '旋身五连'
-        : enemy.intent.type === 'blinkSlash' ? '瞬步残影'
-          : enemy.intent.type === 'slowFast' ? '快慢刀势'
-            : enemy.intent.type === 'eliteMove' ? '专属绝技'
-              : enemy.intent.type === 'combo' ? '连斩突进' : '突进准备';
-      ctx.fillText(approachLabel, pos.x - 72, postureBarY + 46);
       ctx.restore();
     }
   }
@@ -11951,7 +11985,7 @@ function breakPlayerPosture() {
       ctx.restore();
     }
 
-    if (progress < .8 && !duel.resolved) {
+    if (progress < .8 && !duel.resolved && state.training?.active) {
       const label = duel.sequenceLabel
         ? `${duel.sequenceLabel} · 第 ${duel.comboStep} 刀`
         : duel.title || (duel.eliteMove ? '精英绝技' : duel.thrust ? '枪刃突刺' : duel.narrow ? '重击落下' : duel.quick ? '快斩' : '突进横斩');
@@ -12649,7 +12683,11 @@ function breakPlayerPosture() {
     loadEnemyCodexState();
     renderSquads();
     state.rng = mulberry32(0x9e3779b9);
-    dom.tutorialBtn.addEventListener('click', openTutorial);
+    dom.tutorialBtn.addEventListener('click', openManualMenu);
+    dom.manualMenuClose?.addEventListener('click', () => closeManualMenu());
+    dom.manualGuideBtn?.addEventListener('click', openManualGuide);
+    dom.manualPracticeBtn?.addEventListener('click', openManualPractice);
+    dom.manualMenuOverlay?.addEventListener('pointerdown', (event) => { if (event.target === dom.manualMenuOverlay) closeManualMenu(); });
     dom.testModeToggle?.addEventListener('click', openTestMode);
     dom.testModeClose?.addEventListener('click', closeTestMode);
     dom.testStartRun?.addEventListener('click', startTestRun);
@@ -12714,7 +12752,6 @@ function breakPlayerPosture() {
     });
     dom.enemyCodexClose?.addEventListener('click', closeEnemyCodex);
     dom.enemyCodexDone?.addEventListener('click', closeEnemyCodex);
-    dom.practicalTutorialBtn?.addEventListener('click', openTrainingMenu);
     dom.tutorialPractice?.addEventListener('click', () => { continueToPracticalAfterGuide = false; openTrainingMenu(); });
     dom.trainingSelect?.addEventListener('click', openTrainingMenu);
     dom.trainingExit?.addEventListener('click', () => finishPracticalTutorial('已跳过战前演练。'));
@@ -13103,6 +13140,13 @@ function breakPlayerPosture() {
         if (event.code === 'Escape') {
           event.preventDefault();
           closeRunHistory();
+        }
+        return;
+      }
+      if (dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden')) {
+        if (event.code === 'Escape') {
+          event.preventDefault();
+          closeManualMenu();
         }
         return;
       }

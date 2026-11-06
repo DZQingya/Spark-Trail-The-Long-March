@@ -2344,3 +2344,191 @@ body.performance-mode .gameplay-entry.attention .gameplay-entry-icon { animation
 }
 
 #restart-confirm-overlay { z-index: 240; }
+
+
+/* v0.29.6 compact menu, adaptive top bar and low-noise combat cues */
+:root { --topbar-height: 58px; }
+#app { display: flex; flex-direction: column; overflow: hidden; }
+.topbar {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: var(--topbar-height);
+  flex-wrap: nowrap;
+  gap: 8px;
+  padding: 5px clamp(8px, 1.2vw, 18px);
+}
+#main-stage { flex: 1 1 auto; min-width: 0; min-height: 0; height: auto; }
+.topbar-left { flex: 0 1 auto; gap: 8px; }
+.top-meta { flex: 0 0 auto; flex-wrap: nowrap; gap: 5px; }
+.top-context-meta, #meta-chapter, #meta-seed, .top-action-gap { display: none !important; }
+body:not([data-screen="title"]) .brand { display: none; }
+body:not([data-screen="title"]) #test-mode-toggle { display: none !important; }
+body[data-screen="title"] #save-manager-toggle { display: none !important; }
+.brand { gap: 7px; }
+.brand-star { font-size: calc(27px * var(--font-scale)); }
+.brand strong { font-size: calc(17px * var(--font-scale)); }
+.brand small { margin-top: 0; font-size: calc(9px * var(--font-scale)); }
+.top-meta .icon-btn { min-height: 36px; padding: 7px 10px; font-size: calc(13px * var(--font-scale)); }
+.settings-toggle { min-width: 68px; }
+.gameplay-access { flex: 1 1 360px; min-width: 0; max-width: 620px; gap: 7px; }
+.global-player-hud { flex: 1 1 180px; min-width: 158px; max-width: 280px; padding: 5px 8px 6px; }
+.global-hp-head { font-size: calc(11px * var(--font-scale)); }
+.global-hp-head strong { font-size: calc(14px * var(--font-scale)); }
+.global-hp-track { height: 9px; margin-top: 4px; }
+.gameplay-entry-row { flex: 0 0 auto; gap: 6px; }
+.gameplay-entry { position: relative; min-width: 98px; min-height: 45px; padding: 5px 8px; gap: 6px; }
+.gameplay-entry-icon { width: calc(29px * var(--ui-scale)); height: calc(29px * var(--ui-scale)); font-size: calc(16px * var(--font-scale)); }
+.gameplay-entry-copy strong { font-size: calc(14px * var(--font-scale)); }
+.gameplay-entry-copy small { font-size: calc(9px * var(--font-scale)); }
+.gameplay-entry.attention { border-color: #ffe08a; animation: gameplay-attention-glow .9s ease-in-out infinite alternate; }
+.gameplay-entry.attention::after {
+  content: "!";
+  position: absolute;
+  left: -5px;
+  top: -6px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ffe8a8;
+  border-radius: 50%;
+  background: #b52d25;
+  color: #fff5c7;
+  font: 900 12px/1 sans-serif;
+  box-shadow: 0 0 14px rgba(255, 193, 80, .7);
+}
+@keyframes gameplay-attention-glow {
+  to { box-shadow: inset 0 0 18px rgba(255, 202, 91, .16), 0 0 20px rgba(255, 178, 50, .32); }
+}
+.merit-hud { min-width: 126px; padding: 4px 7px; }
+.merit-main { height: 32px; align-items: center; gap: 5px; line-height: 1; }
+.merit-star { font-size: calc(21px * var(--font-scale)); line-height: 1; }
+.merit-label { line-height: 1; }
+.merit-main strong { font-size: calc(24px * var(--font-scale)); line-height: 1; }
+.buff-detail-btn { height: 20px; margin-top: 2px; padding: 0 6px; line-height: 18px; font-size: calc(10px * var(--font-scale)); }
+
+.title-content {
+  justify-content: center;
+  padding-top: clamp(16px, 3vh, 36px);
+  padding-bottom: clamp(16px, 3vh, 36px);
+}
+.title-content h1 { font-size: clamp(42px, 5vw, 76px); }
+.title-screen .eyebrow { margin-bottom: 7px; padding: 5px 11px; font-size: clamp(13px, 1.1vw, 17px); }
+.title-theme { margin: 8px 0 4px; font-size: clamp(16px, 1.45vw, 22px); }
+.seed-row { margin: 11px auto 5px; gap: 7px; opacity: .82; }
+.seed-row label { font-size: calc(12px * var(--font-scale)); }
+.seed-row input { width: 132px; padding: 7px 10px; font-size: calc(12px * var(--font-scale)); }
+.active-save-label { margin: 0 0 9px; font-size: calc(11px * var(--font-scale)); }
+.title-menu { width: min(430px, 82vw); gap: 7px; }
+.title-menu .brush-btn { min-height: 48px; padding: 9px 22px; font-size: calc(17px * var(--font-scale)); }
+.title-menu .brush-btn.title-exit-btn {
+  border-color: rgba(219, 106, 88, .58);
+  background: linear-gradient(135deg, rgba(91, 34, 28, .76), rgba(37, 23, 19, .9));
+  color: #efd0c4;
+}
+.title-menu .brush-btn.title-exit-btn:hover,
+.title-menu .brush-btn.title-exit-btn.gamepad-focus {
+  border-color: #f09a83;
+  background: linear-gradient(135deg, rgba(135, 43, 34, .9), rgba(54, 28, 22, .96));
+  color: #fff0e7;
+}
+
+.manual-menu-panel { width: min(540px, 92vw); padding: clamp(28px, 4vw, 48px); }
+.manual-menu-options { display: grid; gap: 12px; margin-top: 22px; }
+.manual-menu-choice {
+  min-height: 76px;
+  border: 1px solid rgba(231, 190, 105, .5);
+  background: linear-gradient(135deg, rgba(90, 45, 28, .82), rgba(24, 15, 11, .96));
+  color: #ffedc5;
+  cursor: pointer;
+  font-size: calc(22px * var(--font-scale));
+  font-weight: 800;
+  letter-spacing: .16em;
+  transition: transform .16s ease, border-color .16s ease, background .16s ease;
+}
+.manual-menu-choice:hover,
+.manual-menu-choice:focus-visible,
+.manual-menu-choice.gamepad-focus {
+  outline: none;
+  transform: translateY(-2px);
+  border-color: #ffe3a2;
+  background: linear-gradient(135deg, rgba(143, 53, 37, .94), rgba(47, 25, 17, .98));
+  box-shadow: 0 0 24px rgba(232, 166, 68, .16);
+}
+
+#screen-battle .control-quick-row,
+#screen-battle #control-hint,
+#screen-battle .intent-line,
+#screen-battle .target-help { display: none; }
+.parry-overlay.minimal-cue .parry-callout {
+  width: auto;
+  max-width: calc(100% - 24px);
+  bottom: 10px;
+  padding: 6px 9px;
+  grid-template-columns: auto auto;
+  justify-content: center;
+  text-align: center;
+  background: linear-gradient(90deg, rgba(16,10,7,.22), rgba(16,10,7,.9) 16%, rgba(16,10,7,.9) 84%, rgba(16,10,7,.22));
+}
+.parry-overlay.minimal-cue .parry-kicker,
+.parry-overlay.minimal-cue .parry-hint,
+.parry-overlay.minimal-cue .parry-result,
+.parry-overlay.minimal-cue:not(.thrust) .parry-copy { display: none; }
+.parry-overlay.minimal-cue:not(.thrust) .parry-callout { grid-template-columns: auto; }
+.parry-overlay.minimal-cue h3 {
+  margin: 0;
+  color: #ffe6a7;
+  font-size: clamp(20px, 2vw, 28px);
+  letter-spacing: .2em;
+  text-align: center;
+  text-shadow: 0 0 18px rgba(255, 219, 128, .8);
+}
+.parry-overlay.minimal-cue .parry-actions { justify-content: center; }
+
+@media (max-width: 1100px) {
+  .topbar { gap: 6px; padding-inline: 10px; }
+  .topbar-left { flex: 0 1 auto; }
+  .gameplay-access { flex: 1 1 300px; max-width: none; }
+  .global-player-hud { flex: 1 1 145px; min-width: 138px; }
+  .top-meta { margin-left: auto; }
+}
+@media (max-width: 900px) {
+  .topbar { flex-wrap: wrap; row-gap: 4px; padding-top: 4px; padding-bottom: 4px; }
+  .topbar-left { flex: 0 1 auto; }
+  .gameplay-access { order: 3; flex: 1 0 100%; max-width: none; justify-content: stretch; }
+  .global-player-hud { flex: 1 1 auto; max-width: none; }
+}
+@media (max-width: 720px) {
+  .brand strong { font-size: calc(15px * var(--font-scale)); }
+  .top-meta .icon-btn { min-height: 33px; padding: 5px 8px; font-size: calc(12px * var(--font-scale)); }
+  .settings-toggle { min-width: 58px; }
+  .gameplay-access { gap: 5px; }
+  .gameplay-entry { min-width: 76px; min-height: 40px; padding: 4px 6px; justify-content: center; }
+  .gameplay-entry-copy small { display: none; }
+  .gameplay-entry-icon { width: 27px; height: 27px; }
+  .global-player-hud { min-width: 132px; }
+  .global-hp-head > span { gap: 4px; }
+  .buff-detail-btn { display: none; }
+  .merit-hud { min-width: 105px; }
+  .merit-star { font-size: calc(20px * var(--font-scale)); }
+  .merit-main strong { font-size: calc(22px * var(--font-scale)); }
+  .title-menu .brush-btn { min-height: 44px; padding: 7px 18px; font-size: calc(16px * var(--font-scale)); }
+}
+@media (max-width: 520px) {
+  .brand > div { display: none; }
+  body[data-screen="title"] #test-mode-toggle { display: none !important; }
+  .topbar { gap: 6px; }
+  .topbar-left { gap: 5px; }
+  .gameplay-entry { min-width: 42px; width: 42px; padding: 4px; }
+  .gameplay-entry-copy { display: none; }
+  .global-player-hud { min-width: 115px; }
+  .global-hp-head > span { font-size: 0; }
+  .global-hp-icon { font-size: calc(11px * var(--font-scale)); }
+  .merit-hud { min-width: 92px; }
+  .title-menu { width: min(360px, 88vw); }
+  .parry-overlay.minimal-cue .parry-callout { grid-template-columns: 1fr; gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gameplay-entry.attention { animation: none; }
+}
+body.performance-mode .gameplay-entry.attention { animation: none; }
