@@ -605,14 +605,16 @@ body.performance-mode .route-map-svg .march-column { display: none; }
 .battle-screen.active { display: flex; flex-direction: column; gap: 10px; padding: 10px 14px 12px; }
 .battle-layout {
   flex: 1; min-height: 0;
-  display: grid; grid-template-columns: 214px minmax(0, 1fr) 216px; gap: 10px;
+  /* 行高也一起钉死：否则 auto 行会被画布内容撑大，画布缩小又反过来改变可用高度，
+     形成"量到的高度取决于上次量出来的画布"的循环，控制条就被挤出屏幕。 */
+  display: grid; grid-template-columns: 214px minmax(0, 1fr) 216px; grid-template-rows: minmax(0, 1fr); gap: 10px;
 }
 .party-panel, .log-panel, .battle-center {
   border: 1px solid rgba(215,166,76,.19);
   background: rgba(18,13,10,.72);
   box-shadow: 0 16px 45px rgba(0,0,0,.22);
 }
-.party-panel { padding: 16px; position: relative; overflow: hidden; }
+.party-panel { padding: 16px; position: relative; overflow-x: hidden; overflow-y: auto; scrollbar-width: thin; scrollbar-color: rgba(215,166,76,.5) transparent; }
 .party-panel::after { content: ""; position: absolute; inset: auto -50px -50px auto; width: 140px; height: 140px; border-radius: 50%; background: rgba(201,52,47,.08); }
 .panel-label { color: #8d7b66; font-size: calc(10px * var(--font-scale)); letter-spacing: .2em; margin-bottom: 14px; }
 .party-emblem {
@@ -644,7 +646,7 @@ body.performance-mode .route-map-svg .march-column { display: none; }
 .buff-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 12px; }
 .buff-chip { padding: 4px 7px; border: 1px solid rgba(215,166,76,.28); color: var(--gold-soft); font-size: calc(9px * var(--font-scale)); }
 
-.battle-center { display: flex; flex-direction: column; min-width: 0; position: relative; align-self: start; }
+.battle-center { display: flex; flex-direction: column; min-width: 0; position: relative; align-self: stretch; min-height: 0; overflow: hidden; }
 .battle-heading { height: 48px; display: flex; justify-content: space-between; align-items: center; padding: 0 14px; border-bottom: 1px solid rgba(215,166,76,.14); }
 .battle-heading div:first-child { display: flex; gap: 10px; align-items: baseline; }
 .battle-heading span { color: var(--gold); font-size: calc(10px * var(--font-scale)); letter-spacing: .12em; }
@@ -652,8 +654,8 @@ body.performance-mode .route-map-svg .march-column { display: none; }
 .turn-badge { font-size: calc(11px * var(--font-scale)); color: #9d8b76; }
 .turn-badge strong { color: var(--paper); font-size: calc(18px * var(--font-scale)); margin-left: 4px; }
 .turn-badge.realtime strong { color: #ef725e; text-shadow: 0 0 10px rgba(240,74,63,.7); }
-.canvas-wrap { position: relative; min-height: 0; flex: 0 0 auto; aspect-ratio: 16 / 9; overflow: hidden; background: radial-gradient(circle at 50% 45%, #17100c, #0b0806 82%); }
-#battle-canvas { width: 100%; height: 100%; display: block; object-fit: contain; }
+.canvas-wrap { position: relative; min-height: 0; flex: 0 0 auto; aspect-ratio: 16 / 9; margin-inline: auto; overflow: hidden; background: radial-gradient(circle at 50% 45%, #17100c, #0b0806 82%); }
+#battle-canvas { width: 100%; height: 100%; display: block; }
 .elite-health-hud {
   position: absolute;
   z-index: 4;
@@ -1004,8 +1006,8 @@ body.performance-mode .event-detail-overlay { backdrop-filter: none; }
 
 @media (max-width: 900px) {
   body { overflow: auto; }
-  #main-stage { height: auto; min-height: calc(100dvh - 62px); }
-  .battle-screen.active { min-height: calc(100dvh - 62px); }
+  #main-stage { height: auto; min-height: calc(100dvh - var(--topbar-height)); }
+  .battle-screen.active { min-height: calc(100dvh - var(--topbar-height)); }
   .battle-layout { grid-template-columns: 1fr; }
   .party-panel, .log-panel { display: none; }
   .battle-center { min-height: 430px; }
@@ -2165,9 +2167,27 @@ body.performance-mode .gameplay-entry.attention .gameplay-entry-icon { animation
 }
 
 
+/* ── 整屏高度适配 ─────────────────────────────────────────────
+   以前只按高度分了两段、还互相覆盖：760 段给 height，820 段又给 max-height，
+   两段同时命中时后写的 max-height 生效，控制条被 overflow:hidden 直接裁掉。
+   这里改成一套连贯规则：视口不够高时，整个 #screen-battle 钉死在顶栏以下，
+   由 画布以外的固定高度（标题/血条/敌卡/控制条）先占位，剩下多少给画布。 */
+@media (max-height: 820px) {
+  #screen-battle.active {
+    height: calc(100dvh - var(--topbar-height));
+    max-height: calc(100dvh - var(--topbar-height));
+    min-height: 0;
+    overflow: hidden;
+  }
+  .battle-layout { min-height: 0; grid-template-rows: minmax(0, 1fr); }
+  .battle-center { min-height: 0; height: 100%; overflow: hidden; }
+  .party-panel, .log-panel { min-height: 0; }
+}
+
 @media (max-height: 760px) {
   #screen-battle.active {
     height: calc(100dvh - var(--topbar-height));
+    max-height: calc(100dvh - var(--topbar-height));
     min-height: 0;
     padding: 5px 8px 6px;
     gap: 4px;
@@ -2176,7 +2196,7 @@ body.performance-mode .gameplay-entry.attention .gameplay-entry-icon { animation
   .battle-layout { min-height: 0; }
   .battle-center { min-height: 0; height: 100%; }
   .battle-heading { flex: 0 0 38px; height: 38px; }
-  .canvas-wrap { flex: 1 1 auto; min-height: 170px; aspect-ratio: auto; }
+  .canvas-wrap { flex: 0 0 auto; min-height: 0; }
   .player-combat-hud { flex: 0 0 auto; padding: 5px 8px; gap: 6px; }
   .enemy-cards { flex: 0 0 auto; min-height: 52px; padding: 4px 7px; gap: 5px; }
   .enemy-card { padding: 5px 7px; }
@@ -2187,16 +2207,21 @@ body.performance-mode .gameplay-entry.attention .gameplay-entry-icon { animation
   .control-bar #control-hint { display: none; }
 }
 @media (max-height: 640px) and (max-width: 900px) {
-  .canvas-wrap { min-height: 115px; }
+  .canvas-wrap { min-height: 0; }
   .player-combat-hud { padding: 3px 6px; }
   .enemy-cards { min-height: 44px; }
   .enemy-posture-row { margin-top: 2px; }
   .enemy-card .enemy-name { font-size: calc(10px * var(--font-scale)); }
 }
 
-
-@media (max-height: 820px) {
-  #screen-battle.active { max-height: calc(100dvh - var(--topbar-height) - 6px); overflow: hidden; }
+/* 窄而矮（如 800×600 的小窗口）：顶栏会换行吃掉一大截高度，
+   这里把非战斗必需的横幅收掉，把高度还给战场本身。 */
+@media (max-height: 700px) and (max-width: 900px) {
+  body[data-screen="battle"] #relic-hud,
+  body[data-screen="battle"] .top-meta,
+  body[data-screen="battle"] #merit-hud { display: none; }
+  body[data-screen="battle"] .topbar { padding-top: 3px; padding-bottom: 3px; }
+  body[data-screen="battle"] .battle-heading { display: none; }
 }
 
 /* Difficulty selection and adaptive relic strip */

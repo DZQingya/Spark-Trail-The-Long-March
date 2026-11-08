@@ -1070,7 +1070,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.7';
+  const GAME_VERSION = '0.29.8';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -1234,6 +1234,12 @@
 
   function inputBindingLabel(action) {
     return activeGamepad ? gamepadButtonLabel(gamepadBinding(action)) : formatKeyCode(keyBinding(action));
+  }
+
+  // 方向移动没有单独的绑定项：键盘按四个方向键的字母拼起来（默认 WASD），手柄统一显示左摇杆。
+  function moveKeysLabel() {
+    if (activeGamepad) return '左摇杆';
+    return [...new Set(['moveUp', 'moveLeft', 'moveDown', 'moveRight'].map((action) => formatKeyCode(keyBinding(action))))].join('');
   }
 
   function renderInputBindings() {
@@ -2388,13 +2394,45 @@
         kicker: `第 ${step + 1} 课 · 战前演练`,
         title: lesson.title,
         text: intro.text,
-        keyText: intro.key,
+        keyText: step === 0 ? moveKeysLabel() : intro.key,
         primary: '确认开始',
         secondary: '选择科目'
       });
       if (introResult !== 'primary') return;
 
       if (step === 0) {
+        // 科目 01「架势与走位」。原版这一课没有练习逻辑（单科模式点确认就直接结算退回选课），
+        // 补的版本又用"循环固定次数 + 超时也算过"，站着不动也能过，而且只比对 X 轴、手柄也照样提示 WASD。
+        // 现在改成：累计实际走过的距离（任意方向都算），必须真走够才结算，不设超时通过。
+        const combat = state.combat;
+        const startX = combat?.playerX ?? 0;
+        const startY = combat?.playerY ?? 0;
+        let lastX = startX;
+        let lastY = startY;
+        let travelled = 0;
+        const needDistance = 150;
+        const moveHint = () => (activeGamepad ? '摇杆' : moveKeysLabel());
+        const moveTutorialText = () => (activeGamepad
+          ? '推左摇杆前后左右走动，任何方向都算。注意上方两条横杠：白色是兵力，金色是架势。'
+          : `用 ${moveHint()} 前后左右走动，任何方向都算。注意上方两条横杠：白色是兵力，金色是架势。`);
+        showTrainingCue(moveHint(), '先走两步', moveTutorialText(), 9000);
+        let nextRemindAt = performance.now() + 9000;
+        while (valid() && travelled < needDistance) {
+          if (!await wait(60)) return;
+          const x = combat?.playerX ?? lastX;
+          const y = combat?.playerY ?? lastY;
+          travelled += Math.hypot(x - lastX, y - lastY);
+          lastX = x;
+          lastY = y;
+          if (travelled < needDistance && performance.now() >= nextRemindAt) {
+            nextRemindAt = performance.now() + 9000;
+            const percent = Math.min(99, Math.round(travelled / needDistance * 100));
+            showTrainingCue(moveHint(), `走位 · 已走 ${percent}%`, moveTutorialText(), 6000);
+          }
+        }
+        if (!valid()) return;
+        showTrainingCue('✓', '走位完成', '走位自如了，架势会随时间自己回满。', 2200);
+        if (!await wait(1800)) return;
         if (training.singleLesson) {
           finishPracticalTutorial(false);
           openTrainingMenu();
@@ -4665,7 +4703,7 @@
       p.walkPhase = (p.walkPhase + moved * (sprinting ? .042 : .075)) % (Math.PI * 2);
       if (Math.abs(movement.dx) > .08) p.facing = movement.dx < 0 ? 'left' : 'right';
     }
-    if ((hasInput || p.moving) && now - singleMapSaveAt > 900) { singleMapSaveAt = now; saveCurrentRun('map'); }
+    if ((hasInput || p.moving) && now - singleMapSaveAt > 4000) { singleMapSaveAt = now; saveCurrentRun('map'); }
     else if (!hasInput && !p.moving && singleMapWasMoving) { singleMapSaveAt = now; saveCurrentRun('map'); }
     singleMapWasMoving = hasInput || p.moving;
     if (sprinting && p.moving) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === p.layer && Math.hypot(p.x - trap.x, p.y - trap.y) < 30); if (sprung) { triggerMapTrap(sprung); return; } }
@@ -6154,8 +6192,44 @@
     return `${weight ? `${weight} ` : ''}${pixelSize}px ${family}`;
   }
 
+  // 让战斗画面按“容器剩余高度”内接 16:9，而不是由宽度反推高度把下方 HUD 顶出屏幕。
+  // 同时把画布容器的宽高写成实际尺寸，保证敌方血条、暗角、弹反层仍然贴合画面。
+  function fitCanvasWrapToStage(wrap) {
+    const stage = wrap.parentElement;
+    if (!stage) return;
+    const stageHeight = stage.clientHeight;
+    if (stageHeight < 60) return;
+    let reserved = 0;
+    for (const child of stage.children) {
+      if (child === wrap) continue;
+      // 用内容实际需要的高度，避免卡片被压扁后画面又多占掉那一截
+      reserved += Math.max(child.getBoundingClientRect().height, child.scrollHeight || 0);
+    }
+    const availableWidth = Math.max(160, stage.clientWidth);
+    // 下限放到 72：窗口真的矮到放不下时宁可画面小一点，也不要让控制条被挤出屏幕。
+    const availableHeight = Math.max(72, stageHeight - reserved);
+    const fitWidth = Math.min(availableWidth, availableHeight * 16 / 9);
+    const width = Math.round(fitWidth);
+    const height = Math.round(fitWidth * 9 / 16);
+    if (Math.abs((parseFloat(wrap.style.width) || 0) - width) > 1 || Math.abs((parseFloat(wrap.style.height) || 0) - height) > 1) {
+      wrap.style.width = `${width}px`;
+      wrap.style.height = `${height}px`;
+    }
+  }
+
+  let canvasFitFrame = 0;
+  function scheduleCanvasFit() {
+    if (canvasFitFrame) return;
+    canvasFitFrame = requestAnimationFrame(() => {
+      canvasFitFrame = 0;
+      resizeCanvasToDisplay();
+    });
+  }
+
   function resizeCanvasToDisplay() {
     if (!dom.canvas) return;
+    const wrap = dom.canvas.parentElement;
+    if (wrap) fitCanvasWrapToStage(wrap);
     const rect = dom.canvas.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
     const dprCap = state.performanceMode ? 1.25 : 2;
@@ -13008,7 +13082,12 @@ function breakPlayerPosture() {
     dom.fullscreenToggle.addEventListener('click', toggleFullscreen);
     document.addEventListener('fullscreenchange', syncFullscreenUi);
     if ('ResizeObserver' in window) {
-      new ResizeObserver(resizeCanvasToDisplay).observe(dom.canvas.parentElement);
+      // 画布容器、战斗屏、控制条任一尺寸变化都重算一次内接尺寸：
+      // 以前只盯画布自己，顶栏一变高、控制条一换行，画布不会跟着缩，底栏就被挤出屏幕。
+      const fitObserver = new ResizeObserver(scheduleCanvasFit);
+      for (const target of [dom.canvas.parentElement, document.getElementById('screen-battle'), document.querySelector('.control-bar')]) {
+        if (target) fitObserver.observe(target);
+      }
       const topbar = document.querySelector('.topbar');
       if (topbar) {
         let topbarFrame = 0;
@@ -13016,14 +13095,26 @@ function breakPlayerPosture() {
           if (topbarFrame) return;
           topbarFrame = requestAnimationFrame(() => {
             topbarFrame = 0;
+            // --topbar-height 同时被当成 .topbar 自身的 height/min-height；
+            // 直接量会把上一次的值当最小值，顶栏换行后就再也降不回来（只增不减）。
+            // 量之前先松开这条约束，拿到的是真实内容高度。
+            const inlineHeight = topbar.style.height;
+            const inlineMin = topbar.style.minHeight;
+            topbar.style.height = 'auto';
+            topbar.style.minHeight = '0px';
             const height = Math.ceil(topbar.getBoundingClientRect().height);
+            topbar.style.height = inlineHeight;
+            topbar.style.minHeight = inlineMin;
             const current = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--topbar-height')) || 0;
-            if (height > 0 && Math.abs(height - current) > 1) document.documentElement.style.setProperty('--topbar-height', `${height}px`);
+            if (height > 0 && Math.abs(height - current) > 1) {
+              document.documentElement.style.setProperty('--topbar-height', `${height}px`);
+              scheduleCanvasFit();
+            }
           });
         }).observe(topbar);
       }
     }
-    window.addEventListener('resize', () => { updateAdaptiveUiScale(); resizeCanvasToDisplay(); }, { passive: true });
+    window.addEventListener('resize', () => { updateAdaptiveUiScale(); scheduleCanvasFit(); }, { passive: true });
     syncFullscreenUi();
     dom.performanceToggle.addEventListener('click', () => {
       applyPerformanceMode(!state.performanceMode, true);
