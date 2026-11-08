@@ -962,7 +962,7 @@
   );
 
     const state = {
-    seed: 0, rng: Math.random, sound: true, volume: 1, musicVolume: .9, sfxVolume: 1.18, startupWindowMode: 'maximized', startFullscreen: false, performanceMode: false, resolutionMode: 'auto', gamepadLayout: 'auto', uiScale: 1.2, screen: 'title',
+    seed: 0, rng: Math.random, sound: true, volume: 1, musicVolume: .9, sfxVolume: 1.18, startupWindowMode: 'maximized', startFullscreen: false, performanceMode: false, videoFrameLimit: 0, videoVSync: true, resolutionMode: 'auto', gamepadLayout: 'auto', uiScale: 1.2, screen: 'title',
     squadId: null, player: null, difficulty: 'march', runMode: 'roguelike', singlePace: 'normal', act: 0, actStep: 0, actBoss: null, singleMap: null, chapter: 0, battle: 0, battleNumber: 0,
     routeOptions: [], squadOptions: [], currentRoute: null, combat: null, pendingRewards: [], currentEvent: null, usedEvents: [], eventContinue: null, shopItems: [], shopReturn: null, shopSource: null, shopResumeAction: null, lastRandomShopAt: -99,
     historyContinue: null, boss: false, finished: false, training: null, testMode: false, testModeOpen: false, testRestoreInProgress: false, acquisitionOpen: false, npcPanelOpen: false, pauseOpen: false, pauseStartedAt: 0, keyBindings: { ...DEFAULT_KEY_BINDINGS }, gamepadBindings: {}, bindingCapture: null, runElapsedMs: 0, runActiveSince: 0, runArchived: false, shopResumeAction: null, saveManagerOpen: false,
@@ -977,6 +977,39 @@
     const area = Math.max(1, cssWidth * cssHeight);
     const base = Math.min(window.devicePixelRatio || 1, capDpr);
     return Math.max(.35, Math.min(base, Math.sqrt(budget / area)));
+  }
+
+  const normalFrameLimitState = { map: 0, battle: 0 };
+  function resetVideoFramePacing() {
+    normalFrameLimitState.map = 0;
+    normalFrameLimitState.battle = 0;
+  }
+
+  function normalFrameLimitDue(kind, now) {
+    if (state.performanceMode) return { due: true, wait: 0 };
+    const fps = Number(state.videoFrameLimit) || 0;
+    if (!(fps > 0)) return { due: true, wait: 0 };
+    const interval = 1000 / fps;
+    let nextAt = normalFrameLimitState[kind] || 0;
+    if (!nextAt || now - nextAt > interval * 2.5) nextAt = now;
+    if (now < nextAt) return { due: false, wait: Math.max(0, nextAt - now) };
+    const tolerance = Math.min(2.5, interval * .09);
+    normalFrameLimitState[kind] = now + interval - tolerance;
+    return { due: true, wait: 0 };
+  }
+
+  function scheduleGameLoop(callback, fast = false, delay = 0) {
+    if (!state.videoVSync && fast) {
+      setTimeout(() => callback(performance.now()), Math.max(0, Number(delay) || 0));
+      return;
+    }
+    requestAnimationFrame(callback);
+  }
+
+  function cancelGameLoop(handle) {
+    if (!handle) return;
+    cancelAnimationFrame(handle);
+    clearTimeout(handle);
   }
 
 
@@ -1093,7 +1126,7 @@
   const dom = {
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
-    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
+    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
     modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
@@ -1206,7 +1239,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.13';
+  const GAME_VERSION = '0.29.14';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -5189,8 +5222,9 @@
     const [px, py] = charted ? miniPoint(map.player.x, map.player.y) : [miniX + miniW / 2, miniY + miniH / 2]; ctx.fillStyle = '#d93a31'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
   function startSingleMapLoop() {
-    cancelAnimationFrame(singleMapFrame);
+    cancelGameLoop(singleMapFrame);
     resetStableFramePacer(mapFramePacer, false);
+    resetVideoFramePacing();
     singleMapLastTime = performance.now();
     singleMapLastRenderAt = 0;
     singleMapUiRefreshAt = 0;
@@ -5198,10 +5232,6 @@
     singleMapPausedRendered = false;
     const tick = (now) => {
       if (state.screen !== 'map') { singleMapFrame = 0; return; }
-      if (state.performanceMode && !stableFrameDue(mapFramePacer, now)) {
-        singleMapFrame = requestAnimationFrame(tick);
-        return;
-      }
       const mapPaused = state.pauseOpen || state.saveManagerOpen || state.testModeOpen || state.restartPromptOpen || gameplayPausedByOverlay();
       if (mapPaused) {
         singleMapLastTime = now;
@@ -5213,8 +5243,19 @@
           singleMapPausedRendered = true;
           singleMapLastRenderAt = now;
         }
-        singleMapFrame = requestAnimationFrame(tick);
+        singleMapFrame = scheduleGameLoop(tick, false);
         return;
+      }
+      if (state.performanceMode && !stableFrameDue(mapFramePacer, now)) {
+        singleMapFrame = scheduleGameLoop(tick, false);
+        return;
+      }
+      if (!state.performanceMode) {
+        const limit = normalFrameLimitDue('map', now);
+        if (!limit.due) {
+          singleMapFrame = scheduleGameLoop(tick, true, limit.wait);
+          return;
+        }
       }
       singleMapPausedRendered = false;
       const dt = Math.min(.05, Math.max(0, (now - singleMapLastTime) / 1000));
@@ -5225,9 +5266,9 @@
       const drawFinishedAt = performance.now();
       reportStableFrame(mapFramePacer, drawStartedAt, drawFinishedAt);
       singleMapLastRenderAt = now;
-      singleMapFrame = requestAnimationFrame(tick);
+      singleMapFrame = scheduleGameLoop(tick, !state.performanceMode);
     };
-    singleMapFrame = requestAnimationFrame(tick);
+    singleMapFrame = scheduleGameLoop(tick, !state.performanceMode);
   }
   function renderRouteScreen(preserveOptions = false) {
     dom.routeBossForecast?.classList.add('hidden');
@@ -6608,7 +6649,9 @@
       musicVolume: state.musicVolume,
       sfxVolume: state.sfxVolume,
       startupWindowMode: state.startupWindowMode,
-      startFullscreen: !!state.startFullscreen
+      startFullscreen: !!state.startFullscreen,
+      videoFrameLimit: Number(state.videoFrameLimit) || 0,
+      videoVSync: !!state.videoVSync
     };
     writeStorageJson(GAME_SETTINGS_KEY, payload);
     try {
@@ -6617,6 +6660,8 @@
       localStorage.setItem('longMarchSfxVolumeV1', String(state.sfxVolume));
       localStorage.setItem('longMarchStartupWindowV1', state.startupWindowMode);
       localStorage.setItem('longMarchStartFullscreenV1', state.startFullscreen ? '1' : '0');
+      localStorage.setItem('longMarchVideoFrameLimitV1', String(Number(state.videoFrameLimit) || 0));
+      localStorage.setItem('longMarchVideoVSyncV1', state.videoVSync ? '1' : '0');
     } catch (_) {}
   }
 
@@ -6628,6 +6673,12 @@
     }
     if (dom.resolutionSelect) {
       dom.resolutionSelect.value = state.resolutionMode;
+    }
+    if (dom.normalFrameLimitSelect) dom.normalFrameLimitSelect.value = String(Number(state.videoFrameLimit) || 0);
+    if (dom.vsyncToggle) {
+      dom.vsyncToggle.textContent = state.videoVSync ? '垂直同步：开' : '垂直同步：关';
+      dom.vsyncToggle.setAttribute('aria-pressed', String(!!state.videoVSync));
+      dom.vsyncToggle.classList.toggle('active', !!state.videoVSync);
     }
     if (dom.gamepadLayout) dom.gamepadLayout.value = state.gamepadLayout || 'auto';
     if (dom.soundToggle) {
@@ -6776,6 +6827,7 @@
     }
     scene.lastRender = 0;
     resetStableFramePacing();
+    resetVideoFramePacing();
     resizeCanvasToDisplay();
     startRouteMapAnimation();
     if (persist) {
@@ -13243,6 +13295,7 @@ function breakPlayerPosture() {
 
   let lastGamepadPollAt = 0;
   function drawBattleScene(now) {
+    let battleFast = false;
     try {
       const battleVisible = state.screen === 'battle' && !!state.combat;
       // 菜单和地图也依赖这里轮询手柄，但不需要一直绘制隐藏的战斗画布。
@@ -13255,7 +13308,7 @@ function breakPlayerPosture() {
         scene.logicLast = now;
         scene.logicAccumulator = 0;
         scene.lastRender = 0;
-        requestAnimationFrame(drawBattleScene);
+        scheduleGameLoop(drawBattleScene, false);
         return;
       }
       updateBattleSimulation(now);
@@ -13268,13 +13321,21 @@ function breakPlayerPosture() {
           drawBattleSceneFrame(now);
           scene.pausedRendered = true;
         }
-        requestAnimationFrame(drawBattleScene);
+        scheduleGameLoop(drawBattleScene, false);
         return;
       }
       scene.pausedRendered = false;
+      battleFast = !state.performanceMode;
       if (state.performanceMode && !stableFrameDue(battleFramePacer, now)) {
-        requestAnimationFrame(drawBattleScene);
+        scheduleGameLoop(drawBattleScene, false);
         return;
+      }
+      if (!state.performanceMode) {
+        const limit = normalFrameLimitDue('battle', now);
+        if (!limit.due) {
+          scheduleGameLoop(drawBattleScene, true, limit.wait);
+          return;
+        }
       }
       scene.lastRender = now;
       const drawStartedAt = performance.now();
@@ -13292,12 +13353,12 @@ function breakPlayerPosture() {
         setActionState();
       }
     }
-    requestAnimationFrame(drawBattleScene);
+    scheduleGameLoop(drawBattleScene, battleFast);
   }
 
   document.addEventListener('pointerdown', unlockAudio, { once: true });
   window.addEventListener('keydown', unlockAudio, { once: true });
-  requestAnimationFrame(drawBattleScene);
+  scheduleGameLoop(drawBattleScene, false);
 
   function init() {
     probeRemoteSaveStorage();
@@ -13436,6 +13497,9 @@ function breakPlayerPosture() {
     let savedSound = true;
     let savedStartupWindow = 'maximized';
     let savedStartFullscreen = false;
+    let savedVideoFrameLimit = 0;
+    let savedVideoVSync = true;
+    const supportedVideoFrameLimits = new Set([0, 30, 45, 60, 75, 90, 120, 144]);
     try {
       savedPerformanceMode = localStorage.getItem(PERFORMANCE_KEY) === '1';
       const storedSound = localStorage.getItem('longMarchSoundEnabledV1');
@@ -13443,6 +13507,10 @@ function breakPlayerPosture() {
       savedResolution = localStorage.getItem('longMarchResolutionV1') || 'auto';
       const storedGamepadLayout = localStorage.getItem('longMarchGamepadLayoutV1') || 'auto';
       if (['auto','xbox','nintendo'].includes(storedGamepadLayout)) state.gamepadLayout = storedGamepadLayout;
+      const legacyFrameLimit = Number(localStorage.getItem('longMarchVideoFrameLimitV1'));
+      if (supportedVideoFrameLimits.has(legacyFrameLimit)) savedVideoFrameLimit = legacyFrameLimit;
+      const legacyVSync = localStorage.getItem('longMarchVideoVSyncV1');
+      if (legacyVSync !== null) savedVideoVSync = legacyVSync !== '0';
     } catch (_) {}
     const storedGameSettings = readStorageJson(GAME_SETTINGS_KEY, {}) || {};
     // 注意：键不存在时 getItem 返回 null，而 Number(null) === 0（不是 NaN）。
@@ -13470,11 +13538,18 @@ function breakPlayerPosture() {
     savedSfxVolume = readSettingNumber('sfxVolume', savedSfxVolume, 0, 1.5);
     if (['maximized', '1280x720', '1600x900', '1920x1080', '2560x1440'].includes(storedGameSettings.startupWindowMode)) savedStartupWindow = storedGameSettings.startupWindowMode;
     savedStartFullscreen = !!storedGameSettings.startFullscreen;
+    if (Object.prototype.hasOwnProperty.call(storedGameSettings, 'videoFrameLimit')) {
+      const storedLimit = Number(storedGameSettings.videoFrameLimit);
+      if (supportedVideoFrameLimits.has(storedLimit)) savedVideoFrameLimit = storedLimit;
+    }
+    if (typeof storedGameSettings.videoVSync === 'boolean') savedVideoVSync = storedGameSettings.videoVSync;
     state.volume = savedVolume;
     state.musicVolume = savedMusicVolume;
     state.sfxVolume = savedSfxVolume;
     state.startupWindowMode = savedStartupWindow;
     state.startFullscreen = savedStartFullscreen;
+    state.videoFrameLimit = savedVideoFrameLimit;
+    state.videoVSync = savedVideoVSync;
     state.resolutionMode = savedResolution;
     state.sound = savedSound;
     persistGameSettings();
@@ -13527,6 +13602,22 @@ function breakPlayerPosture() {
       syncSettingsUi();
       persistGameSettings();
       showToast(state.startFullscreen ? '下次启动将直接进入全屏。' : '下次启动将按窗口大小打开。');
+    });
+    dom.normalFrameLimitSelect?.addEventListener('change', () => {
+      const value = Number(dom.normalFrameLimitSelect.value);
+      state.videoFrameLimit = supportedVideoFrameLimits.has(value) ? value : 0;
+      resetVideoFramePacing();
+      syncSettingsUi();
+      persistGameSettings();
+      const label = dom.normalFrameLimitSelect.options[dom.normalFrameLimitSelect.selectedIndex]?.text || '不限制';
+      showToast(state.videoFrameLimit ? `普通模式帧率：${label}` : '普通模式帧率：不限制');
+    });
+    dom.vsyncToggle?.addEventListener('click', () => {
+      state.videoVSync = !state.videoVSync;
+      resetVideoFramePacing();
+      syncSettingsUi();
+      persistGameSettings();
+      showToast(state.videoVSync ? '垂直同步已开启：跟随屏幕刷新。' : '垂直同步已关闭：优先高频提交，实际帧率仍受浏览器和显卡限制。');
     });
     dom.resolutionSelect.addEventListener('change', () => {
       applyResolutionMode(dom.resolutionSelect.value, true);
@@ -13964,6 +14055,7 @@ function breakPlayerPosture() {
   window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
   window.__longMarch.getFramePacingDebug = () => ({
     tier: document.body.dataset.renderTier || '', active: state.screen === 'battle' ? 'battle' : 'map',
+    video: { frameLimit: Number(state.videoFrameLimit) || 0, vsync: !!state.videoVSync, nextMap: normalFrameLimitState.map, nextBattle: normalFrameLimitState.battle },
     map: { targetFps: mapFramePacer.targetFps, refreshMs: +mapFramePacer.refreshMs.toFixed(2), pressure: mapFramePacer.pressure, gaps: [...mapFramePacer.recentGaps], costs: [...mapFramePacer.recentCosts] },
     battle: { targetFps: battleFramePacer.targetFps, refreshMs: +battleFramePacer.refreshMs.toFixed(2), pressure: battleFramePacer.pressure, gaps: [...battleFramePacer.recentGaps], costs: [...battleFramePacer.recentCosts] }
   });

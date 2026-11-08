@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>长征·星火征途</title>
   <link rel="icon" href="app-icon.ico">
-  <link rel="stylesheet" href="style.css?v=0.29.13">
+  <link rel="stylesheet" href="style.css?v=0.29.14">
 </head>
 <body data-screen="title">
   <div id="app">
@@ -13,7 +13,7 @@
       <div class="topbar-left">
         <div class="brand">
           <span class="brand-star">★</span>
-          <div><strong>长征 · 星火征途</strong><small>v0.29.13</small></div>
+          <div><strong>长征 · 星火征途</strong><small>v0.29.14</small></div>
         </div>
         <div id="merit-hud" class="merit-hud hidden" aria-label="当前军功">
           <div class="merit-main"><span class="merit-star">★</span><span class="merit-label">军功</span><strong id="meta-merit">0</strong></div>
@@ -452,9 +452,27 @@
           <button id="settings-close" class="settings-close" type="button" aria-label="关闭设置">×</button>
         </div>
         <div class="settings-rows">
+          <div class="settings-section-head"><div><strong>视频设置</strong><span>普通模式下控制帧率与画面刷新；性能模式开启时使用自动稳定档位。</span></div></div>
           <div class="settings-row">
             <div><strong>性能模式</strong><span>自动稳定帧率；机器吃力时逐级降低细节与目标帧率，优先减少忽快忽慢。</span></div>
             <button id="performance-toggle" class="settings-switch" type="button" aria-pressed="false">性能模式：关</button>
+          </div>
+          <div class="settings-row">
+            <div><strong>普通模式帧率</strong><span>仅在性能模式关闭时生效；垂直同步开启时不会超过显示器刷新率。</span></div>
+            <select id="normal-frame-limit" class="settings-select">
+              <option value="0">不限制</option>
+              <option value="30">30 帧</option>
+              <option value="45">45 帧</option>
+              <option value="60">60 帧</option>
+              <option value="75">75 帧</option>
+              <option value="90">90 帧</option>
+              <option value="120">120 帧</option>
+              <option value="144">144 帧</option>
+            </select>
+          </div>
+          <div class="settings-row">
+            <div><strong>垂直同步</strong><span>开启时跟随屏幕刷新；关闭后改用高频渲染提交。浏览器和系统合成器仍可能限制实际帧率。</span></div>
+            <button id="vsync-toggle" class="settings-switch" type="button" aria-pressed="true">垂直同步：开</button>
           </div>
           <div class="settings-row">
             <div><strong>启动窗口</strong><span>下次启动时使用的窗口大小；最大化是默认设置。</span></div>
@@ -475,6 +493,18 @@
             <button id="fullscreen-toggle" class="settings-switch" type="button" aria-pressed="false">全屏</button>
           </div>
           <div class="settings-row">
+            <div><strong>渲染清晰度</strong><span>控制画面内部分辨率；自动会贴合当前屏幕。</span></div>
+            <select id="resolution-select" class="settings-select">
+              <option value="auto">自动</option>
+              <option value="960">960 × 540</option>
+              <option value="1280">1280 × 720</option>
+              <option value="1920">1920 × 1080</option>
+              <option value="2560">2560 × 1440</option>
+              <option value="3840">3840 × 2160</option>
+            </select>
+          </div>
+          <div class="settings-section-head"><div><strong>声音设置</strong><span>总音量、背景音乐和战斗音效可分别调整。</span></div></div>
+          <div class="settings-row">
             <div><strong>声音</strong><span>一键静音；再次打开即可恢复全部声音。</span></div>
             <button id="sound-toggle" class="settings-switch" type="button">声音：开</button>
           </div>
@@ -490,17 +520,8 @@
             <div><strong>战斗音效</strong><span>刀剑、枪声、弹反、处决和界面提示音的独立音量。</span></div>
             <div class="settings-volume"><input id="sfx-volume-slider" type="range" min="0" max="150" step="1" value="118"><span id="sfx-volume-value">118%</span></div>
           </div>
-          <div class="settings-row">
-            <div><strong>渲染清晰度</strong><span>控制画面内部分辨率；自动会贴合当前屏幕。</span></div>
-            <select id="resolution-select" class="settings-select">
-              <option value="auto">自动</option>
-              <option value="960">960 × 540</option>
-              <option value="1280">1280 × 720</option>
-              <option value="1920">1920 × 1080</option>
-              <option value="2560">2560 × 1440</option>
-              <option value="3840">3840 × 2160</option>
-            </select>
-          </div>
+
+          <div class="settings-section-head"><div><strong>手柄与按键</strong><span>手柄布局和全部操作均可自定义。</span></div></div>
           <div class="settings-row">
             <div><strong>手柄</strong><span id="gamepad-status">尚未找到手柄。连接后按一下手柄按键。</span></div>
             <button id="gamepad-refresh" class="settings-switch" type="button">重新检测</button>
@@ -828,6 +849,6 @@
     <div id="level-toast" class="level-toast hidden">等级提升</div>
     <pre id="runtime-error" class="runtime-error hidden"></pre>
   </div>
-  <script src="game.js?v=0.29.13"></script>
+  <script src="game.js?v=0.29.14"></script>
 </body>
 </html>
