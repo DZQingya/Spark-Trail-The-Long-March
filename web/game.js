@@ -1085,7 +1085,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.10';
+  const GAME_VERSION = '0.29.11';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -3768,10 +3768,14 @@
   }
 
   let singleMapTaskSignature = '';
+  let singleMapActionHintSignature = '\u0000';
+  let singleMapUiRefreshAt = 0;
   let singleMapFrame = 0;
   let singleMapLastTime = 0;
+  let singleMapLastRenderAt = 0;
   let singleMapSaveAt = 0;
   let singleMapWasMoving = false;
+  let singleMapPausedRendered = false;
   let singleMapControlsHintTimer = 0;
   const SINGLE_MAP_CONTROLS_HINT_KEY = 'longMarchMapControlsHintSeenV2';
 
@@ -4378,6 +4382,10 @@
   }
   function updateSingleMapActionHint(map) {
     if (!dom.singleMapActionHint) return;
+    const action = map.nearbyAction;
+    const hintSignature = `${activeGamepad ? 'pad' : 'key'}|${map.player.layer}|${action ? `${action.kind}:${action.id}:${action.side || ''}:${action.label}` : 'none'}`;
+    if (hintSignature === singleMapActionHintSignature) return;
+    singleMapActionHintSignature = hintSignature;
     const interactKey = activeGamepad ? 'X' : 'E';
     const sprintHint = activeGamepad ? `长按 ${inputBindingLabel('sprint')} 疾跑` : `长按 ${inputBindingLabel('sprint')} 疾跑`;
     const moveKeys = `${formatKeyCode(keyBinding('moveUp'))}/${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveDown'))}/${formatKeyCode(keyBinding('moveRight'))}`;
@@ -4759,7 +4767,12 @@
       dom.singleMapLayerName.textContent = SINGLE_LAYER_NAMES[room.layer] || '地表';
       if (room.id !== map.lastSavedRoom) { map.lastSavedRoom = room.id; saveCurrentRun('map'); }
     }
-    map.nearbyAction = mapActionFor(map); updateSingleMapActionHint(map); renderSingleMapTasks(map);
+    if (!singleMapUiRefreshAt || now >= singleMapUiRefreshAt) {
+      map.nearbyAction = mapActionFor(map);
+      updateSingleMapActionHint(map);
+      renderSingleMapTasks(map);
+      singleMapUiRefreshAt = now + (state.performanceMode ? 140 : 80);
+    }
   }
   function traceMapClearing(ctx, room) {
     ctx.beginPath();
@@ -4799,17 +4812,11 @@
   }
   // 单地图静态内容缓存（按 map 对象回收，不会跟着存档序列化）
   const singleMapStaticCache = new WeakMap();
+  let singleMapContextCache = null;
 
-  function drawSingleMap(now) {
-    const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
-    const ctx = canvas.getContext('2d'), width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = Math.min(2, window.devicePixelRatio || 1);
-    if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
-    const bounds = map.bounds, mapWidth = bounds.maxX - bounds.minX, mapHeight = bounds.maxY - bounds.minY;
-    const maxCamX = Math.max(bounds.minX, bounds.maxX - width), maxCamY = Math.max(bounds.minY, bounds.maxY - height);
-    const camX = mapWidth <= width ? bounds.minX - (width - mapWidth) / 2 : clamp(map.player.x - width / 2, bounds.minX, maxCamX);
-    const camY = mapHeight <= height ? bounds.minY - (height - mapHeight) / 2 : clamp(map.player.y - height / 2, bounds.minY, maxCamY);
-    ctx.save(); ctx.translate(-camX, -camY);
+  function drawSingleMapTerrain(ctx, map, now, camX, camY, width, height) {
+    ctx.save();
+    ctx.translate(-camX, -camY);
     // 静态内容按地图对象缓存一次：区域中心、区域光晕渐变、区域名都不随帧变化，
     // 之前每帧重建 5 个 createRadialGradient + 5 次房间数组过滤，纯浪费。
     let mapCache = singleMapStaticCache.get(map);
@@ -4830,17 +4837,19 @@
       }).filter(Boolean);
     }
     mapCache.regionCenters.forEach((region) => {
-      if (!region.gradient) {
-        region.gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720);
-        region.gradient.addColorStop(0, region.palette.ground);
-        region.gradient.addColorStop(1, 'rgba(11,9,7,0)');
-      }
       if (region.x + 760 < viewMinX || region.x - 760 > viewMaxX || region.y + 520 < viewMinY || region.y - 520 > viewMaxY) return;
-      ctx.fillStyle = region.gradient; ctx.fillRect(region.x - 760, region.y - 520, 1520, 1040);
+      if (!state.performanceMode) {
+        if (!region.gradient) {
+          region.gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720);
+          region.gradient.addColorStop(0, region.palette.ground);
+          region.gradient.addColorStop(1, 'rgba(11,9,7,0)');
+        }
+        ctx.fillStyle = region.gradient; ctx.fillRect(region.x - 760, region.y - 520, 1520, 1040);
+      }
       ctx.fillStyle = 'rgba(236,218,178,.3)'; ctx.font = 'bold 18px "Noto Serif SC", serif'; ctx.textAlign = 'center';
       ctx.fillText(SINGLE_REGIONS[region.region].name, region.x, region.y - 365);
     });
-    map.hiddenAreas?.forEach((unlocked, index) => { if (!unlocked) return; const rooms = map.rooms.filter((room) => room.region === index && room.hiddenArea); if (!rooms.length) return; const x = rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y = rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length; const gradient = ctx.createRadialGradient(x, y, 40, x, y, 620); gradient.addColorStop(0, SINGLE_MAP_PALETTES[3].ground); gradient.addColorStop(.6, 'rgba(32,20,27,.42)'); gradient.addColorStop(1, 'rgba(11,9,7,0)'); ctx.fillStyle = gradient; ctx.fillRect(x - 680, y - 470, 1360, 940); });
+    if (!state.performanceMode) map.hiddenAreas?.forEach((unlocked, index) => { if (!unlocked) return; const rooms = map.rooms.filter((room) => room.region === index && room.hiddenArea); if (!rooms.length) return; const x = rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y = rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length; let gradient = mapCache.areaGradients.get(rooms[0]); if (!gradient) { gradient = ctx.createRadialGradient(x, y, 40, x, y, 620); gradient.addColorStop(0, SINGLE_MAP_PALETTES[3].ground); gradient.addColorStop(.6, 'rgba(32,20,27,.42)'); gradient.addColorStop(1, 'rgba(11,9,7,0)'); mapCache.areaGradients.set(rooms[0], gradient); } ctx.fillStyle = gradient; ctx.fillRect(x - 680, y - 470, 1360, 940); });
     map.paths.forEach((path) => {
       if ((path.secret && !path.open) || (path.hidden && !path.revealed) || (path.hiddenArea && !map.hiddenAreas?.[path.region])) return;
       let bbox = mapCache.pathBBox.get(path);
@@ -4861,7 +4870,9 @@
       ctx.save(); ctx.globalAlpha = currentLayer ? 1 : .16; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.beginPath(); path.points.forEach((point, index) => { if (index === 0) ctx.moveTo(point.x, point.y); else ctx.lineTo(point.x, point.y); });
       ctx.strokeStyle = '#080706'; ctx.lineWidth = path.width + 18; ctx.stroke();
-      ctx.save(); ctx.globalAlpha = .28; ctx.strokeStyle = palette.edge; ctx.lineWidth = path.width + 8; ctx.stroke(); ctx.restore();
+      if (!state.performanceMode) {
+        ctx.save(); ctx.globalAlpha = .28; ctx.strokeStyle = palette.edge; ctx.lineWidth = path.width + 8; ctx.stroke(); ctx.restore();
+      }
       ctx.strokeStyle = palette.path; ctx.lineWidth = path.width; ctx.stroke();
       if (path.gate) { ctx.save(); ctx.globalAlpha = .38; ctx.strokeStyle = '#e4b75e'; ctx.lineWidth = 2; ctx.setLineDash([8, 12]); ctx.stroke(); ctx.restore(); }
       if (path.secret && path.open) { ctx.save(); ctx.globalAlpha = .58; ctx.strokeStyle = '#f0c968'; ctx.lineWidth = 2; ctx.setLineDash([5, 9]); ctx.stroke(); ctx.restore(); }
@@ -4869,7 +4880,7 @@
       if (blockerId) { const mid = path.points[Math.floor(path.points.length * .55)] || path.points[0], isBossGate = path.requiresRegionBoss; ctx.save(); ctx.strokeStyle = isBossGate ? '#e25b47' : '#f0c76d'; ctx.fillStyle = isBossGate ? '#ff9b7a' : '#ffe1a0'; ctx.lineWidth = 3; ctx.setLineDash([4, 7]); ctx.beginPath(); ctx.moveTo(mid.x - path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x + path.width * .42, mid.y + path.width * .35); ctx.moveTo(mid.x + path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x - path.width * .42, mid.y + path.width * .35); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(mid.x, mid.y, 25, 0, Math.PI * 2); ctx.stroke(); drawMapGuard(ctx, mid.x, mid.y + 12, now, isBossGate ? 1.18 : 1.02, !isBossGate, isBossGate); ctx.fillStyle = isBossGate ? '#ffb09c' : '#ffe3a4'; ctx.font = 'bold 13px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(`${singleMapBlockerName(map, blockerId)}拦路`, mid.x, mid.y + 54); ctx.restore(); }
       ctx.restore();
     });
-    const charted = !!map.charts[map.regionIndex];
+
     map.rooms.forEach((room) => {
       if (room.x + room.r + 90 < viewMinX || room.x - room.r - 90 > viewMaxX || room.y + room.r + 90 < viewMinY || room.y - room.r - 90 > viewMaxY) return;
       if (room.hiddenArea && !map.hiddenAreas?.[room.region]) return;
@@ -4882,6 +4893,72 @@
       if (!isCleared && known && !nodeHasEnemy(room)) { const info = SINGLE_ROOM_INFO[room.type]; ctx.fillStyle = room.type === 'boss' ? '#7d271f' : '#3a2a1b'; ctx.beginPath(); ctx.arc(room.x, room.y, 24, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ffe2a1'; ctx.font = 'bold 21px serif'; ctx.fillText(info.glyph, room.x, room.y + 7); }
       ctx.restore();
     });
+    ctx.restore();
+  }
+
+  function drawSingleMap(now) {
+    const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
+    if (!singleMapContextCache) singleMapContextCache = canvas.getContext('2d', { alpha: false, desynchronized: true });
+    const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = state.performanceMode ? .8 : Math.min(1.5, window.devicePixelRatio || 1);
+    if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
+    const bounds = map.bounds, mapWidth = bounds.maxX - bounds.minX, mapHeight = bounds.maxY - bounds.minY;
+    const maxCamX = Math.max(bounds.minX, bounds.maxX - width), maxCamY = Math.max(bounds.minY, bounds.maxY - height);
+    const camX = mapWidth <= width ? bounds.minX - (width - mapWidth) / 2 : clamp(map.player.x - width / 2, bounds.minX, maxCamX);
+    const camY = mapHeight <= height ? bounds.minY - (height - mapHeight) / 2 : clamp(map.player.y - height / 2, bounds.minY, maxCamY);
+    const viewMinX = camX - 140, viewMaxX = camX + width + 140;
+    const viewMinY = camY - 140, viewMaxY = camY + height + 140;
+    let mapCache = singleMapStaticCache.get(map);
+    if (!mapCache) { mapCache = { regionCenters: null, pathBBox: new WeakMap(), areaGradients: new WeakMap(), viewport: null }; singleMapStaticCache.set(map, mapCache); }
+    if (state.performanceMode) {
+      // 性能模式缓存当前视口内的区域底色、暗渠和道路。缓存只占一屏，滚动时复制旧画面并只补边缘，
+      // 避免大地图离屏缓存占用成倍显存，也避免每帧重新铺设整张道路。
+      const viewport = mapCache.viewport;
+      const stateSignature = [
+        map.player.layer, map.charts.map((value) => value ? 1 : 0).join(''),
+        map.hiddenAreas?.map((value) => value ? 1 : 0).join('') || '',
+        map.puzzleSolved?.map((value) => value ? 1 : 0).join('') || '',
+        map.cleared?.length || 0, map.visited?.length || 0,
+        map.paths?.filter((path) => path.open).length || 0,
+        map.paths?.filter((path) => path.revealed).length || 0,
+        Math.floor(map.player.x / 160), Math.floor(map.player.y / 160), width, height, dpr
+      ].join('|');
+      const moveLimit = 96;
+      const needsRebuild = !viewport || viewport.signature !== stateSignature || viewport.width !== width || viewport.height !== height || Math.abs(viewport.camX - camX) > moveLimit || Math.abs(viewport.camY - camY) > moveLimit;
+      if (needsRebuild) {
+        const cacheCanvas = viewport?.canvas || document.createElement('canvas');
+        const cachePixelWidth = Math.max(1, Math.round(width * dpr)), cachePixelHeight = Math.max(1, Math.round(height * dpr));
+        if (cacheCanvas.width !== cachePixelWidth || cacheCanvas.height !== cachePixelHeight) { cacheCanvas.width = cachePixelWidth; cacheCanvas.height = cachePixelHeight; }
+        const cacheCtx = cacheCanvas.getContext('2d');
+        cacheCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        cacheCtx.clearRect(0, 0, width, height);
+        drawSingleMapTerrain(cacheCtx, map, now, camX, camY, width, height);
+        mapCache.viewport = { canvas: cacheCanvas, camX, camY, width, height, signature: stateSignature };
+      }
+      const cached = mapCache.viewport;
+      const offsetX = cached.camX - camX, offsetY = cached.camY - camY;
+      ctx.drawImage(cached.canvas, offsetX, offsetY, width, height);
+      const exposed = [];
+      if (offsetX > .5) exposed.push([0, 0, offsetX, height]);
+      else if (offsetX < -.5) exposed.push([width + offsetX, 0, -offsetX, height]);
+      if (offsetY > .5) exposed.push([0, 0, width, offsetY]);
+      else if (offsetY < -.5) exposed.push([0, height + offsetY, width, -offsetY]);
+      if (exposed.length) {
+        ctx.save();
+        ctx.beginPath();
+        exposed.forEach(([x, y, w, h]) => ctx.rect(x, y, Math.max(0, w), Math.max(0, h)));
+        ctx.clip();
+        drawSingleMapTerrain(ctx, map, now, camX, camY, width, height);
+        ctx.restore();
+      }
+    } else {
+      drawSingleMapTerrain(ctx, map, now, camX, camY, width, height);
+    }
+    ctx.save();
+    ctx.translate(-camX, -camY);
+    const clearedSet = new Set(map.cleared || []);
+    const visitedSet = new Set(map.visited || []);
+    const charted = !!map.charts[map.regionIndex];
     map.rooms.filter((room) => nodeHasEnemy(room) && !clearedSet.has(room.id) && (!room.hiddenArea || map.hiddenAreas?.[room.region])
       && room.x + 120 >= viewMinX && room.x - 120 <= viewMaxX && room.y + 120 >= viewMinY && room.y - 120 <= viewMaxY).forEach((room) => {
       const distance = Math.hypot(map.player.x - room.x, map.player.y - room.y);
@@ -4988,7 +5065,41 @@
     }
     const [px, py] = charted ? miniPoint(map.player.x, map.player.y) : [miniX + miniW / 2, miniY + miniH / 2]; ctx.fillStyle = '#d93a31'; ctx.beginPath(); ctx.arc(px, py, 4, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
-  function startSingleMapLoop() { cancelAnimationFrame(singleMapFrame); singleMapLastTime = performance.now(); const tick = (now) => { if (state.screen !== 'map') { singleMapFrame = 0; return; } if (state.pauseOpen) { singleMapLastTime = now; drawSingleMap(now); singleMapFrame = requestAnimationFrame(tick); return; } const dt = Math.min(.05, Math.max(0, (now - singleMapLastTime) / 1000)); singleMapLastTime = now; updateSingleMap(now, dt); drawSingleMap(now); singleMapFrame = requestAnimationFrame(tick); }; singleMapFrame = requestAnimationFrame(tick); }
+  function startSingleMapLoop() {
+    cancelAnimationFrame(singleMapFrame);
+    singleMapLastTime = performance.now();
+    singleMapLastRenderAt = 0;
+    singleMapUiRefreshAt = 0;
+    singleMapActionHintSignature = '\u0000';
+    singleMapPausedRendered = false;
+    const tick = (now) => {
+      if (state.screen !== 'map') { singleMapFrame = 0; return; }
+      const frameInterval = state.performanceMode ? 1000 / 30 - 2 : 0;
+      if (frameInterval && singleMapLastRenderAt && now - singleMapLastRenderAt < frameInterval) {
+        singleMapFrame = requestAnimationFrame(tick);
+        return;
+      }
+      const mapPaused = state.pauseOpen || state.saveManagerOpen || state.testModeOpen || state.restartPromptOpen || gameplayPausedByOverlay();
+      if (mapPaused) {
+        singleMapLastTime = now;
+        if (!singleMapPausedRendered) {
+          drawSingleMap(now);
+          singleMapPausedRendered = true;
+          singleMapLastRenderAt = now;
+        }
+        singleMapFrame = requestAnimationFrame(tick);
+        return;
+      }
+      singleMapPausedRendered = false;
+      const dt = Math.min(.05, Math.max(0, (now - singleMapLastTime) / 1000));
+      singleMapLastTime = now;
+      updateSingleMap(now, dt);
+      drawSingleMap(now);
+      singleMapLastRenderAt = now;
+      singleMapFrame = requestAnimationFrame(tick);
+    };
+    singleMapFrame = requestAnimationFrame(tick);
+  }
   function renderRouteScreen(preserveOptions = false) {
     dom.routeBossForecast?.classList.add('hidden');
     const chapter = CHAPTERS[state.chapter];
@@ -6215,6 +6326,11 @@
 
   const PERFORMANCE_KEY = 'longMarchPerformanceModeV1';
 
+  let battleContextCache = null;
+  function battleContext() {
+    if (!battleContextCache) battleContextCache = dom.canvas.getContext('2d', { alpha: false, desynchronized: true });
+    return battleContextCache;
+  }
   const scene = {
     time: 0, last: 0, lastRender: 0, logicLast: 0, logicAccumulator: 0, running: true,
     particles: [], floats: [], slashes: [], shake: 0, flash: 0, goldFlash: 0, perfectFlash: 0, invulnerabilityFlash: 0, lunge: 0,
@@ -6319,8 +6435,8 @@
     if (wrap) fitCanvasWrapToStage(wrap);
     const rect = dom.canvas.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
-    const dprCap = state.performanceMode ? 1.25 : 2;
-    const widthCap = state.performanceMode ? 1920 : 3840;
+    const dprCap = state.performanceMode ? 1 : 2;
+    const widthCap = state.performanceMode ? 1280 : 3840;
     const fixedWidth = state.resolutionMode === 'auto' ? 0 : Number(state.resolutionMode);
     const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     const fittedCssWidth = Math.min(rect.width, rect.height * 16 / 9);
@@ -6328,7 +6444,9 @@
     // 实际缓冲尺寸，小窗口下没必要再按 960 渲染（800×600 时画面只有 ~430 CSS 宽，
     // 却要填 960×540 的像素，白扔掉四分之三的填充量）。
     const naturalWidth = fixedWidth ? Math.round(fixedWidth) : Math.round(fittedCssWidth * dpr);
-    const targetWidth = clamp(naturalWidth, 320, widthCap);
+    // 性能模式用略低的内部分辨率换取明显更少的像素填充；CSS 尺寸不变，画面不会缩小。
+    const renderScale = state.performanceMode ? .8 : 1;
+    const targetWidth = clamp(Math.round(naturalWidth * renderScale), 320, widthCap);
     const targetHeight = Math.round(targetWidth * 9 / 16);
     if (Math.abs(dom.canvas.width - targetWidth) > 1 || Math.abs(dom.canvas.height - targetHeight) > 1) {
       dom.canvas.width = targetWidth;
@@ -8342,7 +8460,10 @@
   }
 
   function spawnParticles(x, y, color, count = 16) {
-    count = Math.max(1, Math.ceil(count * (state.performanceMode ? .55 : 1)));
+    count = Math.max(1, Math.ceil(count * (state.performanceMode ? .45 : 1)));
+    const particleLimit = state.performanceMode ? 90 : 240;
+    if (scene.particles.length >= particleLimit) return;
+    count = Math.min(count, particleLimit - scene.particles.length);
     for (let i = 0; i < count; i++) {
       const angle = state.rng() * Math.PI * 2;
       const speed = 40 + state.rng() * 160;
@@ -10990,13 +11111,19 @@ function breakPlayerPosture() {
     };
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
+    if (state.performanceMode) {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width + 2;
+      traceLimb();
+      return;
+    }
     ctx.strokeStyle = outline;
     ctx.lineWidth = width + 5;
     traceLimb();
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     traceLimb();
-    if (width >= 6) {
+    if (width >= 6 && !state.performanceMode) {
       ctx.strokeStyle = 'rgba(232,188,126,.22)';
       ctx.lineWidth = Math.max(1.4, width * .2);
       ctx.save();
@@ -11113,7 +11240,7 @@ function breakPlayerPosture() {
   }
 
   function drawSoldier(x, y, index, time, lunge) {
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const combat = state.combat;
     const p = state.player;
     const moveSpeed = Math.hypot(combat?.moveVelocity || 0, combat?.moveVelocityY || 0);
@@ -11478,8 +11605,10 @@ function breakPlayerPosture() {
 
     drawBentLimb(ctx, [[-7, 6], rearKnee, rearFoot], '#2e1e18', 10);
     drawBentLimb(ctx, [[7, 6], leadKnee, leadFoot], '#33221a', 10);
-    ctx.fillStyle = '#5a3a27';
-    ctx.beginPath(); ctx.arc(rearKnee[0], rearKnee[1], 5.2, 0, Math.PI * 2); ctx.arc(leadKnee[0], leadKnee[1], 5.2, 0, Math.PI * 2); ctx.fill();
+    if (!state.performanceMode) {
+      ctx.fillStyle = '#5a3a27';
+      ctx.beginPath(); ctx.arc(rearKnee[0], rearKnee[1], 5.2, 0, Math.PI * 2); ctx.arc(leadKnee[0], leadKnee[1], 5.2, 0, Math.PI * 2); ctx.fill();
+    }
     ctx.strokeStyle = '#241711'; ctx.lineWidth = 7; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(rearFoot[0], rearFoot[1]); ctx.lineTo(rearFoot[0] - 11, rearFoot[1] + 2); ctx.moveTo(leadFoot[0], leadFoot[1]); ctx.lineTo(leadFoot[0] + 11, leadFoot[1] + 2); ctx.stroke();
 
@@ -11493,9 +11622,11 @@ function breakPlayerPosture() {
     ctx.moveTo(-10, 4);
     ctx.bezierCurveTo(-20 - sashDrive * 8, 2 + sashWave, -30 - sashDrive * 15, 9 - sashWave, -42 - sashDrive * 20, 20 + sashWave);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(255,224,154,.34)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    if (!state.performanceMode) {
+      ctx.strokeStyle = 'rgba(255,224,154,.34)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
     ctx.restore();
 
     ctx.fillStyle = '#1a1310';
@@ -11506,12 +11637,14 @@ function breakPlayerPosture() {
     ctx.fillStyle = '#493126'; ctx.fillRect(-15, -17, 5, 24);
 
     drawBentLimb(ctx, [[-11, -14], offElbow, offHand], '#2e1e18', actionPhase === 'guard' ? 9 : 8);
-    ctx.fillStyle = '#a77852';
-    ctx.beginPath(); ctx.arc(offHand[0], offHand[1], 3.7, 0, Math.PI * 2); ctx.fill();
     const elbow = [(11 + hand[0]) / 2 + elbowBias[0], (-14 + hand[1]) / 2 + elbowBias[1]];
     drawBentLimb(ctx, [[11, -14], elbow, hand], '#33221a', actionPhase === 'active' ? 10.5 : 8.5);
-    ctx.fillStyle = '#5a3a27'; ctx.beginPath(); ctx.arc(elbow[0], elbow[1], 4.8, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#a77852'; ctx.beginPath(); ctx.arc(hand[0], hand[1], 3.8, 0, Math.PI * 2); ctx.fill();
+    if (!state.performanceMode) {
+      ctx.fillStyle = '#a77852';
+      ctx.beginPath(); ctx.arc(offHand[0], offHand[1], 3.7, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#5a3a27'; ctx.beginPath(); ctx.arc(elbow[0], elbow[1], 4.8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#a77852'; ctx.beginPath(); ctx.arc(hand[0], hand[1], 3.8, 0, Math.PI * 2); ctx.fill();
+    }
     drawWeapon(ctx, hand, tip, weaponKind, bright);
 
     ctx.fillStyle = '#1a1310';
@@ -11521,7 +11654,8 @@ function breakPlayerPosture() {
     ctx.fillRect(-6 + headOffset[0], -51 + headOffset[1], 14, 5);
     ctx.strokeStyle = squadColor; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(-13, -23); ctx.quadraticCurveTo(-2, -16, 15, -24); ctx.stroke();
-    ctx.fillStyle = '#e8c477'; ctx.font = canvasFont(14, 'serif', 'bold'); ctx.fillText('★', -10 + headOffset[0], -28 + headOffset[1]);
+    if (state.performanceMode) { ctx.fillStyle = '#e8c477'; ctx.fillRect(-11 + headOffset[0], -31 + headOffset[1], 5, 5); }
+    else { ctx.fillStyle = '#e8c477'; ctx.font = canvasFont(14, 'serif', 'bold'); ctx.fillText('★', -10 + headOffset[0], -28 + headOffset[1]); }
     ctx.restore();
   }
 
@@ -11538,7 +11672,7 @@ function breakPlayerPosture() {
   }
 
   function drawEnemyFigure(enemy, index, time) {
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     if (enemy.dead) return;
     const pos = enemyCanvasPosition(index);
     const hit = scene.enemyHit[index] || 0;
@@ -12022,9 +12156,11 @@ function breakPlayerPosture() {
     ctx.moveTo(10, 3);
     ctx.bezierCurveTo(23, 1 + enemyCloth, 34, 9 - enemyCloth, 48, 21 + enemyCloth);
     ctx.stroke();
-    ctx.strokeStyle = 'rgba(238,194,114,.26)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
+    if (!state.performanceMode) {
+      ctx.strokeStyle = 'rgba(238,194,114,.26)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
     ctx.restore();
 
     if (enemy.status.broken) {
@@ -12035,8 +12171,10 @@ function breakPlayerPosture() {
     } else {
       drawBentLimb(ctx, [[-8, 8], enemyRearKnee, enemyRearFoot], enemy.color, isBoss ? 13 : eliteStyle === 'shield' ? 12 : 10);
       drawBentLimb(ctx, [[8, 8], enemyLeadKnee, enemyLeadFoot], enemy.color, isBoss ? 13 : eliteStyle === 'shield' ? 12 : 10);
-      ctx.fillStyle = 'rgba(25,13,8,.9)';
-      ctx.beginPath(); ctx.arc(enemyRearKnee[0], enemyRearKnee[1], 5.8, 0, Math.PI * 2); ctx.arc(enemyLeadKnee[0], enemyLeadKnee[1], 5.8, 0, Math.PI * 2); ctx.fill();
+      if (!state.performanceMode) {
+        ctx.fillStyle = 'rgba(25,13,8,.9)';
+        ctx.beginPath(); ctx.arc(enemyRearKnee[0], enemyRearKnee[1], 5.8, 0, Math.PI * 2); ctx.arc(enemyLeadKnee[0], enemyLeadKnee[1], 5.8, 0, Math.PI * 2); ctx.fill();
+      }
       ctx.strokeStyle = '#20140f'; ctx.lineWidth = 8; ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(enemyRearFoot[0], enemyRearFoot[1]); ctx.lineTo(enemyRearFoot[0] + 12, enemyRearFoot[1] + 2); ctx.moveTo(enemyLeadFoot[0], enemyLeadFoot[1]); ctx.lineTo(enemyLeadFoot[0] - 12, enemyLeadFoot[1] + 2); ctx.stroke();
     }
@@ -12071,14 +12209,16 @@ function breakPlayerPosture() {
     }
 
     drawBentLimb(ctx, [[-11, -13], enemyOffElbow, enemyOffHand], enemy.color, isBoss ? 11 : eliteStyle === 'shield' ? 11 : 8.5, 'rgba(8,5,4,.9)');
-    ctx.fillStyle = '#a77c58';
-    ctx.beginPath(); ctx.arc(enemyOffHand[0], enemyOffHand[1], isBoss ? 4.5 : 3.8, 0, Math.PI * 2); ctx.fill();
     const elbow = [(-10 + hand[0]) / 2 + enemyElbowBias[0], (-14 + hand[1]) / 2 + enemyElbowBias[1]];
     drawBentLimb(ctx, [[-10, -14], elbow, hand], enemy.color, isBoss ? 12 : 9.5, 'rgba(8,5,4,.95)');
-    ctx.fillStyle = 'rgba(35,20,13,.95)';
-    ctx.beginPath(); ctx.arc(elbow[0], elbow[1], 5.6, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#a77c58';
-    ctx.beginPath(); ctx.arc(hand[0], hand[1], isBoss ? 4.5 : 3.8, 0, Math.PI * 2); ctx.fill();
+    if (!state.performanceMode) {
+      ctx.fillStyle = '#a77c58';
+      ctx.beginPath(); ctx.arc(enemyOffHand[0], enemyOffHand[1], isBoss ? 4.5 : 3.8, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(35,20,13,.95)';
+      ctx.beginPath(); ctx.arc(elbow[0], elbow[1], 5.6, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = '#a77c58';
+      ctx.beginPath(); ctx.arc(hand[0], hand[1], isBoss ? 4.5 : 3.8, 0, Math.PI * 2); ctx.fill();
+    }
     drawWeapon(ctx, hand, tip, weaponKind, glint);
     if (eliteStyle === 'shield') {
       ctx.save();
@@ -12097,10 +12237,12 @@ function breakPlayerPosture() {
       drawWeapon(ctx, [-14, -4], [-92, 29], 'dagger', Math.max(.25, glint * .75));
     }
 
-    ctx.fillStyle = 'rgba(239,227,200,.72)';
-    ctx.font = canvasFont(isBoss ? 26 : 18, 'serif');
-    ctx.textAlign = 'center';
-    ctx.fillText(enemy.glyph, 0, isBoss ? -31 : -29);
+    if (!state.performanceMode) {
+      ctx.fillStyle = 'rgba(239,227,200,.72)';
+      ctx.font = canvasFont(isBoss ? 26 : 18, 'serif');
+      ctx.textAlign = 'center';
+      ctx.fillText(enemy.glyph, 0, isBoss ? -31 : -29);
+    }
 
     if (glint > 0) {
       ctx.save();
@@ -12109,8 +12251,9 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.arc(tip[0], tip[1], 3.5 + glint * 3, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = 'rgba(255,228,150,.85)';
       ctx.lineWidth = 1.3;
-      for (let i = 0; i < 6; i++) {
-        const angle = i / 6 * Math.PI * 2;
+      const glintRays = state.performanceMode ? 3 : 6;
+      for (let i = 0; i < glintRays; i++) {
+        const angle = i / glintRays * Math.PI * 2;
         ctx.beginPath();
         ctx.moveTo(tip[0] + Math.cos(angle) * 8, tip[1] + Math.sin(angle) * 8);
         ctx.lineTo(tip[0] + Math.cos(angle) * (16 + glint * 10), tip[1] + Math.sin(angle) * (16 + glint * 10));
@@ -12195,7 +12338,7 @@ function breakPlayerPosture() {
   function drawDuelMotion(now) {
     const duel = scene.duel;
     if (!duel || !state.combat) return;
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const pos = enemyCanvasPosition(duel.enemyIndex);
     const progress = clamp(duel.progress, 0, 1);
     const lunge = duelLungeDistance(progress);
@@ -12351,7 +12494,7 @@ function breakPlayerPosture() {
     const combat = state.combat;
     const dodge = combat?.dodge;
     if (!dodge) return;
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const t = clamp((now - dodge.start) / dodge.duration, 0, 1);
     const x = combat.playerRenderX;
     const y = combat.playerRenderY;
@@ -12387,7 +12530,7 @@ function breakPlayerPosture() {
     const combat = state.combat;
     const mikiri = scene.mikiri;
     if (!combat || !mikiri) return;
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const t = clamp((now - mikiri.start) / mikiri.duration, 0, 1);
     const stomp = clamp((t - .17) / .2, 0, 1);
     const impact = t >= .37 ? clamp((t - .37) / .32, 0, 1) : 0;
@@ -12442,7 +12585,7 @@ function breakPlayerPosture() {
   function drawExecutionCinematic(now) {
     const ex = scene.execution;
     if (!ex) return;
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const t = clamp((now - ex.start) / ex.duration, 0, 1);
     const pre = clamp(t / ex.impactAt, 0, 1);
     const post = clamp((t - ex.impactAt) / (1 - ex.impactAt), 0, 1);
@@ -12620,7 +12763,7 @@ function breakPlayerPosture() {
   function drawEnemyShotAim(now) {
     const aim = scene.shotAim;
     if (!aim || aim.fired || !state.combat) return;
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const enemyPos = enemyCanvasPosition(aim.enemyIndex);
     const progress = aim.timeWarp ? warpProgressAt(aim.timeWarp, now - aim.start) : clamp((now - aim.start) / aim.duration, 0, 1);
     const pulse = .55 + .45 * Math.sin(now * .028);
@@ -12666,7 +12809,7 @@ function breakPlayerPosture() {
   }
 
   function drawEffects() {
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     if (scene.clash) {
       const clash = scene.clash;
       const ratio = clamp(clash.life / clash.maxLife, 0, 1);
@@ -12816,7 +12959,7 @@ function breakPlayerPosture() {
   }
 
   function drawBattleSceneFrame(now) {
-    const ctx = dom.canvas.getContext('2d');
+    const ctx = battleContext();
     const pixelWidth = dom.canvas.width;
     const pixelHeight = dom.canvas.height;
     const scaleX = pixelWidth / 960;
@@ -12949,11 +13092,35 @@ function breakPlayerPosture() {
     }
   }
 
+  let lastGamepadPollAt = 0;
   function drawBattleScene(now) {
     try {
-      pollGamepad(now);
+      const battleVisible = state.screen === 'battle' && !!state.combat;
+      // 菜单和地图也依赖这里轮询手柄，但不需要一直绘制隐藏的战斗画布。
+      // 战斗内每次刷新都读手柄；非战斗界面限制到约 60–80Hz，省电时更轻。
+      if (battleVisible || !lastGamepadPollAt || now - lastGamepadPollAt >= 12) {
+        pollGamepad(now);
+        lastGamepadPollAt = now;
+      }
+      if (!battleVisible) {
+        scene.logicLast = now;
+        scene.logicAccumulator = 0;
+        scene.lastRender = 0;
+        requestAnimationFrame(drawBattleScene);
+        return;
+      }
       updateBattleSimulation(now);
-      const frameInterval = state.performanceMode ? 1000 / 30 : 0;
+      const battlePaused = state.training?.briefing || state.restartPromptOpen || state.saveManagerOpen || state.testModeOpen || gameplayPausedByOverlay();
+      if (battlePaused) {
+        if (!scene.pausedRendered) {
+          drawBattleSceneFrame(now);
+          scene.pausedRendered = true;
+        }
+        requestAnimationFrame(drawBattleScene);
+        return;
+      }
+      scene.pausedRendered = false;
+      const frameInterval = state.performanceMode ? 1000 / 30 - 2 : 0;
       if (frameInterval && scene.lastRender && now - scene.lastRender < frameInterval) {
         requestAnimationFrame(drawBattleScene);
         return;

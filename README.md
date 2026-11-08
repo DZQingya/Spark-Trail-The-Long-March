@@ -4,7 +4,7 @@
 
 A real-time action roguelike inspired by the Long March, built with JavaScript and Canvas.
 
-Current version: **v0.29.10**
+Current version: **v0.29.11**
 
 Platform: **Windows 10/11**
 
