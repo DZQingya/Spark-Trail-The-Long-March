@@ -969,6 +969,118 @@
     stats: { victories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, seed: 0 }
   };
 
+  const STABLE_FPS_TIERS = [30, 20, 15, 10];
+
+  function createStableFramePacer(label) {
+    return {
+      label, targetIndex: 0, targetFps: STABLE_FPS_TIERS[0], refreshMs: 1000 / 60,
+      frameCounter: 0, forceDraw: true, lastRafAt: 0, lastDrawStartedAt: 0, nextDrawAt: 0,
+      recentGaps: [], recentCosts: [], pressure: 0, unstableSince: 0, lastTierChangeAt: 0
+    };
+  }
+
+  const mapFramePacer = createStableFramePacer('map');
+  const battleFramePacer = createStableFramePacer('battle');
+
+  function resetStableFramePacer(pacer, resetTier = false) {
+    pacer.frameCounter = 0;
+    pacer.forceDraw = true;
+    pacer.lastRafAt = 0;
+    pacer.lastDrawStartedAt = 0;
+    pacer.nextDrawAt = 0;
+    pacer.recentGaps.length = 0;
+    pacer.recentCosts.length = 0;
+    pacer.pressure = 0;
+    pacer.unstableSince = 0;
+    if (resetTier) {
+      pacer.targetIndex = 0;
+      pacer.targetFps = STABLE_FPS_TIERS[0];
+      pacer.lastTierChangeAt = 0;
+    }
+  }
+
+  function resetStableFramePacing() {
+    resetStableFramePacer(mapFramePacer, true);
+    resetStableFramePacer(battleFramePacer, true);
+    document.body.dataset.renderTier = 'map-30 battle-30';
+  }
+
+  function stableFrameDue(pacer, now) {
+    if (pacer.lastRafAt > 0 && now > pacer.lastRafAt) {
+      const gap = now - pacer.lastRafAt;
+      // 只从正常显示器刷新间隔中取样；CPU 卡顿造成的大间隔不能反过来改变目标节奏。
+      if (gap >= 6 && gap <= 25) pacer.refreshMs = pacer.refreshMs * .92 + gap * .08;
+    }
+    pacer.lastRafAt = now;
+    pacer.frameCounter += 1;
+    const targetInterval = 1000 / pacer.targetFps;
+    const timingTolerance = Math.min(4, pacer.refreshMs * .22);
+    if (pacer.forceDraw) {
+      pacer.forceDraw = false;
+      pacer.nextDrawAt = now + targetInterval - timingTolerance;
+      return true;
+    }
+    if (pacer.nextDrawAt > 0 && now < pacer.nextDrawAt) return false;
+    // 用绝对截止时间排帧：卡顿后重新起算，不连续补画，也不把偶发卡顿误当成显示器刷新率。
+    pacer.nextDrawAt = now + targetInterval - timingTolerance;
+    return true;
+  }
+
+  function percentile(values, ratio) {
+    if (!values.length) return 0;
+    const sorted = [...values].sort((a, b) => a - b);
+    return sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * ratio))];
+  }
+
+  function reportStableFrame(pacer, startedAt, finishedAt) {
+    const budget = 1000 / pacer.targetFps;
+    const gap = pacer.lastDrawStartedAt > 0 ? startedAt - pacer.lastDrawStartedAt : budget;
+    pacer.lastDrawStartedAt = startedAt;
+    pacer.recentGaps.push(clamp(gap, 1, 250));
+    pacer.recentCosts.push(clamp(finishedAt - startedAt, .1, 250));
+    if (pacer.recentGaps.length > 24) pacer.recentGaps.shift();
+    if (pacer.recentCosts.length > 24) pacer.recentCosts.shift();
+    if (pacer.recentGaps.length < 12) return;
+
+    const unstable = percentile(pacer.recentGaps, .9) > budget * 1.15 || percentile(pacer.recentCosts, .8) > budget * .78;
+    if (unstable && !pacer.unstableSince) pacer.unstableSince = finishedAt;
+    pacer.pressure = clamp(pacer.pressure + (unstable ? 1 : -1), 0, 20);
+    if (pacer.pressure === 0) pacer.unstableSince = 0;
+    const sustainedUnstable = pacer.unstableSince > 0 && finishedAt - pacer.unstableSince >= 1500;
+    if (!sustainedUnstable || pacer.pressure < 14 || pacer.targetIndex >= STABLE_FPS_TIERS.length - 1 || finishedAt - pacer.lastTierChangeAt < 900) return;
+
+    pacer.targetIndex += 1;
+    pacer.targetFps = STABLE_FPS_TIERS[pacer.targetIndex];
+    pacer.lastTierChangeAt = finishedAt;
+    pacer.pressure = 0;
+    pacer.unstableSince = 0;
+    pacer.recentGaps.length = 0;
+    pacer.recentCosts.length = 0;
+    pacer.lastDrawStartedAt = 0;
+    pacer.nextDrawAt = 0;
+    pacer.frameCounter = 0;
+    pacer.forceDraw = true;
+    document.body.dataset.renderTier = 'map-' + mapFramePacer.targetFps + ' battle-' + battleFramePacer.targetFps;
+    if (state.screen === 'battle' && typeof resizeCanvasToDisplay === 'function') requestAnimationFrame(() => resizeCanvasToDisplay());
+  }
+
+  function activeFramePacer() {
+    return state.screen === 'battle' ? battleFramePacer : mapFramePacer;
+  }
+
+  function lowPerformanceDetail() {
+    return state.performanceMode && activeFramePacer().targetFps <= 20;
+  }
+
+  function ultraLowPerformanceDetail() {
+    return state.performanceMode && activeFramePacer().targetFps <= 15;
+  }
+
+  function minimalPerformanceDetail() {
+    return state.performanceMode && activeFramePacer().targetFps <= 10;
+  }
+
+
   const dom = {
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
@@ -1085,7 +1197,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.11';
+  const GAME_VERSION = '0.29.12';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -4899,7 +5011,7 @@
   function drawSingleMap(now) {
     const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
     if (!singleMapContextCache) singleMapContextCache = canvas.getContext('2d', { alpha: false, desynchronized: true });
-    const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = state.performanceMode ? .8 : Math.min(1.5, window.devicePixelRatio || 1);
+    const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = state.performanceMode ? (mapFramePacer.targetFps <= 10 ? .55 : mapFramePacer.targetFps <= 15 ? .6 : mapFramePacer.targetFps <= 20 ? .7 : .8) : Math.min(1.5, window.devicePixelRatio || 1);
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
     const bounds = map.bounds, mapWidth = bounds.maxX - bounds.minX, mapHeight = bounds.maxY - bounds.minY;
@@ -4976,7 +5088,7 @@
       const info = SINGLE_PICKUP_INFO[pickup.kind], pulse = .5 + .5 * Math.sin(now * .006 + pickup.x);
       ctx.save(); ctx.translate(pickup.x, pickup.y); ctx.rotate(Math.PI / 4);
       ctx.fillStyle = pickup.kind === 'chart' ? `rgba(122,208,168,${.35 + pulse * .34})` : pickup.kind === 'relic' ? `rgba(226,121,86,${.4 + pulse * .3})` : `rgba(237,191,102,${.35 + pulse * .34})`;
-      ctx.shadowColor = pickup.kind === 'chart' ? 'rgba(104,219,173,.7)' : pickup.kind === 'relic' ? 'rgba(255,121,79,.8)' : 'rgba(255,210,110,.7)'; ctx.shadowBlur = 14; ctx.fillRect(-7, -7, 14, 14); ctx.restore();
+      ctx.shadowColor = pickup.kind === 'chart' ? 'rgba(104,219,173,.7)' : pickup.kind === 'relic' ? 'rgba(255,121,79,.8)' : 'rgba(255,210,110,.7)'; ctx.shadowBlur = state.performanceMode ? 0 : 14; ctx.fillRect(-7, -7, 14, 14); ctx.restore();
       ctx.fillStyle = '#fff1bd'; ctx.font = 'bold 11px serif'; ctx.textAlign = 'center'; ctx.fillText(info.glyph, pickup.x, pickup.y + 4);
     });
     (map.interactions || []).forEach((item) => {
@@ -5067,6 +5179,7 @@
   }
   function startSingleMapLoop() {
     cancelAnimationFrame(singleMapFrame);
+    resetStableFramePacer(mapFramePacer, false);
     singleMapLastTime = performance.now();
     singleMapLastRenderAt = 0;
     singleMapUiRefreshAt = 0;
@@ -5074,14 +5187,16 @@
     singleMapPausedRendered = false;
     const tick = (now) => {
       if (state.screen !== 'map') { singleMapFrame = 0; return; }
-      const frameInterval = state.performanceMode ? 1000 / 30 - 2 : 0;
-      if (frameInterval && singleMapLastRenderAt && now - singleMapLastRenderAt < frameInterval) {
+      if (state.performanceMode && !stableFrameDue(mapFramePacer, now)) {
         singleMapFrame = requestAnimationFrame(tick);
         return;
       }
       const mapPaused = state.pauseOpen || state.saveManagerOpen || state.testModeOpen || state.restartPromptOpen || gameplayPausedByOverlay();
       if (mapPaused) {
         singleMapLastTime = now;
+        mapFramePacer.lastDrawStartedAt = 0;
+        mapFramePacer.nextDrawAt = 0;
+        mapFramePacer.forceDraw = true;
         if (!singleMapPausedRendered) {
           drawSingleMap(now);
           singleMapPausedRendered = true;
@@ -5094,7 +5209,10 @@
       const dt = Math.min(.05, Math.max(0, (now - singleMapLastTime) / 1000));
       singleMapLastTime = now;
       updateSingleMap(now, dt);
+      const drawStartedAt = performance.now();
       drawSingleMap(now);
+      const drawFinishedAt = performance.now();
+      reportStableFrame(mapFramePacer, drawStartedAt, drawFinishedAt);
       singleMapLastRenderAt = now;
       singleMapFrame = requestAnimationFrame(tick);
     };
@@ -6333,7 +6451,7 @@
   }
   const scene = {
     time: 0, last: 0, lastRender: 0, logicLast: 0, logicAccumulator: 0, running: true,
-    particles: [], floats: [], slashes: [], shake: 0, flash: 0, goldFlash: 0, perfectFlash: 0, invulnerabilityFlash: 0, lunge: 0,
+    particles: [], floats: [], slashes: [], shake: 0, flash: 0, goldFlash: 0, perfectFlash: 0, invulnerabilityFlash: 0, lunge: 0, pausedRendered: false,
     enemyHit: {}, stars: [], duel: null, clash: null, projectiles: [], shotAim: null, mikiri: null, execution: null
   };
   const backgroundCache = new Map();
@@ -6445,7 +6563,7 @@
     // 却要填 960×540 的像素，白扔掉四分之三的填充量）。
     const naturalWidth = fixedWidth ? Math.round(fixedWidth) : Math.round(fittedCssWidth * dpr);
     // 性能模式用略低的内部分辨率换取明显更少的像素填充；CSS 尺寸不变，画面不会缩小。
-    const renderScale = state.performanceMode ? .8 : 1;
+    const renderScale = state.performanceMode ? (battleFramePacer.targetFps <= 10 ? .55 : battleFramePacer.targetFps <= 15 ? .6 : battleFramePacer.targetFps <= 20 ? .7 : .8) : 1;
     const targetWidth = clamp(Math.round(naturalWidth * renderScale), 320, widthCap);
     const targetHeight = Math.round(targetWidth * 9 / 16);
     if (Math.abs(dom.canvas.width - targetWidth) > 1 || Math.abs(dom.canvas.height - targetHeight) > 1) {
@@ -6637,6 +6755,7 @@
       dom.performanceToggle.classList.toggle('active', state.performanceMode);
     }
     scene.lastRender = 0;
+    resetStableFramePacing();
     resizeCanvasToDisplay();
     startRouteMapAnimation();
     if (persist) {
@@ -8421,6 +8540,7 @@
       state.battleNumber += 1;
     }
     state.combat.targetId = resumeSnapshot ? state.combat.targetId : state.combat.enemies[0]?.id || null;
+    resetStableFramePacer(battleFramePacer, false);
     scene.execution = null;
     assignAllIntents();
     saveCurrentRun('battle');
@@ -8460,8 +8580,9 @@
   }
 
   function spawnParticles(x, y, color, count = 16) {
-    count = Math.max(1, Math.ceil(count * (state.performanceMode ? .45 : 1)));
-    const particleLimit = state.performanceMode ? 90 : 240;
+    const detailFactor = !state.performanceMode ? 1 : minimalPerformanceDetail() ? .1 : ultraLowPerformanceDetail() ? .18 : lowPerformanceDetail() ? .28 : .45;
+    count = Math.max(1, Math.ceil(count * detailFactor));
+    const particleLimit = !state.performanceMode ? 240 : minimalPerformanceDetail() ? 16 : ultraLowPerformanceDetail() ? 36 : lowPerformanceDetail() ? 60 : 90;
     if (scene.particles.length >= particleLimit) return;
     count = Math.min(count, particleLimit - scene.particles.length);
     for (let i = 0; i < count; i++) {
@@ -12829,7 +12950,7 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.moveTo(-54, 39); ctx.quadraticCurveTo(8, 8, 76, -1); ctx.stroke();
       ctx.strokeStyle = 'rgba(255,88,61,.9)';
       ctx.lineWidth = 2;
-      const shardCount = state.performanceMode ? 8 : 18;
+      const shardCount = state.performanceMode ? (minimalPerformanceDetail() ? 2 : lowPerformanceDetail() ? 4 : 8) : 18;
       for (let i = 0; i < shardCount; i++) {
         const angle = i / shardCount * Math.PI * 2 + .17;
         const inner = burst * .28;
@@ -13112,6 +13233,9 @@ function breakPlayerPosture() {
       updateBattleSimulation(now);
       const battlePaused = state.training?.briefing || state.restartPromptOpen || state.saveManagerOpen || state.testModeOpen || gameplayPausedByOverlay();
       if (battlePaused) {
+        battleFramePacer.lastDrawStartedAt = 0;
+        battleFramePacer.nextDrawAt = 0;
+        battleFramePacer.forceDraw = true;
         if (!scene.pausedRendered) {
           drawBattleSceneFrame(now);
           scene.pausedRendered = true;
@@ -13120,13 +13244,15 @@ function breakPlayerPosture() {
         return;
       }
       scene.pausedRendered = false;
-      const frameInterval = state.performanceMode ? 1000 / 30 - 2 : 0;
-      if (frameInterval && scene.lastRender && now - scene.lastRender < frameInterval) {
+      if (state.performanceMode && !stableFrameDue(battleFramePacer, now)) {
         requestAnimationFrame(drawBattleScene);
         return;
       }
       scene.lastRender = now;
+      const drawStartedAt = performance.now();
       drawBattleSceneFrame(now);
+      const drawFinishedAt = performance.now();
+      reportStableFrame(battleFramePacer, drawStartedAt, drawFinishedAt);
     } catch (error) {
       showRuntimeError(error);
       scene.duel = null;
@@ -13422,7 +13548,7 @@ function breakPlayerPosture() {
     syncFullscreenUi();
     dom.performanceToggle.addEventListener('click', () => {
       applyPerformanceMode(!state.performanceMode, true);
-      showToast(state.performanceMode ? '性能模式已开启：画面更轻快。' : '完整画面已恢复。');
+      showToast(state.performanceMode ? '性能模式已开启：稳定优先，帧率会自动调整。' : '完整画面已恢复。');
     });
     dom.selectionConfirm.addEventListener('click', () => {
       if (state.screen === 'squad' && selectedSquadId) chooseSquad(selectedSquadId);
@@ -13808,6 +13934,11 @@ function breakPlayerPosture() {
   }
 
   window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  window.__longMarch.getFramePacingDebug = () => ({
+    tier: document.body.dataset.renderTier || '', active: state.screen === 'battle' ? 'battle' : 'map',
+    map: { targetFps: mapFramePacer.targetFps, refreshMs: +mapFramePacer.refreshMs.toFixed(2), pressure: mapFramePacer.pressure, gaps: [...mapFramePacer.recentGaps], costs: [...mapFramePacer.recentCosts] },
+    battle: { targetFps: battleFramePacer.targetFps, refreshMs: +battleFramePacer.refreshMs.toFixed(2), pressure: battleFramePacer.pressure, gaps: [...battleFramePacer.recentGaps], costs: [...battleFramePacer.recentCosts] }
+  });
   window.__longMarch.singleMapInteractionPoints = singleMapInteractionPoints;
   window.__longMarch.separateSingleMapInteractionPoints = separateSingleMapInteractionPoints;
   window.__longMarch.singleMapInteractionPointsOverlap = singleMapInteractionPointsOverlap;
