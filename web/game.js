@@ -354,7 +354,7 @@
     { id: 'bayonet_lug', name: '刺刀卡座', icon: '刺', category: '刀剑', rarity: 'common', cost: 36, desc: '固定刺刀重心，突刺更稳。', effects: [{ label: '突刺威力', value: '+14%' }], apply: (p, s = 1) => { p.chargeBonus += .14 * s; } },
     { id: 'red_tassel_ring', name: '红缨刀环', icon: '缨', category: '刀剑', rarity: 'common', cost: 34, desc: '刀柄重心更顺，收刀与换招更稳。', effects: [{ label: '攻势', value: '+1' }, { label: '连锋衔接', value: '+45' }], apply: (p, s = 1) => { p.atk += s; p.comboWindowBonus += 45 * s; } },
     { id: 'wide_spine_saber', name: '宽脊斩刀', icon: '斩', category: '刀剑', rarity: 'rare', cost: 56, desc: '宽厚刀脊让劈砍更沉，刀势更稳。', effects: [{ label: '攻势', value: '+3' }, { label: '连锋威力', value: '+3' }], apply: (p, s = 1) => { p.atk += 3 * s; p.basicBonus += 3 * s; } },
-    { id: 'tempered_narrowblade', name: '精钢窄刃', icon: '刃', category: '刀剑', rarity: 'rare', cost: 60, desc: '细窄刃身让方向变招更容易切入。', effects: [{ label: '变招威力', value: '+14%' }, { label: '变招架势', value: '+8%' }], apply: (p, s = 1) => { p.techniqueDamageBonus += .14 * s; p.techniquePostureBonus += .08 * s; } },
+    { id: 'tempered_narrowblade', name: '精钢窄刃', icon: '刃', category: '刀剑', rarity: 'rare', cost: 60, desc: '细窄刃身让格挡、闪避与跃击变招更容易切入。', effects: [{ label: '变招威力', value: '+14%' }, { label: '变招架势', value: '+8%' }], apply: (p, s = 1) => { p.techniqueDamageBonus += .14 * s; p.techniquePostureBonus += .08 * s; } },
     { id: 'bamboo_guard', name: '竹编护手', icon: '护', category: '刀剑', rarity: 'common', cost: 30, desc: '轻便护手不妨碍出刀，还能卸去一点震力。', effects: [{ label: '防御', value: '+1' }, { label: '闪避恢复', value: '+5%' }], apply: (p, s = 1) => { p.defense += s; p.dodgeCooldownReduction += .05 * s; } },
     { id: 'rally_blade', name: '会师战刀', icon: '会', category: '刀剑', rarity: 'epic', cost: 98, desc: '一路修补到会师的长刀，刀背刻着队伍走过的地名。', effects: [{ label: '攻势', value: '+4' }, { label: '连锋威力', value: '+5' }], apply: (p, s = 1) => { p.atk += 4 * s; p.basicBonus += 5 * s; } },
     { id: 'steel_bracer', name: '钢制护腕', icon: '腕', category: '护具', rarity: 'common', cost: 35, desc: '护住手腕和刀架，格挡更稳。', effects: [{ label: '防御', value: '+1' }, { label: '架势上限', value: '+8' }], apply: (p, s = 1) => { p.defense += s; p.maxPosture += 8 * s; p.posture = clamp(p.posture, 0, p.maxPosture); } },
@@ -390,9 +390,9 @@
 
   const TALENT_TREE = [
     { id: 'blade_flow', branch: '刀法', tier: 1, name: '顺势收刀', icon: '流', cost: 1, requires: [], desc: '收刀更快，下一式更容易接上。', effect: '连锋衔接窗口 +60', apply: (p) => { p.comboWindowBonus += 60; } },
-    { id: 'variation_basic', branch: '刀法', tier: 2, name: '回旋破阵', icon: '旋', cost: 1, requires: ['blade_flow'], desc: '学会横向换步后两刀横扫。', effect: '解锁变招：回旋破阵；已会时变招威力 +8%', techniqueId: 'whirlwind', apply: (p) => { if (!p.techniques.includes('whirlwind')) p.techniques.push('whirlwind'); else p.techniqueDamageBonus += .08; } },
-    { id: 'variation_advanced', branch: '刀法', tier: 3, name: '破锋进斩', icon: '破', cost: 2, requires: ['variation_basic'], desc: '学会大跨步压入敌阵的重斩。', effect: '解锁变招：破锋进斩；已会时变招威力 +10%', techniqueId: 'breach', apply: (p) => { if (!p.techniques.includes('breach')) p.techniques.push('breach'); else p.techniqueDamageBonus += .1; } },
-    { id: 'variation_master', branch: '刀法', tier: 4, name: '交刃连斩', icon: '交', cost: 2, requires: ['variation_advanced', 'technique_edge'], desc: '学会斜向切入的两刀压制。', effect: '解锁变招：交刃连斩；已会时变招架势 +12%', techniqueId: 'crosscut', apply: (p) => { if (!p.techniques.includes('crosscut')) p.techniques.push('crosscut'); else p.techniquePostureBonus += .12; } },
+    { id: 'variation_basic', branch: '刀法', tier: 2, name: '回旋破阵', icon: '旋', cost: 1, requires: ['blade_flow'], desc: '学会闪避跃起后回身两刀横扫。', effect: '解锁变招：回旋破阵；已会时变招威力 +8%', techniqueId: 'whirlwind', apply: (p) => { if (!p.techniques.includes('whirlwind')) p.techniques.push('whirlwind'); else p.techniqueDamageBonus += .08; } },
+    { id: 'variation_advanced', branch: '刀法', tier: 3, name: '破锋进斩', icon: '破', cost: 2, requires: ['variation_basic'], desc: '学会先格挡再跃起重劈敌阵。', effect: '解锁变招：破锋进斩；已会时变招威力 +10%', techniqueId: 'breach', apply: (p) => { if (!p.techniques.includes('breach')) p.techniques.push('breach'); else p.techniqueDamageBonus += .1; } },
+    { id: 'variation_master', branch: '刀法', tier: 4, name: '交刃连斩', icon: '交', cost: 2, requires: ['variation_advanced', 'technique_edge'], desc: '学会格挡接闪避后切入连斩。', effect: '解锁变招：交刃连斩；已会时变招架势 +12%', techniqueId: 'crosscut', apply: (p) => { if (!p.techniques.includes('crosscut')) p.techniques.push('crosscut'); else p.techniquePostureBonus += .12; } },
     { id: 'technique_edge', branch: '刀法', tier: 3, name: '换步发力', icon: '劲', cost: 1, requires: ['variation_basic'], desc: '变招换步时把腰腿力量送进刀锋。', effect: '变招威力 +12%', apply: (p) => { p.techniqueDamageBonus += .12; } },
     { id: 'guard_breath', branch: '守势', tier: 1, name: '沉气守中', icon: '守', cost: 1, requires: [], desc: '稳住重心，阵脚更耐压。', effect: '架势上限 +12', apply: (p) => { p.maxPosture += 12; } },
     { id: 'steady_guard', branch: '守势', tier: 2, name: '稳手护刃', icon: '稳', cost: 1, requires: ['guard_breath'], desc: '守反时脚步和刀架更稳。', effect: '防御 +1，守反时机 +60', apply: (p) => { p.defense += 1; p.guardCounterWindowBonus += 60; } },
@@ -932,11 +932,11 @@
       { label:'留下干粮给冻伤的人', desc:'消耗补给，恢复兵力与士气。', tag:'互助', apply:(p)=>{p.supplies=Math.max(0,p.supplies-6);p.hp=Math.min(p.maxHp,p.hp+12);p.morale=Math.min(100,p.morale+8);} }
     ]},
     { id:'relic_blade_lesson', title:'老班长的回身刀', desc:'老班长愿意把压箱底的回身刀教给队伍，但要先看队伍是否吃得下这份苦。', choices:[
-      { label:'学回旋破阵', desc:'消耗军功，学会横向变招。', tag:'变招', cost:{merit:45}, techniqueId:'whirlwind' },
+      { label:'学回旋破阵', desc:'消耗军功，学会闪避跃击变招。', tag:'变招', cost:{merit:45}, techniqueId:'whirlwind' },
       { label:'换一双草鞋', desc:'消耗补给，取得草鞋。', tag:'信物', cost:{supplies:15}, relicId:'straw_shoes' }
     ]},
     { id:'relic_breach_lesson', title:'老班长的换步刀', desc:'老班长在雪地上连走三步，刀锋始终压着敌将中线。', choices:[
-      { label:'学破锋进斩', desc:'消耗军功，学会向前压进的变招。', tag:'变招', cost:{merit:48}, techniqueId:'breach' },
+      { label:'学破锋进斩', desc:'消耗军功，学会格挡跃击变招。', tag:'变招', cost:{merit:48}, techniqueId:'breach' },
       { label:'系上赤绸条', desc:'消耗补给，取得赤绸条。', tag:'信物', cost:{supplies:12}, relicId:'red_ribbon' }
     ]},
     { id:'relic_scout_pack', title:'侦察员的旧挎包', desc:'包里有半只罗盘、一卷油布和一截还能点着的松明。', choices:[
@@ -956,7 +956,7 @@
       { label:'收起会师旗角', desc:'消耗军功，取得会师旗角。', tag:'信物', cost:{merit:42}, relicId:'victory_flag' }
     ]},
     { id:'relic_crosscut_lesson', title:'交刃演练', desc:'两名老战士用木刀演示交刃切入，要求队伍在换步时不丢架势。', choices:[
-      { label:'学交刃连斩', desc:'消耗军功，学会斜向变招。', tag:'变招', cost:{merit:58}, techniqueId:'crosscut' },
+      { label:'学交刃连斩', desc:'消耗军功，学会格挡闪避变招。', tag:'变招', cost:{merit:58}, techniqueId:'crosscut' },
       { label:'读懂回锋刀谱', desc:'消耗军功，取得回锋刀谱。', tag:'信物', cost:{merit:46}, relicId:'blade_manual' }
     ]}
   );
@@ -1239,7 +1239,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.14';
+  const GAME_VERSION = '0.29.15';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -1683,6 +1683,7 @@
       emergencyUses: combat.emergencyUses,
       playerX: combat.playerX,
       playerY: combat.playerY,
+      facing: combat.facing || 1,
       targetIndex: Math.max(0, combat.enemies.findIndex((enemy) => enemy.id === combat.targetId)),
       enemies: combat.enemies.map((enemy) => ({
         hp: enemy.hp,
@@ -1696,7 +1697,8 @@
         sequenceIndex: enemy.sequenceIndex || 0,
         status: { ...(enemy.status || {}) },
         x: enemy.x,
-        homeX: enemy.homeX
+        homeX: enemy.homeX,
+        sideSign: enemy.sideSign || 1
       }))
     };
   }
@@ -1709,6 +1711,7 @@
     combat.playerRenderX = combat.playerX;
     combat.playerY = Number.isFinite(snapshot.playerY) ? snapshot.playerY : combat.playerY;
     combat.playerRenderY = combat.playerY;
+    combat.facing = snapshot.facing === -1 ? -1 : 1;
     snapshot.enemies.forEach((saved, index) => {
       const enemy = combat.enemies[index];
       if (!enemy) return;
@@ -1728,6 +1731,7 @@
       enemy.recoveryUntil = 0;
       if (Number.isFinite(saved.x)) enemy.x = saved.x;
       if (Number.isFinite(saved.homeX)) enemy.homeX = saved.homeX;
+      enemy.sideSign = saved.sideSign === -1 ? -1 : 1;
       enemy.moveTargetX = enemy.x || enemy.homeX;
     });
     const target = combat.enemies[Math.max(0, Number(snapshot.targetIndex) || 0)];
@@ -3275,7 +3279,7 @@
     if (!Array.isArray(player.techniques)) player.techniques = [];
     if (player.techniques.includes(techniqueId)) return { technique: PLAYER_TECHNIQUES[techniqueId], duplicate: true };
     player.techniques.push(techniqueId);
-    if (!options.silent && player === state.player) queueAcquisition({ type: 'technique', kicker: options.kicker || '习得刀法变招', name: PLAYER_TECHNIQUES[techniqueId].name, icon: '式', meta: options.source || '刀法所得', desc: PLAYER_TECHNIQUES[techniqueId].desc, effects: [PLAYER_TECHNIQUES[techniqueId].input], note: '变招需要在普通连锋前两式后按住方向再出刀。' });
+    if (!options.silent && player === state.player) queueAcquisition({ type: 'technique', kicker: options.kicker || '习得刀法变招', name: PLAYER_TECHNIQUES[techniqueId].name, icon: '式', meta: options.source || '刀法所得', desc: PLAYER_TECHNIQUES[techniqueId].desc, effects: [PLAYER_TECHNIQUES[techniqueId].input], note: '变招需要按招式说明衔接格挡、跳跃、闪避与出刀。' });
     return { technique: PLAYER_TECHNIQUES[techniqueId], duplicate: false };
   }
   function grantRelic(player, relicId, options = {}) {
@@ -4035,6 +4039,26 @@
   function nodeHasEnemy(node) {
     return ['battle', 'elite', 'boss'].includes(node?.type) && node.enemy;
   }
+  function ensureSingleMapEnemyState(room) {
+    if (!nodeHasEnemy(room)) return null;
+    const enemy = room.enemy;
+    if (!Number.isFinite(enemy.mapX) || !Number.isFinite(enemy.mapY)) {
+      const offset = enemy.boss ? 0 : enemy.elite ? 6 : room.local % 2 ? 18 : -18;
+      enemy.mapX = room.x + offset;
+      enemy.mapY = room.y + (room.local % 3) * 3;
+    }
+    if (!Number.isFinite(enemy.mapHomeX)) enemy.mapHomeX = enemy.mapX;
+    if (!Number.isFinite(enemy.mapHomeY)) enemy.mapHomeY = enemy.mapY;
+    if (!Number.isFinite(enemy.patrolPhase)) enemy.patrolPhase = (room.local || 0) * .83 + room.x * .011;
+    if (typeof enemy.mapAggro !== 'boolean') enemy.mapAggro = false;
+    if (!enemy.mapFacing) enemy.mapFacing = 'right';
+    return enemy;
+  }
+
+  function singleMapEnemyPosition(room) {
+    const enemy = ensureSingleMapEnemyState(room);
+    return enemy ? { x: enemy.mapX, y: enemy.mapY } : { x: room.x, y: room.y + 18 };
+  }
   function mapPickupDetectRadius(pickup, player) {
     return (pickup.kind === 'chart' ? 132 : 105) + Math.min(130, (player.relicMapReveal || 220) * .22);
   }
@@ -4506,8 +4530,12 @@
     });
     (map.rooms || []).forEach((room) => {
       if (room.layer !== layer || (room.hiddenArea && !map.hiddenAreas?.[room.region]) || map.cleared.includes(room.id) || ['entry', 'exit'].includes(room.type)) return;
-      const distance = Math.hypot(p.x - room.x, p.y - room.y);
-      if (distance > room.r * .72) return;
+      let distance = Math.hypot(p.x - room.x, p.y - room.y);
+      if (nodeHasEnemy(room)) {
+        const enemyPos = singleMapEnemyPosition(room);
+        distance = Math.hypot(p.x - enemyPos.x, p.y - enemyPos.y);
+        if (distance > Math.max(74, room.r * .62)) return;
+      } else if (distance > room.r * .72) return;
       let label;
       if (nodeHasEnemy(room)) {
         const base = ENEMY_TYPES[room.enemy.typeId], variant = room.enemy.elite ? ELITE_VARIANTS[room.enemy.typeId] : null;
@@ -4870,6 +4898,62 @@
     return { x, y, dx: x - p.x, dy: y - p.y, collided };
   }
 
+  function updateSingleMapEnemies(map, now, dt) {
+    if (!map || map.triggering) return false;
+    const player = map.player;
+    for (const room of map.rooms || []) {
+      if (!nodeHasEnemy(room) || map.cleared.includes(room.id) || room.layer !== player.layer) continue;
+      if (room.hiddenArea && !map.hiddenAreas?.[room.region]) continue;
+      const enemy = ensureSingleMapEnemyState(room);
+      if (!enemy) continue;
+      const dx = player.x - enemy.mapX;
+      const dy = player.y - enemy.mapY;
+      const distance = Math.hypot(dx, dy);
+      const canAggro = !enemy.elite && !enemy.boss;
+      if (canAggro) {
+        if (!enemy.mapAggro && distance <= 158) {
+          enemy.mapAggro = true;
+          playSound('enemy');
+        } else if (enemy.mapAggro && distance > 245) {
+          enemy.mapAggro = false;
+        }
+      } else {
+        enemy.mapAggro = false;
+      }
+      if (enemy.mapAggro) {
+        const step = Math.min(distance, 58 * Math.max(0, dt));
+        let nx = enemy.mapX + (distance > .001 ? dx / distance : 0) * step;
+        let ny = enemy.mapY + (distance > .001 ? dy / distance : 0) * step;
+        if (!singleMapPointWalkable(map, nx, ny, 13)) {
+          if (singleMapPointWalkable(map, nx, enemy.mapY, 13)) ny = enemy.mapY;
+          else if (singleMapPointWalkable(map, enemy.mapX, ny, 13)) nx = enemy.mapX;
+          else { nx = enemy.mapX; ny = enemy.mapY; }
+        }
+        enemy.mapMoving = Math.hypot(nx - enemy.mapX, ny - enemy.mapY) > .1;
+        if (Math.abs(dx) > 1) enemy.mapFacing = dx < 0 ? 'left' : 'right';
+        enemy.mapX = nx;
+        enemy.mapY = ny;
+        if (distance <= 44) {
+          resolveSingleRoom(room);
+          return true;
+        }
+      } else {
+        const homeX = enemy.mapHomeX ?? room.x;
+        const homeY = enemy.mapHomeY ?? room.y;
+        const patrolRange = enemy.boss ? 3 : enemy.elite ? 14 : 24;
+        const targetX = homeX + Math.sin(now * .00155 + enemy.patrolPhase) * patrolRange;
+        const targetY = homeY + Math.cos(now * .0012 + enemy.patrolPhase * 1.7) * Math.min(7, patrolRange * .32);
+        const oldX = enemy.mapX;
+        const follow = Math.min(1, Math.max(.08, dt * 3.4));
+        enemy.mapX += (targetX - enemy.mapX) * follow;
+        enemy.mapY += (targetY - enemy.mapY) * follow;
+        enemy.mapMoving = Math.abs(enemy.mapX - oldX) > .08;
+        if (enemy.mapMoving) enemy.mapFacing = enemy.mapX < oldX ? 'left' : 'right';
+      }
+    }
+    return false;
+  }
+
   function updateSingleMap(now, dt) {
     const map = state.singleMap; if (!map) return;
     let dx = (movementInput.right ? 1 : 0) - (movementInput.left ? 1 : 0) + (controllerInput.right ? 1 : 0) - (controllerInput.left ? 1 : 0);
@@ -4908,6 +4992,7 @@
     else if (!hasInput && !p.moving && singleMapWasMoving) { singleMapSaveAt = now; saveCurrentRun('map'); }
     singleMapWasMoving = hasInput || p.moving;
     if (sprinting && p.moving) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === p.layer && Math.hypot(p.x - trap.x, p.y - trap.y) < 30); if (sprung) { triggerMapTrap(sprung); return; } }
+    if (updateSingleMapEnemies(map, now, dt)) return;
     const room = singleMapRoomAt(map, map.player.x, map.player.y);
     if (room && room.id !== map.currentId) {
       map.currentId = room.id;
@@ -4933,8 +5018,8 @@
     for (let i = 0; i <= 18; i++) { const angle = (i / 18) * Math.PI * 2; const wobble = 1 + Math.sin(i * 2.7 + room.local * 1.3) * .08 + Math.cos(i * 1.9 + room.region) * .045; const x = room.x + Math.cos(angle) * room.r * wobble; const y = room.y + Math.sin(angle) * room.r * .78 * wobble; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
     ctx.closePath();
   }
-  function drawMapGuard(ctx, x, y, time, scale, elite, boss) {
-    ctx.save(); ctx.translate(x, y); ctx.scale(scale, scale); const stride = Math.sin(time * .004 + x * .01) * 2.2;
+  function drawMapGuard(ctx, x, y, time, scale, elite, boss, facing = 'right') {
+    ctx.save(); ctx.translate(x, y); ctx.scale(scale * (facing === 'left' ? -1 : 1), scale); const stride = Math.sin(time * .004 + x * .01) * 2.2;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 22, 17, 6, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = boss ? '#e36854' : elite ? '#e1b46a' : '#b98767'; ctx.lineWidth = 3.2; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(-5, 8); ctx.lineTo(-8 + stride, 24); ctx.moveTo(5, 8); ctx.lineTo(8 - stride, 24); ctx.stroke();
     ctx.fillStyle = boss ? '#521b19' : elite ? '#4b3522' : '#34251d'; ctx.beginPath(); ctx.roundRect(-10, -18, 20, 29, 5); ctx.fill(); ctx.strokeStyle = boss ? '#ff987d' : elite ? '#f0cc80' : '#d9b08e'; ctx.lineWidth = 2; ctx.stroke();
@@ -5117,12 +5202,18 @@
     const charted = !!map.charts[map.regionIndex];
     map.rooms.filter((room) => nodeHasEnemy(room) && !clearedSet.has(room.id) && (!room.hiddenArea || map.hiddenAreas?.[room.region])
       && room.x + 120 >= viewMinX && room.x - 120 <= viewMaxX && room.y + 120 >= viewMinY && room.y - 120 <= viewMaxY).forEach((room) => {
-      const distance = Math.hypot(map.player.x - room.x, map.player.y - room.y);
+      const enemyPos = singleMapEnemyPosition(room);
+      const distance = Math.hypot(map.player.x - enemyPos.x, map.player.y - enemyPos.y);
       if (!map.charts[room.region] && distance > 470) return;
       ctx.save(); ctx.globalAlpha = room.layer === map.player.layer ? 1 : .13;
-      drawMapGuard(ctx, room.x + (room.local % 2 ? 32 : -32), room.y + 18, now, room.enemy.boss ? 1.25 : room.enemy.elite ? 1.08 : .92, room.enemy.elite, room.enemy.boss);
+      drawMapGuard(ctx, enemyPos.x, enemyPos.y, now, room.enemy.boss ? 1.25 : room.enemy.elite ? 1.08 : .92, room.enemy.elite, room.enemy.boss, room.enemy.mapFacing);
       const base = ENEMY_TYPES[room.enemy.typeId], variant = room.enemy.elite ? ELITE_VARIANTS[room.enemy.typeId] : null, enemyName = room.enemy.boss ? (room.bossTitle || map.bossTitle) : variant?.name || base?.name || '敌军';
-      if (distance < 320 || map.charts[room.region]) { ctx.fillStyle = room.enemy.boss ? '#ff9c86' : room.enemy.elite ? '#f1ca78' : '#d8b08b'; ctx.font = 'bold 13px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(enemyName, room.x, room.y - 72); }
+      if (distance < 320 || map.charts[room.region]) { ctx.fillStyle = room.enemy.boss ? '#ff9c86' : room.enemy.elite ? '#f1ca78' : '#d8b08b'; ctx.font = 'bold 13px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(enemyName, enemyPos.x, enemyPos.y - 72); }
+      if (room.enemy.mapAggro) {
+        const pulse = .72 + Math.sin(now * .016) * .2;
+        ctx.globalAlpha = pulse; ctx.fillStyle = '#ff6b52'; ctx.font = '900 24px serif'; ctx.textAlign = 'center';
+        ctx.fillText('!', enemyPos.x, enemyPos.y - 92);
+      }
       ctx.restore();
     });
     (map.pickups || []).forEach((pickup) => {
@@ -5198,7 +5289,7 @@
     });
     drawSingleMapPlayer(ctx, map, now);
     let targetPoint = null, targetRadius = 40;
-    if (map.nearbyAction?.kind === 'node') { const node = singleMapRoom(map, map.nearbyAction.id); if (node) { targetPoint = node; targetRadius = node.r + 8; } }
+    if (map.nearbyAction?.kind === 'node') { const node = singleMapRoom(map, map.nearbyAction.id); if (node) { const point = nodeHasEnemy(node) ? singleMapEnemyPosition(node) : node; targetPoint = { x: point.x, y: point.y, type: node.type }; targetRadius = nodeHasEnemy(node) ? 46 : node.r + 8; } }
     else if (map.nearbyAction?.kind === 'door') { const door = map.doors.find((item) => item.id === map.nearbyAction.id); if (door) { targetPoint = door; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'chest') { const chest = map.chests.find((item) => item.id === map.nearbyAction.id); if (chest) { targetPoint = chest; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'npc') { const npc = map.npcs.find((item) => item.id === map.nearbyAction.id); if (npc) { targetPoint = npc; targetRadius = 38; } }
@@ -5261,6 +5352,7 @@
       const dt = Math.min(.05, Math.max(0, (now - singleMapLastTime) / 1000));
       singleMapLastTime = now;
       updateSingleMap(now, dt);
+      if (state.screen !== 'map') { singleMapFrame = 0; return; }
       const drawStartedAt = performance.now();
       drawSingleMap(now);
       const drawFinishedAt = performance.now();
@@ -7243,10 +7335,12 @@
     if (name === 'lose') { audioTone(180, .4, 'sawtooth', .025); audioTone(110, .5, 'triangle', .025, .1); }
   }
 
-  const PLAYER_MIN_X = 185;
-  const PLAYER_MAX_X = 600;
+  const PLAYER_MIN_X = 70;
+  const PLAYER_MAX_X = 900;
   const PLAYER_MIN_Y = 302;
   const PLAYER_MAX_Y = 408;
+  const ENEMY_MIN_X = 100;
+  const ENEMY_MAX_X = 820;
   const PLAYER_SPEED = 420;
   const MELEE_RANGE = 235;
   const THRUST_RANGE = 285;
@@ -7259,26 +7353,26 @@
   };
   const PLAYER_TECHNIQUES = {
     whirlwind: {
-      id: 'whirlwind', name: '回旋破阵', short: '回旋', input: 'A / D + 左键', axis: 'horizontal',
-      desc: '借横向换步回身横扫，两刀覆盖身侧，最适合打断围攻与快刀。', windup: 170, active: 220, recovery: 330, cancelRatio: .66,
+      id: 'whirlwind', name: '回旋破阵', short: '回旋', input: '闪避 → 跳跃 → 左键', axis: 'aerial',
+      desc: '闪身之后借跃势回身横扫，两刀覆盖身侧，最适合打断围攻与快刀。', windup: 170, active: 220, recovery: 330, cancelRatio: .66,
       damage: .78, posture: 1.55, lunge: 44, hits: 2, secondDelay: 135, secondDamage: .54, secondPosture: .72,
       windupHand: [32, -28], windupTip: [102, -74], strikeHand: [-8, -38], strikeTip: [-118, -36]
     },
     breach: {
-      id: 'breach', name: '破锋进斩', short: '进斩', input: 'W + 左键', axis: 'up',
-      desc: '压低刀锋踏前破阵，前摇较长，却能把敌将架势一次劈开。', windup: 235, active: 145, recovery: 345, cancelRatio: .69,
+      id: 'breach', name: '破锋进斩', short: '进斩', input: '格挡 → 跳跃 → 左键', axis: 'guard-jump',
+      desc: '先以格挡压低重心，再跃起踏前重劈；前摇较长，却能把敌将架势一次劈开。', windup: 235, active: 145, recovery: 345, cancelRatio: .69,
       damage: 1.48, posture: 2.08, lunge: 118, hits: 1,
       windupHand: [-14, -18], windupTip: [-74, -102], strikeHand: [64, 4], strikeTip: [168, 28]
     },
     backcut: {
-      id: 'backcut', name: '藏锋回刺', short: '回刺', input: 'S + 左键', axis: 'down',
-      desc: '后撤半步藏住刀锋，再贴地回刺；退中带攻，适合躲开直线重招。', windup: 125, active: 125, recovery: 300, cancelRatio: .58,
+      id: 'backcut', name: '藏锋回刺', short: '回刺', input: '左键 → 闪避 → 左键', axis: 'attack-dodge',
+      desc: '先递出一刀逼敌应对，随即闪身藏锋，再从侧面贴地回刺。', windup: 125, active: 125, recovery: 300, cancelRatio: .58,
       damage: .96, posture: 1.46, lunge: -28, hits: 1, retreatGuard: true,
       windupHand: [48, -8], windupTip: [116, 2], strikeHand: [42, -24], strikeTip: [148, -60]
     },
     crosscut: {
-      id: 'crosscut', name: '交刃连斩', short: '交刃', input: 'W + A / D + 左键', axis: 'diagonal',
-      desc: '斜向切入敌刃内侧，以两次交刃连斩压住对手的反击。', windup: 190, active: 155, recovery: 335, cancelRatio: .67,
+      id: 'crosscut', name: '交刃连斩', short: '交刃', input: '格挡 → 闪避 → 左键', axis: 'guard-dodge',
+      desc: '格挡架开敌刃后立刻侧闪切入内侧，以两次交刃连斩压住反击。', windup: 190, active: 155, recovery: 335, cancelRatio: .67,
       damage: 1.08, posture: 1.72, lunge: 86, hits: 2, secondDelay: 105, secondDamage: .76, secondPosture: .88,
       windupHand: [4, -46], windupTip: [46, -124], strikeHand: [54, -16], strikeTip: [154, -24]
     }
@@ -7982,7 +8076,21 @@
     const enemy = targetEnemy();
     if (!enemy || !state.combat) return 999;
     const index = state.combat.enemies.indexOf(enemy);
-    return Math.max(0, enemyCanvasPosition(index).x - state.combat.playerX);
+    const pos = enemyCanvasPosition(index);
+    return Math.hypot(pos.x - state.combat.playerX, (pos.y - 24 - state.combat.playerY) * .45);
+  }
+
+  function enemySideSign(enemy) {
+    const combat = state.combat;
+    if (!combat || !enemy) return 1;
+    const diff = (enemy.x ?? enemy.homeX ?? 700) - combat.playerX;
+    if (Math.abs(diff) > 6) enemy.sideSign = diff < 0 ? -1 : 1;
+    return enemy.sideSign || 1;
+  }
+
+  function enemySideTarget(enemy, offset) {
+    const combat = state.combat;
+    return clamp((combat?.playerX ?? 360) + enemySideSign(enemy) * offset, ENEMY_MIN_X, ENEMY_MAX_X);
   }
 
   function canPlayerMove() {
@@ -7998,6 +8106,19 @@
     const combat = state.combat;
     if (!canPlayerMove()) return;
     combat.playerX = clamp(combat.playerX + delta, PLAYER_MIN_X, PLAYER_MAX_X);
+  }
+
+  function resolveCombatBodyOverlap() {
+    const combat = state.combat;
+    const enemy = targetEnemy();
+    if (!combat || !enemy || enemy.dead || (combat.jumpHeight || 0) > 20) return;
+    const pos = enemyCanvasPosition(combat.enemies.indexOf(enemy));
+    if (Math.abs(combat.playerY - pos.y) > 34) return;
+    const dx = combat.playerX - pos.x;
+    if (Math.abs(dx) >= 44) return;
+    const direction = Math.abs(combat.moveVelocity) > 5 ? Math.sign(combat.moveVelocity) : Math.sign(dx) || combat.facing || 1;
+    combat.playerX = clamp(pos.x + direction * 44, PLAYER_MIN_X, PLAYER_MAX_X);
+    combat.facing = direction;
   }
 
   function spawnFootDust(x, direction, y = (state.combat?.playerY || 352) + 30) {
@@ -8038,6 +8159,7 @@
     const acceleration = inputLength ? 3600 : 5200;
     combat.moveVelocity += clamp(targetVelocityX - combat.moveVelocity, -acceleration * dt, acceleration * dt);
     combat.moveVelocityY += clamp(targetVelocityY - combat.moveVelocityY, -acceleration * dt, acceleration * dt);
+    if (Math.abs(combat.moveVelocity) > 12) combat.facing = combat.moveVelocity < 0 ? -1 : 1;
     if (!directionX && Math.abs(combat.moveVelocity) < 4) combat.moveVelocity = 0;
     if (!directionY && Math.abs(combat.moveVelocityY) < 4) combat.moveVelocityY = 0;
     const speed = Math.hypot(combat.moveVelocity, combat.moveVelocityY);
@@ -8080,6 +8202,7 @@
     }
     if (state.screen === 'battle' && state.combat && !state.combat.finished && !state.player.postureBroken) {
       if (state.combat.busy && !cancelPlayerRecovery()) return;
+      if (!state.combat.blockHeld) recordCombatAction('guard');
       state.combat.blockHeld = true;
       state.combat.blockHeldAt = performance.now();
       setActionState();
@@ -8096,7 +8219,8 @@
     if (!combat || combat.finished || state.screen !== 'battle' || !p || p.postureBroken || p.hitstunUntil > performance.now() || combat.blockHeld) return false;
     if (!combat.grounded) return false;
     combat.grounded = false;
-    combat.jumpVelocity = 430;
+    recordCombatAction('jump');
+    combat.jumpVelocity = 470;
     combat.jumpHeight = Math.max(1, combat.jumpHeight || 0);
     combat.stompDone = false;
     combat.dodge = null;
@@ -8108,27 +8232,39 @@
   function updateJumpPhysics(dt, now) {
     const combat = state.combat, p = state.player;
     if (!combat || !p || combat.grounded && (combat.jumpHeight || 0) <= 0) return;
-    combat.jumpVelocity -= 760 * dt;
+    // 上升略轻、下落更快，弧线更利落，也避免在空中停留过久。
+    const gravity = combat.jumpVelocity > 0 ? 900 : 1320;
+    combat.jumpVelocity -= gravity * dt;
     combat.jumpHeight = Math.max(0, (combat.jumpHeight || 0) + combat.jumpVelocity * dt);
     if (combat.jumpVelocity < 0 && !combat.stompDone) {
       const target = targetEnemy();
-      if (target && !target.dead && Math.abs((target.x || 735) - combat.playerX) < 105 && combat.jumpHeight > 42 && combat.jumpHeight < 118) {
+      const targetPos = target ? enemyCanvasPosition(combat.enemies.indexOf(target)) : null;
+      if (target && !target.dead && targetPos && Math.abs(targetPos.x - combat.playerX) < 98 && combat.jumpHeight > 34 && combat.jumpHeight < 128) {
         combat.stompDone = true;
-        combat.jumpVelocity = -120;
+        combat.jumpVelocity = 225;
+        combat.facing = targetPos.x < combat.playerX ? -1 : 1;
         target.status.stun = Math.max(target.status.stun || 0, 1);
-        target.hitstunUntil = Math.max(target.hitstunUntil || 0, now + 420);
+        target.hitstunUntil = Math.max(target.hitstunUntil || 0, now + 520);
         target.intent = { type: 'stunned', label: '踩头打断 · 迟滞', value: 0 };
-        addEnemyPosture(target, 24);
-        scene.shake = Math.max(scene.shake, 10);
-        scene.goldFlash = Math.max(scene.goldFlash, .42);
-        const stompPos = enemyCanvasPosition(combat.enemies.indexOf(target));
-        spawnParticles(stompPos.x, stompPos.y - 55, '#ffd66e', 24);
+        addEnemyPosture(target, 30);
+        scene.shake = Math.max(scene.shake, 13);
+        scene.goldFlash = Math.max(scene.goldFlash, .5);
+        spawnParticles(targetPos.x, targetPos.y - 55, '#ffd66e', 30);
+        spawnFloat(targetPos.x, targetPos.y - 125, '踩头!', '#fff0b0');
         playSound('guard');
-        addLog('<strong>踏敌肩头</strong>，打断了敌将的起手。', 'good');
+        playSound('boom');
+        addLog('<strong>踩头借力</strong>：敌将起手被踏断，队伍借势再次跃起。', 'good');
         if (state.training?.active && state.training.step === 7) recordTrainingSuccess(7);
       }
     }
-    if (combat.jumpHeight <= 0) { combat.jumpHeight = 0; combat.jumpVelocity = 0; combat.grounded = true; combat.stompDone = false; }
+    if (combat.jumpHeight <= 0 && !combat.grounded) {
+      combat.jumpHeight = 0;
+      combat.jumpVelocity = 0;
+      combat.grounded = true;
+      combat.stompDone = false;
+      spawnFootDust(combat.playerX, combat.facing || 1, combat.playerY + 28);
+      scene.shake = Math.max(scene.shake, 2.5);
+    }
   }
 
   function performDodge() {
@@ -8189,6 +8325,8 @@
     const endY = clamp(startY + inputY * dodgeDistance * .42, PLAYER_MIN_Y, PLAYER_MAX_Y);
     combat.moveVelocity = 0;
     combat.moveVelocityY = 0;
+    if (direction) combat.facing = direction;
+    recordCombatAction('dodge', now);
     combat.dodge = { start: now, duration: 280, startX, endX, startY, endY, direction, verticalDirection, identify: thrustDodge };
     combat.invulnerableUntil = now + 440;
     p.dodgeCooldownUntil = now + Math.round(780 * (1 - (p.dodgeCooldownReduction || 0)));
@@ -8222,7 +8360,9 @@
     if (!combat || !enemy || state.screen !== 'battle') return;
     const now = performance.now();
     const enemyIndex = combat.enemies.indexOf(enemy);
-    const impactX = playerCenterX() + 66;
+    const enemyPos = enemyCanvasPosition(enemyIndex);
+    const towardEnemy = Math.sign(enemyPos.x - combat.playerX) || combat.facing || 1;
+    const impactX = playerCenterX() + towardEnemy * 66;
     const impactY = combat.playerY + 22;
     combat.busy = true;
     combat.phase = 'enemy';
@@ -8539,7 +8679,7 @@
     if (!locked && !state.combat.holding) {
       if (state.combat.comboStage > 0 && state.combat.comboStage < 5 && now <= (state.combat.comboExpiresAt || 0)) {
         const nextStage = state.combat.comboStage + 1;
-        const techHint = state.combat.comboStage >= 2 && (state.player.techniques || []).length ? ' · W/A/S/D + 左键可变招' : '';
+        const techHint = state.combat.comboStage >= 2 && (state.player.techniques || []).length ? ' · 格挡 / 闪避 / 跳跃后接左键可变招' : '';
         setText(dom.controlHint, `左键续上第 ${nextStage} 式${techHint}`);
         return;
       }
@@ -8589,7 +8729,7 @@
     state.boss = boss;
     state.combat = {
       enemies: createEnemies(route, boss),
-      busy: false, phase: 'player', holding: false, holdStart: 0, holdFrame: 0, playerX: 360, playerRenderX: 360, playerY: 352, playerRenderY: 352, ammo: 6, targetId: null, boss,
+      busy: false, phase: 'player', holding: false, holdStart: 0, holdFrame: 0, playerX: 360, playerRenderX: 360, playerY: 352, playerRenderY: 352, facing: 1, ammo: 6, targetId: null, boss, actionHistory: [],
       emergencyUses: 1 + (state.player?.emergencyBonus || 0), blockHeld: false, jumpHeight: 0, jumpVelocity: 0, grounded: true, stompDone: false, blockHeldAt: 0, dodge: null, invulnerableUntil: 0, moveVelocity: 0, moveVelocityY: 0, stepPhase: 0, lastFootstep: 0, queuedAttack: null, queuedDodge: false, counterWindowUntil: 0, comboStage: 0, comboExpiresAt: 0, dodgeCounterUntil: 0, counterKind: null, counterStep: 0, counterExpiresAt: 0, logs: [], started: Date.now(), finished: false, lastPostureUi: 0, actionSerial: 0
     };
     if (resumeSnapshot) applyCombatSnapshot(state.combat, resumeSnapshot);
@@ -8883,7 +9023,7 @@ function breakPlayerPosture() {
     enemy.posture = enemy.maxPosture;
     enemy.postureBreakUntil = performance.now() + (enemy.boss ? 3000 : 3800);
     enemy.action = 'collapse';
-    enemy.moveTargetX = Math.min(enemy.x, state.combat.playerX + 185);
+    enemy.moveTargetX = enemy.x;
     enemy.intent = { type: 'broken', label: '架势崩溃 · 可处决', value: 0 };
     const index = state.combat.enemies.indexOf(enemy);
     const pos = enemyCanvasPosition(index);
@@ -9308,9 +9448,10 @@ function breakPlayerPosture() {
     if (!enemy) return;
     const distance = currentEnemyDistance();
     const enemyPos = enemyCanvasPosition(state.combat.enemies.indexOf(enemy));
-    const muzzleX = playerCenterX() + 62;
+    const facing = state.combat.facing || 1;
+    const muzzleX = playerCenterX() + facing * 62;
     const result = calculatePlayerDamage(enemy, (distance > MELEE_RANGE ? .72 : .9) * (1 + (state.player.rangedBonus || 0)), { critBonus: .03 });
-    spawnProjectile(muzzleX, 300, enemyPos.x - 35, 302, '#ffe08a', { life: .16, width: 3 });
+    spawnProjectile(muzzleX, 300, enemyPos.x - facing * 35, 302, '#ffe08a', { life: .16, width: 3 });
     spawnParticles(muzzleX + 6, 300, '#ffd36a', 14);
     scene.shake = Math.max(scene.shake, 4);
     playSound('rifle');
@@ -9318,15 +9459,33 @@ function breakPlayerPosture() {
     addLog(`<strong>步枪射击</strong>命中 ${enemy.name}。`, 'good');
   }
 
-  function directionalTechniqueForPlayer(player) {
-    if (!player || !Array.isArray(player.techniques)) return null;
-    const horizontal = movementInput.left || movementInput.right || controllerInput.left || controllerInput.right;
-    const forward = movementInput.up || controllerInput.up;
-    const backward = movementInput.down || controllerInput.down;
-    if (horizontal && forward && player.techniques.includes('crosscut')) return 'crosscut';
-    if (horizontal && player.techniques.includes('whirlwind')) return 'whirlwind';
-    if (forward && player.techniques.includes('breach')) return 'breach';
-    if (backward && player.techniques.includes('backcut')) return 'backcut';
+  function recordCombatAction(action, now = performance.now()) {
+    const combat = state.combat;
+    if (!combat || !action) return;
+    if (!Array.isArray(combat.actionHistory)) combat.actionHistory = [];
+    const last = combat.actionHistory[combat.actionHistory.length - 1];
+    if (!last || last.action !== action || now - last.at > 180) combat.actionHistory.push({ action, at: now });
+    combat.actionHistory = combat.actionHistory.filter((entry) => now - entry.at <= 2800).slice(-10);
+  }
+
+  function hasCombatActionSequence(combat, sequence, now) {
+    if (!combat || !Array.isArray(combat.actionHistory)) return false;
+    const recent = combat.actionHistory.filter((entry) => now - entry.at <= 2800);
+    let index = 0;
+    for (const entry of recent) {
+      if (entry.action === sequence[index]) index += 1;
+      if (index >= sequence.length) return true;
+    }
+    return false;
+  }
+
+  function actionTechniqueForPlayer(player, combat, now) {
+    if (!player || !combat || !Array.isArray(player.techniques)) return null;
+    const has = (id) => player.techniques.includes(id);
+    if (has('crosscut') && hasCombatActionSequence(combat, ['guard', 'dodge'], now)) return 'crosscut';
+    if (has('whirlwind') && hasCombatActionSequence(combat, ['dodge', 'jump'], now)) return 'whirlwind';
+    if (has('breach') && hasCombatActionSequence(combat, ['guard', 'jump'], now)) return 'breach';
+    if (has('backcut') && hasCombatActionSequence(combat, ['attack', 'dodge'], now)) return 'backcut';
     return null;
   }
 
@@ -9372,6 +9531,10 @@ function breakPlayerPosture() {
       return;
     }
     const target = targetEnemy();
+    if (target) {
+      const targetPos = enemyCanvasPosition(combat.enemies.indexOf(target));
+      if (Math.abs(targetPos.x - combat.playerX) > 4) combat.facing = targetPos.x < combat.playerX ? -1 : 1;
+    }
     const executionDistance = currentEnemyDistance();
     if (target?.status.broken) {
       if (actionType === 'shoot') {
@@ -9404,7 +9567,15 @@ function breakPlayerPosture() {
     let counterProfile = null;
     let techniqueId = null;
     if (actionType === 'normal') {
-      if (counterKind) {
+      const sequenceTechnique = actionTechniqueForPlayer(p, combat, now);
+      if (sequenceTechnique) {
+        techniqueId = sequenceTechnique;
+        actionType = 'technique';
+        counterKind = null;
+        counterProfile = null;
+        counterStep = 0;
+        combat.actionHistory = [];
+      } else if (counterKind) {
         const chain = PLAYER_COUNTER_PROFILES[counterKind] || [];
         const continuing = combat.counterKind === counterKind && now <= (combat.counterExpiresAt || 0);
         counterStep = continuing ? Math.min(chain.length, (combat.counterStep || 0) + 1) : 1;
@@ -9412,9 +9583,7 @@ function breakPlayerPosture() {
       } else {
         counterKind = null;
         const canChain = combat.comboStage > 0 && now <= (combat.comboExpiresAt || 0);
-        if (canChain && combat.comboStage >= 2) techniqueId = directionalTechniqueForPlayer(p);
-        if (techniqueId) actionType = 'technique';
-        else comboStage = canChain ? (combat.comboStage % 5) + 1 : 1;
+        comboStage = canChain ? (combat.comboStage % 5) + 1 : 1;
       }
     }
     const techniqueProfile = techniqueId ? PLAYER_TECHNIQUES[techniqueId] : null;
@@ -9465,6 +9634,7 @@ function breakPlayerPosture() {
       combat.comboExpiresAt = 0;
     }
     const attack = { type: actionType, followup, comboStage, techniqueId, counterKind, counterStep, aerial, start: now, windup, active, recovery, total, cancelAt, resolved: false, cancelled: false, impactTimer: 0, finishTimer: 0 };
+    if (!techniqueId && (actionType === 'normal' || actionType === 'thrust')) recordCombatAction('attack', now);
     scene.playerAttack = attack;
     dom.controlHint.textContent = actionType === 'execute' ? '处决！' : actionType === 'thrust' ? '突刺蓄势…' : actionType === 'shoot' ? '举枪瞄准…' : techniqueProfile ? `${techniqueProfile.name} · ${techniqueProfile.input}` : counterProfile ? `${counterProfile.name} · 第 ${counterStep} 刀` : `${comboProfile?.name || '突击'} · 第 ${comboStage} 式`;
     if (comboStage) showComboStage(comboStage);
@@ -9486,7 +9656,9 @@ function breakPlayerPosture() {
       scene.lunge = actionType === 'thrust' ? 1.5 : actionType === 'execute' ? 1.7 : actionType === 'shoot' ? .15 : attackProfile ? attackProfile.lunge / 52 : 1;
       if (attack.counterKind === 'dodge' && attack.counterStep === 1) {
         const enemyPos = enemyCanvasPosition(combat.enemies.indexOf(targetEnemy()));
-        combat.playerX = clamp(enemyPos.x - MELEE_RANGE * .72, PLAYER_MIN_X, PLAYER_MAX_X);
+        const side = combat.playerX >= enemyPos.x ? 1 : -1;
+        combat.playerX = clamp(enemyPos.x + side * MELEE_RANGE * .72, PLAYER_MIN_X, PLAYER_MAX_X);
+        combat.facing = side;
       }
       playSound('swing');
       if (actionType === 'execute') executeBrokenEnemy();
@@ -10075,7 +10247,7 @@ function breakPlayerPosture() {
       }
       const hitIntent = { type: step === 1 ? 'attack' : 'quick', label: `旋风斩 · 第 ${step} 刀` };
       enemy.action = 'attack';
-      enemy.moveTargetX = clamp(combat.playerX + 270, 510, 825);
+      enemy.moveTargetX = enemySideTarget(enemy, 270);
       if (step > 1) {
         scene.shake = Math.max(scene.shake, 5 + step);
         spawnParticles(enemyCanvasPosition(combat.enemies.indexOf(enemy)).x - 45, 310, step % 2 ? '#f1c977' : '#ff7d61', 12 + step);
@@ -10121,7 +10293,7 @@ function breakPlayerPosture() {
   async function performBlinkSlash(combat, enemy) {
     addLog(`<strong>${enemy.name}</strong> 压低身形，突然化作一道残影切入阵前。`, 'bad');
     enemy.action = 'blink';
-    enemy.moveTargetX = clamp(combat.playerX + 242, 505, 825);
+    enemy.moveTargetX = enemySideTarget(enemy, 242);
     const start = enemyCanvasPosition(combat.enemies.indexOf(enemy));
     spawnParticles(start.x + 24, start.y - 38, '#d9b978', 24);
     playSound('swing');
@@ -10236,7 +10408,7 @@ function breakPlayerPosture() {
     await sleep(520);
     if (!canContinueEnemySequence(combat, enemy)) return;
     enemy.action = 'dash';
-    enemy.moveTargetX = clamp(combat.playerX + 238, 455, 760);
+    enemy.moveTargetX = enemySideTarget(enemy, 238);
     playSound('swing');
     await sleep(410);
     if (!canContinueEnemySequence(combat, enemy)) return;
@@ -10313,7 +10485,7 @@ function breakPlayerPosture() {
     await sleep(620);
     if (!canContinueEnemySequence(combat, enemy)) return;
     enemy.action = 'dash';
-    enemy.moveTargetX = clamp(combat.playerX + 246, 455, 760);
+    enemy.moveTargetX = enemySideTarget(enemy, 246);
     scene.shake = Math.max(scene.shake, 8);
     await sleep(340);
     if (!canContinueEnemySequence(combat, enemy)) return;
@@ -10395,14 +10567,14 @@ function breakPlayerPosture() {
   async function performFeintDash(combat, enemy) {
     const enemyIndex = combat.enemies.indexOf(enemy);
     enemy.action = 'backstep';
-    enemy.moveTargetX = clamp(combat.playerX + 350, 560, 825);
+    enemy.moveTargetX = enemySideTarget(enemy, 350);
     const firstPos = enemyCanvasPosition(enemyIndex);
     spawnFloat(firstPos.x, firstPos.y - 130, '虚晃后撤', '#ffc878');
     addLog(`<strong>${enemy.name}</strong> 左右虚晃两次，故意拉开半步，随后突然贴身。`, 'bad');
     await sleep(300);
     if (!canContinueEnemySequence(combat, enemy)) return;
     enemy.action = 'blink';
-    enemy.moveTargetX = clamp(combat.playerX + 224, 450, 755);
+    enemy.moveTargetX = enemySideTarget(enemy, 224);
     spawnParticles(enemyCanvasPosition(enemyIndex).x, 315, '#e78360', 22);
     await sleep(260);
     if (!canContinueEnemySequence(combat, enemy)) return;
@@ -10437,7 +10609,7 @@ function breakPlayerPosture() {
   async function performFrostmarksmanMove(combat, enemy) {
     const label = enemy.eliteSpecial?.label || '雪岭锁魂铳';
     enemy.action = 'backstep';
-    enemy.moveTargetX = clamp(combat.playerX + 450, 680, 865);
+    enemy.moveTargetX = enemySideTarget(enemy, 450);
     scene.goldFlash = Math.max(scene.goldFlash, .18);
     addLog(`<strong>${enemy.name}</strong> 退入雪幕，先架起冷枪锁住阵前。`, 'bad');
     await sleep(230);
@@ -10467,7 +10639,7 @@ function breakPlayerPosture() {
     await sleep(90);
     if (!canContinueEnemySequence(combat, enemy)) return;
     enemy.action = 'dash';
-    enemy.moveTargetX = clamp(combat.playerX + 225, 470, 785);
+    enemy.moveTargetX = enemySideTarget(enemy, 225);
     spawnParticles(enemyCanvasPosition(combat.enemies.indexOf(enemy)).x, 310, '#c9d8de', 20);
     addLog(`<strong>${enemy.name}</strong> 借着枪声前压，枪刃贴着雪面刺来。`, 'bad');
     await sleep(190);
@@ -10506,7 +10678,7 @@ function breakPlayerPosture() {
     await sleep(80);
     if (!canContinueEnemySequence(combat, enemy)) return;
     enemy.action = 'backstep';
-    enemy.moveTargetX = clamp(combat.playerX + 430, 650, 865);
+    enemy.moveTargetX = enemySideTarget(enemy, 430);
     await sleep(130);
     if (!canContinueEnemySequence(combat, enemy)) return;
     shot = await promptEnemyShot(enemy, {
@@ -10570,14 +10742,14 @@ function breakPlayerPosture() {
       addLog(`<strong>${enemy.name}</strong> 举起重盾，借盾墙压进。`, 'bad');
     } else if (enemy.typeId === 'skirmisher' || enemy.typeId === 'swamp') {
       enemy.action = 'blink';
-      enemy.moveTargetX = clamp(combat.playerX + 218, 470, 790);
+      enemy.moveTargetX = enemySideTarget(enemy, 218);
       spawnParticles(enemyCanvasPosition(combat.enemies.indexOf(enemy)).x, 316, enemy.typeId === 'swamp' ? '#809a63' : '#e57a57', 22);
       await sleep(enemy.typeId === 'swamp' ? 110 : 165);
       if (!canContinueEnemySequence(combat, enemy)) return;
       addLog(`<strong>${enemy.name}</strong> ${enemy.typeId === 'swamp' ? '贴着泥影伏低，短刃已经出鞘' : '踏出残影，双刃一前一后封住退路'}。`, 'bad');
     } else if (enemy.typeId === 'cavalry') {
       enemy.action = 'dash';
-      enemy.moveTargetX = clamp(combat.playerX + 205, 465, 785);
+      enemy.moveTargetX = enemySideTarget(enemy, 205);
       scene.shake = Math.max(scene.shake, 9);
       await sleep(230);
       if (!canContinueEnemySequence(combat, enemy)) return;
@@ -10589,7 +10761,7 @@ function breakPlayerPosture() {
       enemy.status.armor = 1;
       enemy.armorUntil = performance.now() + 4400;
       enemy.action = 'advanceWindup';
-      enemy.moveTargetX = clamp(combat.playerX + 215, 470, 780);
+      enemy.moveTargetX = enemySideTarget(enemy, 215);
       scene.shake = Math.max(scene.shake, 10);
       spawnParticles(enemyCanvasPosition(combat.enemies.indexOf(enemy)).x - 12, 312, '#d59b57', 22);
       await sleep(210);
@@ -10603,7 +10775,7 @@ function breakPlayerPosture() {
       addLog(`<strong>${enemy.name}</strong> 拨马回身，枪尾猛地一沉，三记贯刺蓄势待发。`, 'bad');
     } else if (enemy.typeId === 'bogReaper') {
       enemy.action = 'feintDash';
-      enemy.moveTargetX = clamp(combat.playerX + 218, 470, 790);
+      enemy.moveTargetX = enemySideTarget(enemy, 218);
       spawnParticles(enemyCanvasPosition(combat.enemies.indexOf(enemy)).x, 314, '#89a46c', 24);
       await sleep(145);
       if (!canContinueEnemySequence(combat, enemy)) return;
@@ -10743,7 +10915,7 @@ function breakPlayerPosture() {
       await performRealtimeEnemyAction(combat, enemy, index);
       if (state.combat !== combat || combat.finished) return;
       enemy.action = 'patrol';
-      enemy.moveTargetX = clamp(enemy.homeX + (state.rng() - .5) * 110, combat.playerX + 235, 845);
+      enemy.moveTargetX = enemySideTarget(enemy, 235 + (state.rng() - .5) * 70);
       await sleep(260 + Math.floor(state.rng() * 180));
     }
   }
@@ -10761,10 +10933,10 @@ function breakPlayerPosture() {
     const feintPattern = intent.type === 'feintDash';
     const ranged = intent.type === 'shot' || intent.type === 'backstepShot';
     const targetX = retreatPattern
-      ? clamp(combat.playerX + 430, 650, 860)
-      : advancePattern ? clamp(combat.playerX + 226, 455, 765)
-        : feintPattern ? clamp(combat.playerX + 330, 545, 820)
-          : ranged ? clamp(combat.playerX + 420, 650, 865) : clamp(combat.playerX + 252, 500, 815);
+      ? enemySideTarget(enemy, 430)
+      : advancePattern ? enemySideTarget(enemy, 226)
+        : feintPattern ? enemySideTarget(enemy, 330)
+          : ranged ? enemySideTarget(enemy, 420) : enemySideTarget(enemy, 252);
     enemy.action = retreatPattern ? 'backstep' : advancePattern ? 'advanceWindup' : feintPattern ? 'feintDash' : 'dash';
     enemy.moveTargetX = targetX;
     await sleep(retreatPattern ? 470 : advancePattern ? 390 : feintPattern ? 260 : ranged ? 220 : 275);
@@ -10849,7 +11021,7 @@ function breakPlayerPosture() {
     }
     if (enemy.status.broken) {
       enemy.action = 'collapse';
-      enemy.moveTargetX = Math.min(enemy.x, combat.playerX + 185);
+      enemy.moveTargetX = enemy.x;
     } else {
       enemy.action = 'retreat';
       enemy.moveTargetX = enemy.homeX;
@@ -10862,6 +11034,7 @@ function breakPlayerPosture() {
     const combat = state.combat;
     if (!combat) return;
     combat.enemies.forEach((enemy, index) => {
+      enemy.sideSign = (enemy.x ?? enemy.homeX ?? 700) >= combat.playerX ? 1 : -1;
       runEnemyBrain(combat, enemy, index);
     });
   }
@@ -10916,15 +11089,14 @@ function breakPlayerPosture() {
       if (enemy.dead || (enemy.hitstunUntil || 0) > performance.now()) return;
       const speed = enemy.action === 'blink' ? 920 : enemy.action === 'backstep' ? 560 : enemy.action === 'dash' ? 390 : enemy.action === 'advanceWindup' ? 470 : enemy.action === 'feintDash' ? 620 : enemy.action === 'thrustWindup' || enemy.action === 'cleaveWindup' || enemy.action === 'aimWindup' ? 0 : enemy.action === 'retreat' ? 250 : enemy.action === 'collapse' ? 280 : enemy.action === 'breathe' ? 80 : enemy.action === 'stagger' ? 0 : 132;
       if (enemy.status.broken) {
-        const target = clamp(enemy.moveTargetX ?? enemy.x, 0, 865);
+        const target = clamp(enemy.moveTargetX ?? enemy.x, ENEMY_MIN_X, ENEMY_MAX_X);
         const diff = target - enemy.x;
         if (Math.abs(diff) > 1) enemy.x += clamp(diff, -speed * dt, speed * dt);
         return;
       }
-      const minX = combat.playerX + 178;
-      let maxX = 865;
-      if (enemy.action === 'patrol' || enemy.action === 'retreat') maxX = Math.min(maxX, combat.playerX + 205);
-      const target = clamp(enemy.moveTargetX ?? enemy.homeX, minX, maxX);
+      let desired = enemy.moveTargetX ?? enemy.homeX;
+      if ((enemy.action === 'patrol' || enemy.action === 'retreat') && Math.abs(desired - combat.playerX) < 145) desired = enemySideTarget(enemy, 190);
+      const target = clamp(desired, ENEMY_MIN_X, ENEMY_MAX_X);
       const diff = target - enemy.x;
       if (Math.abs(diff) > 1) enemy.x += clamp(diff, -speed * dt, speed * dt);
     });
@@ -11763,9 +11935,10 @@ function breakPlayerPosture() {
     }
 
     const jumpOffset = combat?.jumpHeight || 0;
+    const facing = combat?.facing || 1;
     ctx.save();
-    ctx.translate(x + poseLunge + guardLunge + hitRecoil, y + bob + bodyY + (broken ? 9 : 0) - jumpOffset);
-    ctx.scale(1.22, 1.22);
+    ctx.translate(x + (poseLunge + guardLunge + hitRecoil) * facing, y + bob + bodyY + (broken ? 9 : 0) - jumpOffset);
+    ctx.scale(1.22 * facing, 1.22);
     if (!broken) {
       if (stunned) ctx.rotate(-.15 * hitRatio);
       else ctx.rotate(bodyAngle);
@@ -11872,6 +12045,7 @@ function breakPlayerPosture() {
     const hitRatio = clamp(hit / .25, 0, 1);
     const hitShake = hit > 0 ? (Math.random() - .5) * 10 * hitRatio : 0;
     const awayFromPlayer = pos.x >= playerCenterX() ? 1 : -1;
+    const enemyFacing = playerCenterX() < pos.x ? 1 : -1;
     const hitRecoil = hitRatio * 16 * awayFromPlayer;
     const bob = Math.sin(time * .0027 + index * 2.1) * 2;
     const scale = enemy.scale;
@@ -12257,9 +12431,9 @@ function breakPlayerPosture() {
     const shoulderSink = eliteStyle === 'shield' ? 3 : eliteStyle === 'ambush' ? 2 : 0;
 
     ctx.save();
-    ctx.translate(pos.x - lungeIn + hitShake + hitRecoil, pos.y + bob + enemyBodyY + (enemy.status.broken ? 8 : 0));
+    ctx.translate(pos.x + enemyFacing * lungeIn + hitShake + hitRecoil, pos.y + bob + enemyBodyY + (enemy.status.broken ? 8 : 0));
     const displayScale = scale * (isBoss ? 1.25 : enemy.elite ? 1.18 : 1.08);
-    ctx.scale(displayScale, displayScale);
+    ctx.scale(displayScale * enemyFacing, displayScale);
     if (enemy.status.broken) ctx.rotate(.32);
     else if (enemy.action === 'stagger') ctx.rotate(-awayFromPlayer * .16);
     else ctx.rotate(enemyBodyAngle);
@@ -12431,10 +12605,13 @@ function breakPlayerPosture() {
     }
 
     if (!state.performanceMode) {
+      ctx.save();
+      ctx.scale(enemyFacing, 1);
       ctx.fillStyle = 'rgba(239,227,200,.72)';
       ctx.font = canvasFont(isBoss ? 26 : 18, 'serif');
       ctx.textAlign = 'center';
       ctx.fillText(enemy.glyph, 0, isBoss ? -31 : -29);
+      ctx.restore();
     }
 
     if (glint > 0) {
@@ -12535,7 +12712,10 @@ function breakPlayerPosture() {
     const pos = enemyCanvasPosition(duel.enemyIndex);
     const progress = clamp(duel.progress, 0, 1);
     const lunge = duelLungeDistance(progress);
+    const direction = playerCenterX() < pos.x ? -1 : 1;
     const x = pos.x - lunge;
+    ctx.save();
+    if (direction > 0) { ctx.translate(pos.x * 2, 0); ctx.scale(-1, 1); }
     const dashing = progress >= .18 && progress < .56;
     if (dashing) {
       const pulse = clamp(1 - Math.abs(progress - .23) / .15, 0, 1);
@@ -12646,6 +12826,7 @@ function breakPlayerPosture() {
       ctx.fillText(label, x, pos.y - 153);
       ctx.restore();
     }
+    ctx.restore();
   }
 
   function updateEffects(dt) {
@@ -13138,6 +13319,7 @@ function breakPlayerPosture() {
       updateRealtimeCombat(LOGIC_STEP, now);
       updateDodge(now);
       updatePlayerMovement(LOGIC_STEP);
+      resolveCombatBodyOverlap();
       if (state.combat) {
         const blend = 1 - Math.pow(.5, LOGIC_STEP * 60);
         state.combat.playerRenderX += (state.combat.playerX - state.combat.playerRenderX) * blend;
@@ -14052,7 +14234,11 @@ function breakPlayerPosture() {
     }, 320);
   }
 
-  window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  window.__longMarch.pressGuardInput = pressGuardInput;
+  window.__longMarch.releaseGuardInput = releaseGuardInput;
+  window.__longMarch.performJump = performJump;
+
   window.__longMarch.getFramePacingDebug = () => ({
     tier: document.body.dataset.renderTier || '', active: state.screen === 'battle' ? 'battle' : 'map',
     video: { frameLimit: Number(state.videoFrameLimit) || 0, vsync: !!state.videoVSync, nextMap: normalFrameLimitState.map, nextBattle: normalFrameLimitState.battle },
