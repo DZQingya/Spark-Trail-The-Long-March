@@ -1011,6 +1011,21 @@
     dom.pauseToggle?.classList.toggle('hidden', !visible || state.testMode || !['route', 'map', 'battle', 'event', 'reward', 'shop', 'history', 'boss'].includes(state.screen));
   }
 
+  // 战斗 HUD 每 120ms 刷一次，但攻击力、等级、士气这些字段几秒才变一次。
+  // 无脑 textContent = / style.width = 会让浏览器每次都做样式重算，
+  // 先比一次值，只在真的变了才写，能省掉绝大部分 DOM 写入。
+  function setText(node, value) {
+    if (!node) return;
+    const text = value == null ? '' : String(value);
+    if (node.textContent !== text) node.textContent = text;
+  }
+
+  function setPct(node, pct) {
+    if (!node) return;
+    const width = `${Math.round(clamp(pct, 0, 100) * 100) / 100}%`;
+    if (node.style.width !== width) node.style.width = width;
+  }
+
   function setScreen(name) {
     state.screen = name;
     document.body.dataset.screen = name;
@@ -1070,7 +1085,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.8';
+  const GAME_VERSION = '0.29.10';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -2754,6 +2769,16 @@
     }).join('');
   }
 
+  // 顶部精英/首领血条当前锁定的敌人 id；画布里的浮空血条靠它避让，避免同屏两套
+  let eliteHudTargetId = null;
+  // 顶部血条高度随字号档位变化，量出来写成 --elite-hud-h，
+  // 让 #boss-warning / #player-state-warning 排在它下面，不再压在那条上面。
+  if (typeof ResizeObserver === 'function' && dom.eliteHud) {
+    new ResizeObserver(() => {
+      document.body.style.setProperty('--elite-hud-h', `${dom.eliteHud.offsetHeight}px`);
+    }).observe(dom.eliteHud);
+  }
+
   function updateEliteHealthHud() {
     const combat = state.combat;
     const target = combat
@@ -2763,13 +2788,14 @@
     const show = !!target && (target.elite || target.boss) && state.screen === 'battle';
     document.body.classList.toggle('elite-hud-active', show);
     dom.eliteHud.classList.toggle('hidden', !show);
+    eliteHudTargetId = show ? target.id : null;
     if (!show) return;
     const health = enemyHealthState(target);
-    dom.eliteHudType.textContent = target.boss ? '首领' : '精英';
-    dom.eliteHudName.textContent = target.name;
-    dom.eliteHudSegments.textContent = `尚余 ${health.remaining} 道防线`;
-    dom.eliteHudFill.style.width = `${health.currentPct}%`;
-    dom.eliteHudPostureFill.style.width = `${clamp(target.posture / target.maxPosture * 100, 0, 100)}%`;
+    setText(dom.eliteHudType, target.boss ? '首领' : '精英');
+    setText(dom.eliteHudName, target.name);
+    setText(dom.eliteHudSegments, `尚余 ${health.remaining} 道防线`);
+    setPct(dom.eliteHudFill, health.currentPct);
+    setPct(dom.eliteHudPostureFill, target.posture / target.maxPosture * 100);
     dom.eliteHud.classList.toggle('boss', !!target.boss);
     dom.eliteHud.classList.toggle('broken', !!target.status.broken);
   }
@@ -3370,8 +3396,14 @@
     };
     return `<svg class="relic-art" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="#23160e" stroke="#ecc771" stroke-width="1.5"/>${arts[id] || '<path d="M24 10l4 10 11 1-8 7 2 11-9-5-9 5 2-11-8-7 11-1z" fill="#d2a955"/>'}</svg>`;
   }
+  let topRelicSignature = '\u0000';
+
   function renderTopRelics() {
     const p = state.player; if (!dom.relicHud) return;
+    // 每次 updateMetaBars（120ms）都会调到这里，relics 和联动没变就别重建 SVG
+    const signature = (p?.relics || []).join(',') + '#' + (p?.relicSynergies || []).join(',');
+    if (signature === topRelicSignature) return;
+    topRelicSignature = signature;
     const relics = (p?.relics || []).map((id) => RELICS.find((relic) => relic.id === id)).filter(Boolean);
     const synergyRelics = new Set(RELIC_SYNERGIES.filter((synergy) => (p?.relicSynergies || []).includes(synergy.id)).flatMap((synergy) => synergy.relics));
     dom.relicHud.classList.toggle('hidden', !relics.length);
@@ -3667,48 +3699,55 @@
     showToast(`已抵达 ${room.name.split(' · ')[0]}`);
     saveCurrentRun('map');
   }
+  const metaBarsState = { buffs: '\u0000' };
+
   function updateMetaBars() {
     if (!state.player) return;
     const p = state.player;
     const fighterNames = { scout: '侦察连战士', engineer: '工兵连战士', medic: '卫生队战士', sharpshooter: '神枪排战士', vanguard: '突击排战士', quartermaster: '辎重队战士' };
-    dom.partyName.textContent = fighterNames[p.squadId] || p.name;
-    dom.partyPassive.textContent = p.passive;
+    setText(dom.partyName, fighterNames[p.squadId] || p.name);
+    setText(dom.partyPassive, p.passive);
     const globalHpPercent = clamp(p.hp / Math.max(1, p.maxHp) * 100, 0, 100);
-    dom.playerHpText.textContent = `${Math.max(0, Math.ceil(p.hp))} / ${p.maxHp}`;
-    dom.playerHpBar.style.width = `${globalHpPercent}%`;
-    dom.hudHpBar.style.width = `${globalHpPercent}%`;
+    setText(dom.playerHpText, `${Math.max(0, Math.ceil(p.hp))} / ${p.maxHp}`);
+    setPct(dom.playerHpBar, globalHpPercent);
+    setPct(dom.hudHpBar, globalHpPercent);
     const globalHpLabel = `${Math.max(0, Math.ceil(p.hp))}/${p.maxHp}`;
-    if (dom.globalPlayerHpText) dom.globalPlayerHpText.textContent = globalHpLabel;
-    if (dom.globalPlayerHpBar) dom.globalPlayerHpBar.style.width = `${globalHpPercent}%`;
+    setText(dom.globalPlayerHpText, globalHpLabel);
+    setPct(dom.globalPlayerHpBar, globalHpPercent);
     dom.globalPlayerHud?.classList.toggle('critical', globalHpPercent <= 30);
     dom.globalPlayerHud?.classList.toggle('long-values', globalHpLabel.length > 7);
-    dom.playerPostureText.textContent = `${Math.round(p.posture || 0)} / ${p.maxPosture || 100}`;
-    dom.playerPostureBar.style.width = `${clamp((p.posture || 0) / (p.maxPosture || 100) * 100, 0, 100)}%`;
-    dom.hudPostureBar.style.width = `${clamp((p.posture || 0) / (p.maxPosture || 100) * 100, 0, 100)}%`;
     const posturePct = clamp((p.posture || 0) / (p.maxPosture || 100) * 100, 0, 100);
+    setText(dom.playerPostureText, `${Math.round(p.posture || 0)} / ${p.maxPosture || 100}`);
+    setPct(dom.playerPostureBar, posturePct);
+    setPct(dom.hudPostureBar, posturePct);
     const criticalPosture = !p.postureBroken && posturePct >= 72;
     dom.hudPostureRow.classList.toggle('broken', !!p.postureBroken);
     dom.hudPostureRow.classList.toggle('critical', criticalPosture);
-    dom.hudPostureLabel.textContent = p.postureBroken ? '架势崩溃 · 重整中' : criticalPosture ? '架势临界' : '架势';
+    setText(dom.hudPostureLabel, p.postureBroken ? '架势崩溃 · 重整中' : criticalPosture ? '架势临界' : '架势');
     dom.playerPostureBar.closest('.posture-stat')?.classList.toggle('broken', !!p.postureBroken);
     dom.playerPostureBar.closest('.posture-stat')?.classList.toggle('critical', criticalPosture);
-    if (dom.gourdText && state.combat) dom.gourdText.textContent = state.combat.emergencyUses ?? 0;
-    dom.playerAtk.textContent = p.atk;
-    dom.playerDef.textContent = p.defense;
-    dom.playerMorale.textContent = Math.round(p.morale);
-    dom.playerSupply.textContent = Math.round(p.supplies);
-    if (dom.playerMerit) dom.playerMerit.textContent = Math.round(p.merit || 0);
-    if (dom.routeMerit) dom.routeMerit.textContent = Math.round(p.merit || 0);
-    if (dom.metaMerit) dom.metaMerit.textContent = String(Math.round(p.merit || 0));
+    if (state.combat) setText(dom.gourdText, state.combat.emergencyUses ?? 0);
+    setText(dom.playerAtk, p.atk);
+    setText(dom.playerDef, p.defense);
+    setText(dom.playerMorale, Math.round(p.morale));
+    setText(dom.playerSupply, Math.round(p.supplies));
+    setText(dom.playerMerit, Math.round(p.merit || 0));
+    setText(dom.routeMerit, Math.round(p.merit || 0));
+    setText(dom.metaMerit, String(Math.round(p.merit || 0)));
     dom.meritHud?.classList.remove('hidden');
-    dom.playerLevel.textContent = p.level;
-    dom.playerXpText.textContent = `${p.xp} / ${p.xpNext}`;
-    dom.playerXpBar.style.width = `${clamp(p.xp / p.xpNext * 100, 0, 100)}%`;
+    setText(dom.playerLevel, p.level);
+    setText(dom.playerXpText, `${p.xp} / ${p.xpNext}`);
+    setPct(dom.playerXpBar, p.xp / p.xpNext * 100);
     const buffs = [];
     if (p.guard > 0) buffs.push('固守减伤');
     if (p.cooldowns.charge > 0) buffs.push('冲锋号 · 尚未就绪');
     if (p.cooldowns.tactic > 0) buffs.push('穿插 · 尚未就绪');
-    dom.buffList.innerHTML = buffs.map((buff) => `<span class="buff-chip">${buff}</span>`).join('');
+    // 顶栏信物条和 buff 串都是 innerHTML 整体重建，签名不变就不动
+    const buffSignature = buffs.join('|');
+    if (buffSignature !== metaBarsState.buffs) {
+      metaBarsState.buffs = buffSignature;
+      dom.buffList.innerHTML = buffs.map((buff) => `<span class="buff-chip">${buff}</span>`).join('');
+    }
     renderTopRelics();
     syncGameplayHeader();
     const availableTalentPoints = talentPoints(p);
@@ -3716,14 +3755,14 @@
       dom.growthToggle.title = `可用天赋点 ${availableTalentPoints}`;
       dom.growthToggle.classList.toggle('attention', availableTalentPoints > 0);
     }
-    if (dom.growthEntryMeta) dom.growthEntryMeta.textContent = availableTalentPoints > 0 ? `${availableTalentPoints} 点可分配` : `等级 ${p.level} · 天赋树`;
+    setText(dom.growthEntryMeta, availableTalentPoints > 0 ? `${availableTalentPoints} 点可分配` : `等级 ${p.level} · 天赋树`);
     const equippedCount = p.equippedEquipment?.length || 0;
     const unequippedCount = Math.max(0, (p.equipmentInventory?.length || 0) - equippedCount);
     if (dom.equipmentToggle) {
       dom.equipmentToggle.classList.toggle('attention', unequippedCount > 0);
       dom.equipmentToggle.title = unequippedCount > 0 ? `有 ${unequippedCount} 件军备可更换` : '查看军备栏';
     }
-    if (dom.equipmentEntryMeta) dom.equipmentEntryMeta.textContent = unequippedCount > 0 ? `可更换 · ${unequippedCount}` : `已装备 ${equippedCount} / ${equipmentSlotLimit(p)}`;
+    setText(dom.equipmentEntryMeta, unequippedCount > 0 ? `可更换 · ${unequippedCount}` : `已装备 ${equippedCount} / ${equipmentSlotLimit(p)}`);
     updateQuickItemHud();
     updateEliteHealthHud();
   }
@@ -4758,6 +4797,9 @@
     ctx.strokeStyle = '#f3e0b1'; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(sprint ? 29 : 26, -15 + armSwing * .12); ctx.lineTo(sprint ? 37 : 33, -25 + armSwing * .12); ctx.stroke();
     ctx.fillStyle = '#e9c163'; ctx.beginPath(); ctx.arc(-7, -8, 3.2, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#a52721'; ctx.beginPath(); ctx.arc(-7, -8, 1.7, 0, Math.PI * 2); ctx.fill(); ctx.restore();
   }
+  // 单地图静态内容缓存（按 map 对象回收，不会跟着存档序列化）
+  const singleMapStaticCache = new WeakMap();
+
   function drawSingleMap(now) {
     const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
     const ctx = canvas.getContext('2d'), width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -4768,11 +4810,53 @@
     const camX = mapWidth <= width ? bounds.minX - (width - mapWidth) / 2 : clamp(map.player.x - width / 2, bounds.minX, maxCamX);
     const camY = mapHeight <= height ? bounds.minY - (height - mapHeight) / 2 : clamp(map.player.y - height / 2, bounds.minY, maxCamY);
     ctx.save(); ctx.translate(-camX, -camY);
-    const regionCenters = Array.from({ length: map.regionCount || 3 }, (_, region) => { const rooms = map.rooms.filter((room) => room.region === region && !room.hiddenArea); if (!rooms.length) return null; return { region, x: rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y: rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length, palette: SINGLE_MAP_PALETTES[(region + 1) % SINGLE_MAP_PALETTES.length] }; }).filter(Boolean);
-    regionCenters.forEach((region) => { const gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720); gradient.addColorStop(0, region.palette.ground); gradient.addColorStop(1, 'rgba(11,9,7,0)'); ctx.fillStyle = gradient; ctx.fillRect(region.x - 760, region.y - 520, 1520, 1040); ctx.fillStyle = 'rgba(236,218,178,.3)'; ctx.font = 'bold 18px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(SINGLE_REGIONS[region.region].name, region.x, region.y - 365); });
+    // 静态内容按地图对象缓存一次：区域中心、区域光晕渐变、区域名都不随帧变化，
+    // 之前每帧重建 5 个 createRadialGradient + 5 次房间数组过滤，纯浪费。
+    let mapCache = singleMapStaticCache.get(map);
+    if (!mapCache) {
+      mapCache = { regionCenters: null, pathBBox: new WeakMap(), areaGradients: new WeakMap() };
+      singleMapStaticCache.set(map, mapCache);
+    }
+    // 视口裁剪：大地图通常比画面大几倍，屏幕外的房间和路径不必逐帧重建路径、描边
+    const viewMinX = camX - 140, viewMaxX = camX + width + 140;
+    const viewMinY = camY - 140, viewMaxY = camY + height + 140;
+    const clearedSet = new Set(map.cleared || []);
+    const visitedSet = new Set(map.visited || []);
+    if (!mapCache.regionCenters) {
+      mapCache.regionCenters = Array.from({ length: map.regionCount || 3 }, (_, region) => {
+        const rooms = map.rooms.filter((room) => room.region === region && !room.hiddenArea);
+        if (!rooms.length) return null;
+        return { region, x: rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y: rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length, palette: SINGLE_MAP_PALETTES[(region + 1) % SINGLE_MAP_PALETTES.length] };
+      }).filter(Boolean);
+    }
+    mapCache.regionCenters.forEach((region) => {
+      if (!region.gradient) {
+        region.gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720);
+        region.gradient.addColorStop(0, region.palette.ground);
+        region.gradient.addColorStop(1, 'rgba(11,9,7,0)');
+      }
+      if (region.x + 760 < viewMinX || region.x - 760 > viewMaxX || region.y + 520 < viewMinY || region.y - 520 > viewMaxY) return;
+      ctx.fillStyle = region.gradient; ctx.fillRect(region.x - 760, region.y - 520, 1520, 1040);
+      ctx.fillStyle = 'rgba(236,218,178,.3)'; ctx.font = 'bold 18px "Noto Serif SC", serif'; ctx.textAlign = 'center';
+      ctx.fillText(SINGLE_REGIONS[region.region].name, region.x, region.y - 365);
+    });
     map.hiddenAreas?.forEach((unlocked, index) => { if (!unlocked) return; const rooms = map.rooms.filter((room) => room.region === index && room.hiddenArea); if (!rooms.length) return; const x = rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y = rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length; const gradient = ctx.createRadialGradient(x, y, 40, x, y, 620); gradient.addColorStop(0, SINGLE_MAP_PALETTES[3].ground); gradient.addColorStop(.6, 'rgba(32,20,27,.42)'); gradient.addColorStop(1, 'rgba(11,9,7,0)'); ctx.fillStyle = gradient; ctx.fillRect(x - 680, y - 470, 1360, 940); });
     map.paths.forEach((path) => {
       if ((path.secret && !path.open) || (path.hidden && !path.revealed) || (path.hiddenArea && !map.hiddenAreas?.[path.region])) return;
+      let bbox = mapCache.pathBBox.get(path);
+      if (!bbox) {
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        path.points.forEach((point) => {
+          if (point.x < minX) minX = point.x;
+          if (point.x > maxX) maxX = point.x;
+          if (point.y < minY) minY = point.y;
+          if (point.y > maxY) maxY = point.y;
+        });
+        bbox = { minX, minY, maxX, maxY };
+        mapCache.pathBBox.set(path, bbox);
+      }
+      const pad = (path.width || 0) + 26;
+      if (bbox.maxX + pad < viewMinX || bbox.minX - pad > viewMaxX || bbox.maxY + pad < viewMinY || bbox.minY - pad > viewMaxY) return;
       const palette = SINGLE_MAP_PALETTES[path.layer] || SINGLE_MAP_PALETTES[path.region], currentLayer = path.layer === map.player.layer;
       ctx.save(); ctx.globalAlpha = currentLayer ? 1 : .16; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.beginPath(); path.points.forEach((point, index) => { if (index === 0) ctx.moveTo(point.x, point.y); else ctx.lineTo(point.x, point.y); });
@@ -4787,16 +4871,19 @@
     });
     const charted = !!map.charts[map.regionIndex];
     map.rooms.forEach((room) => {
+      if (room.x + room.r + 90 < viewMinX || room.x - room.r - 90 > viewMaxX || room.y + room.r + 90 < viewMinY || room.y - room.r - 90 > viewMaxY) return;
       if (room.hiddenArea && !map.hiddenAreas?.[room.region]) return;
-      const palette = SINGLE_MAP_PALETTES[room.layer] || SINGLE_MAP_PALETTES[room.region], known = map.charts[room.region] || map.visited.includes(room.id) || Math.hypot(map.player.x - room.x, map.player.y - room.y) < 360;
+      const isCleared = clearedSet.has(room.id);
+      const palette = SINGLE_MAP_PALETTES[room.layer] || SINGLE_MAP_PALETTES[room.region], known = map.charts[room.region] || visitedSet.has(room.id) || Math.hypot(map.player.x - room.x, map.player.y - room.y) < 360;
       ctx.save(); ctx.globalAlpha = room.layer === map.player.layer ? 1 : .17; traceMapClearing(ctx, room);
-      ctx.fillStyle = map.cleared.includes(room.id) ? '#1e1b15' : palette.ground; ctx.fill();
-      ctx.strokeStyle = room.type === 'boss' ? '#d34f3e' : room.hiddenAccent && !map.cleared.includes(room.id) ? room.hiddenAccent : map.cleared.includes(room.id) ? 'rgba(137,116,78,.45)' : palette.edge; ctx.lineWidth = room.type === 'boss' ? 4 : room.hiddenArea ? 3.2 : 2.5; ctx.stroke();
-      if (known) { ctx.fillStyle = map.cleared.includes(room.id) ? 'rgba(219,197,155,.54)' : '#f0d69d'; ctx.font = 'bold 14px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(room.name.split(' · ')[0], room.x, room.y + room.r * .48); }
-      if (!map.cleared.includes(room.id) && known && !nodeHasEnemy(room)) { const info = SINGLE_ROOM_INFO[room.type]; ctx.fillStyle = room.type === 'boss' ? '#7d271f' : '#3a2a1b'; ctx.beginPath(); ctx.arc(room.x, room.y, 24, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ffe2a1'; ctx.font = 'bold 21px serif'; ctx.fillText(info.glyph, room.x, room.y + 7); }
+      ctx.fillStyle = isCleared ? '#1e1b15' : palette.ground; ctx.fill();
+      ctx.strokeStyle = room.type === 'boss' ? '#d34f3e' : room.hiddenAccent && !isCleared ? room.hiddenAccent : isCleared ? 'rgba(137,116,78,.45)' : palette.edge; ctx.lineWidth = room.type === 'boss' ? 4 : room.hiddenArea ? 3.2 : 2.5; ctx.stroke();
+      if (known) { ctx.fillStyle = isCleared ? 'rgba(219,197,155,.54)' : '#f0d69d'; ctx.font = 'bold 14px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(room.name.split(' · ')[0], room.x, room.y + room.r * .48); }
+      if (!isCleared && known && !nodeHasEnemy(room)) { const info = SINGLE_ROOM_INFO[room.type]; ctx.fillStyle = room.type === 'boss' ? '#7d271f' : '#3a2a1b'; ctx.beginPath(); ctx.arc(room.x, room.y, 24, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ffe2a1'; ctx.font = 'bold 21px serif'; ctx.fillText(info.glyph, room.x, room.y + 7); }
       ctx.restore();
     });
-    map.rooms.filter((room) => nodeHasEnemy(room) && !map.cleared.includes(room.id) && (!room.hiddenArea || map.hiddenAreas?.[room.region])).forEach((room) => {
+    map.rooms.filter((room) => nodeHasEnemy(room) && !clearedSet.has(room.id) && (!room.hiddenArea || map.hiddenAreas?.[room.region])
+      && room.x + 120 >= viewMinX && room.x - 120 <= viewMaxX && room.y + 120 >= viewMinY && room.y - 120 <= viewMaxY).forEach((room) => {
       const distance = Math.hypot(map.player.x - room.x, map.player.y - room.y);
       if (!map.charts[room.region] && distance > 470) return;
       ctx.save(); ctx.globalAlpha = room.layer === map.player.layer ? 1 : .13;
@@ -6237,9 +6324,11 @@
     const fixedWidth = state.resolutionMode === 'auto' ? 0 : Number(state.resolutionMode);
     const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     const fittedCssWidth = Math.min(rect.width, rect.height * 16 / 9);
-    const targetWidth = fixedWidth
-      ? clamp(Math.round(fixedWidth), 960, widthCap)
-      : clamp(Math.round(fittedCssWidth * dpr), 960, widthCap);
+    // 下限只留 320 兜底：帧首已经把 960×540 坐标系整体 setTransform 缩放到
+    // 实际缓冲尺寸，小窗口下没必要再按 960 渲染（800×600 时画面只有 ~430 CSS 宽，
+    // 却要填 960×540 的像素，白扔掉四分之三的填充量）。
+    const naturalWidth = fixedWidth ? Math.round(fixedWidth) : Math.round(fittedCssWidth * dpr);
+    const targetWidth = clamp(naturalWidth, 320, widthCap);
     const targetHeight = Math.round(targetWidth * 9 / 16);
     if (Math.abs(dom.canvas.width - targetWidth) > 1 || Math.abs(dom.canvas.height - targetHeight) > 1) {
       dom.canvas.width = targetWidth;
@@ -7741,7 +7830,7 @@
     if (combat.busy) {
       if (!cancelPlayerRecovery()) {
         combat.queuedDodge = true;
-        dom.controlHint.textContent = '闪避已蓄势 · 收招后立刻闪开';
+        setText(dom.controlHint, '闪避已蓄势 · 收招后立刻闪开');
         return;
       }
     }
@@ -7814,7 +7903,7 @@
       startMikiriCounter(enemy);
     } else if (parrySession?.active) {
       cancelParryForDodge();
-      dom.controlHint.textContent = '闪避成功 · 落地后立即左键反击';
+      setText(dom.controlHint, '闪避成功 · 落地后立即左键反击');
     }
     setActionState();
   }
@@ -8070,16 +8159,42 @@
     dom.intentLine.innerHTML = intents.length ? intents.join('　｜　') : '敌军已被击退。';
   }
 
+  function logEntryHtml(entry) {
+    const count = entry.count > 1 ? `<span class="log-count">×${entry.count}</span>` : '';
+    return `<div class="log-entry ${entry.type || ''}">${entry.text}${count}</div>`;
+  }
+
   function renderCombatLog() {
     if (!state.combat) return;
-    dom.combatLog.innerHTML = state.combat.logs.map((entry) => `<div class="log-entry ${entry.type || ''}">${entry.text}</div>`).join('');
+    dom.combatLog.innerHTML = state.combat.logs.map(logEntryHtml).join('');
     dom.combatLog.scrollTop = 0;
   }
 
+  // 同一句话在 4 秒内重复出现就并进原来那条，用 ×N 计数。
+  // 连续挨打时「格挡时机失误」能一秒一条，不压的话整块面板只剩这一句，
+  // 首领招式、破防、掉落全被挤出可视区。
+  const LOG_DEDUPE_WINDOW = 4000;
+
   function addLog(text, type = '') {
     if (!state.combat) return;
-    state.combat.logs.unshift({ text, type });
-    state.combat.logs = state.combat.logs.slice(0, 18);
+    const now = performance.now();
+    const tone = type || '';
+    const logs = state.combat.logs;
+    const hitIndex = logs.findIndex((entry) => entry.text === text
+      && (entry.type || '') === tone
+      && now - (entry.at || 0) < LOG_DEDUPE_WINDOW);
+    if (hitIndex >= 0) {
+      const entry = logs[hitIndex];
+      entry.count = (entry.count || 1) + 1;
+      entry.at = now;
+      // 只改这一行，不整块重排，省掉一次 innerHTML 重建 + 滚动位置复位
+      const node = dom.combatLog.children[hitIndex];
+      if (node) node.innerHTML = `${entry.text}<span class="log-count">×${entry.count}</span>`;
+      else renderCombatLog();
+      return;
+    }
+    logs.unshift({ text, type, count: 1, at: now });
+    state.combat.logs = logs.slice(0, 18);
     renderCombatLog();
   }
 
@@ -8092,58 +8207,58 @@
     const locked = state.combat.busy || state.combat.phase !== 'player' || p?.postureBroken || stunned || dodging;
     dom.controlBar.classList.toggle('locked', locked);
     dom.controlBar.classList.toggle('guarding', !!state.combat.blockHeld);
-    if (dom.ammoText) dom.ammoText.textContent = state.combat.ammo ?? 0;
-    if (dom.gourdText) dom.gourdText.textContent = state.combat.emergencyUses ?? 0;
+    setText(dom.ammoText, state.combat.ammo ?? 0);
+    setText(dom.gourdText, state.combat.emergencyUses ?? 0);
     if (dom.dodgeState) {
       const remain = Math.max(0, (p.dodgeCooldownUntil - now) / 1000);
-      dom.dodgeState.textContent = dodging ? '闪避中' : remain > 0 ? remain.toFixed(1) + 's' : '就绪';
+      setText(dom.dodgeState, dodging ? '闪避中' : remain > 0 ? remain.toFixed(1) + 's' : '就绪');
       dom.dodgeState.classList.toggle('ready', !dodging && remain <= 0);
       dom.dodgeState.classList.toggle('cooldown', dodging || remain > 0);
     }
     if (dodging) {
-      dom.controlHint.textContent = '闪避中 · 左键可先接反击';
+      setText(dom.controlHint, '闪避中 · 左键可先接反击');
       return;
     }
     if (p?.postureBroken) {
-      dom.controlHint.textContent = '我方架势崩溃，正在重整阵脚…';
+      setText(dom.controlHint, '我方架势崩溃，正在重整阵脚…');
       return;
     }
     if (stunned) {
-      dom.controlHint.textContent = '身形一晃 · 片刻后便能还手…';
+      setText(dom.controlHint, '身形一晃 · 片刻后便能还手…');
       return;
     }
     if (!locked && !state.combat.holding) {
       if (state.combat.comboStage > 0 && state.combat.comboStage < 5 && now <= (state.combat.comboExpiresAt || 0)) {
         const nextStage = state.combat.comboStage + 1;
         const techHint = state.combat.comboStage >= 2 && (state.player.techniques || []).length ? ' · W/A/S/D + 左键可变招' : '';
-        dom.controlHint.textContent = `左键续上第 ${nextStage} 式${techHint}`;
+        setText(dom.controlHint, `左键续上第 ${nextStage} 式${techHint}`);
         return;
       }
       if (state.combat.dodgeCounterUntil > now) {
-        dom.controlHint.textContent = '闪避已占先机 · 左键追上去';
+        setText(dom.controlHint, '闪避已占先机 · 左键追上去');
         return;
       }
       if (state.combat.counterWindowUntil > now) {
-        dom.controlHint.textContent = '挡势已成 · 左键接守反';
+        setText(dom.controlHint, '挡势已成 · 左键接守反');
         return;
       }
       if (state.combat.counterKind && now <= (state.combat.counterExpiresAt || 0)) {
         const chain = PLAYER_COUNTER_PROFILES[state.combat.counterKind] || [];
         const next = Math.min(chain.length, (state.combat.counterStep || 0) + 1);
-        dom.controlHint.textContent = `左键接 ${chain[next - 1]?.name || '追击'}`;
+        setText(dom.controlHint, `左键接 ${chain[next - 1]?.name || '追击'}`);
         return;
       }
       if (state.combat.blockHeld) {
-        dom.controlHint.textContent = `防御中 · 金光一闪时按 ${inputBindingLabel('guard')} 弹反`;
+        setText(dom.controlHint, `防御中 · 金光一闪时按 ${inputBindingLabel('guard')} 弹反`);
         return;
       }
       const enemy = targetEnemy();
       const distance = Math.round(currentEnemyDistance());
       if (enemy?.status.broken) {
-        dom.controlHint.textContent = distance <= MELEE_RANGE ? '处决就绪：左键近战处决 / R 远程爆头' : '处决就绪：R 远程爆头，或继续靠近后左键近战处决';
+        setText(dom.controlHint, distance <= MELEE_RANGE ? '处决就绪：左键近战处决 / R 远程爆头' : '处决就绪：R 远程爆头，或继续靠近后左键近战处决');
       } else {
         const rangeText = distance <= MELEE_RANGE ? '已进入刀锋距离' : '还需再靠近些';
-        dom.controlHint.textContent = `${rangeText} · ${formatKeyCode(keyBinding('moveUp'))}/${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveDown'))}/${formatKeyCode(keyBinding('moveRight'))} 或左摇杆走位 · ${inputBindingLabel('dodge')} 定向闪避 · 按住 ${inputBindingLabel('guard')} 格挡 · 金光后点按弹反`;
+        setText(dom.controlHint, `${rangeText} · ${formatKeyCode(keyBinding('moveUp'))}/${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveDown'))}/${formatKeyCode(keyBinding('moveRight'))} 或左摇杆走位 · ${inputBindingLabel('dodge')} 定向闪避 · 按住 ${inputBindingLabel('guard')} 格挡 · 金光后点按弹反`);
       }
     }
   }
@@ -8807,7 +8922,7 @@ function breakPlayerPosture() {
     if (event.button === 0 && combat.counterWindowUntil > performance.now() && !combat.busy) {
       if (state.player.postureBroken || state.player.hitstunUntil > performance.now()) {
         combat.queuedAttack = 'normal';
-        dom.controlHint.textContent = '守反已蓄势 · 稳住身形后立刻出刀';
+        setText(dom.controlHint, '守反已蓄势 · 稳住身形后立刻出刀');
         return;
       }
       combat.counterWindowUntil = 0;
@@ -8818,7 +8933,7 @@ function breakPlayerPosture() {
     if (combat.dodge) {
       if (event.button === 0) {
         combat.queuedAttack = 'normal';
-        dom.controlHint.textContent = '闪避反击已蓄势 · 落地立刻出刀';
+        setText(dom.controlHint, '闪避反击已蓄势 · 落地立刻出刀');
       }
       return;
     }
@@ -8826,7 +8941,7 @@ function breakPlayerPosture() {
       if (!cancelPlayerRecovery()) {
         if (event.button === 0) {
           combat.queuedAttack = 'normal';
-          dom.controlHint.textContent = '下一刀已蓄势 · 收招后立刻接上';
+          setText(dom.controlHint, '下一刀已蓄势 · 收招后立刻接上');
         }
         return;
       }
@@ -8851,7 +8966,7 @@ function breakPlayerPosture() {
       if (!combat.holding) return;
       const charge = clamp((now - combat.holdStart) / 700, 0, 1);
       dom.chargeMeter.style.width = `${charge * 100}%`;
-      dom.controlHint.textContent = charge > .5 ? '蓄力完成：松开左键发动突刺' : '继续按住左键蓄力…';
+      setText(dom.controlHint, charge > .5 ? '蓄力完成：松开左键发动突刺' : '继续按住左键蓄力…');
       combat.holdFrame = requestAnimationFrame(tick);
     };
     combat.holdFrame = requestAnimationFrame(tick);
@@ -8933,7 +9048,7 @@ function breakPlayerPosture() {
     if (combat.busy) {
       if (!cancelPlayerRecovery()) {
         combat.queuedAttack = actionType;
-        dom.controlHint.textContent = '下一式已蓄势 · 收招后立刻接上';
+        setText(dom.controlHint, '下一式已蓄势 · 收招后立刻接上');
         return;
       }
     }
@@ -9105,7 +9220,7 @@ function breakPlayerPosture() {
           combat.phase = 'attack';
           combat.queuedAttack = null;
           combat.queuedDodge = false;
-          dom.controlHint.textContent = '五式·断岳 · 顺势衔接';
+          setText(dom.controlHint, '五式·断岳 · 顺势衔接');
           setTimeout(() => {
             if (!state.combat || state.combat !== combat || combat.finished) return;
             combat.busy = false;
@@ -9514,7 +9629,7 @@ function breakPlayerPosture() {
         state.combat.counterWindowUntil = performance.now() + 760 + (state.player.guardCounterWindowBonus || 0);
         state.combat.counterKind = 'guard';
         state.combat.counterStep = 0;
-        dom.controlHint.textContent = '挡势已成 · 左键接守反';
+        setText(dom.controlHint, '挡势已成 · 左键接守反');
       }
       dom.parryResult.textContent = comboStep === 1 ? '第一刀挡住 · 追刀将至' : '格挡成功 · 左键守反';
       state.player.morale = Math.min(100, state.player.morale + 3);
@@ -10508,7 +10623,7 @@ function breakPlayerPosture() {
     updateMetaBars();
     combat.enemies.forEach((enemy) => {
       const bar = dom.enemyCards.querySelector(`[data-posture="${enemy.id}"]`);
-      if (bar) bar.style.width = `${clamp(enemy.posture / enemy.maxPosture * 100, 0, 100)}%`;
+      if (bar) setPct(bar, enemy.posture / enemy.maxPosture * 100);
     });
   }
 
@@ -12016,27 +12131,34 @@ function breakPlayerPosture() {
     const barX = clamp(pos.x - barWidth / 2, 12, 948 - barWidth);
     const barY = isBoss ? 190 : 236;
     const barCenterX = barX + barWidth / 2;
-    for (let i = 0; i < health.segments; i++) {
-      const y = barY + i * 8;
-      ctx.fillStyle = 'rgba(10,7,5,.72)';
-      ctx.fillRect(barX, y, barWidth, 6);
-      if (i === 0 && health.remaining > 0) {
-        ctx.fillStyle = enemy.elite ? '#ef6a4e' : '#d33b31';
-        ctx.fillRect(barX, y, barWidth * health.currentPct / 100, 6);
-      } else if (i < health.remaining) {
-        ctx.fillStyle = enemy.elite ? 'rgba(210,89,55,.62)' : 'rgba(180,48,42,.55)';
-        ctx.fillRect(barX, y, barWidth, 6);
-      }
-    }
     const postureBarY = barY + health.segments * 8 + 6;
-    ctx.fillStyle = 'rgba(10,7,5,.72)';
-    ctx.fillRect(barX, postureBarY, barWidth, 5);
-    ctx.fillStyle = enemy.status.broken ? '#ffe8a6' : '#d8b85e';
-    ctx.fillRect(barX, postureBarY, barWidth * clamp(enemy.posture / enemy.maxPosture, 0, 1), 5);
-    ctx.fillStyle = 'rgba(239,227,200,.88)';
-    ctx.font = canvasFont(isBoss ? 16 : 12, 'serif');
-    ctx.textAlign = 'center';
-    ctx.fillText(`${enemy.name}${health.segments > 1 ? `  尚余 ${health.remaining} 道防线` : ''}`, barCenterX, barY - 8);
+    // 顶部 #elite-health-hud 正在显示同一只敌人时，画布里这一套就是同屏第三份血条了，
+    // 只留下面的状态提示与出招预警，条和名字都交给顶部那条统一显示。
+    // 判定用 eliteHudTargetId（由 updateEliteHealthHud 写），不按 elite/boss 粗判，
+    // 这样多敌阵容里没被顶部条锁定的那几只仍然有自己的血条。
+    const barOwnedByHud = eliteHudTargetId === enemy.id;
+    if (!barOwnedByHud) {
+      for (let i = 0; i < health.segments; i++) {
+        const y = barY + i * 8;
+        ctx.fillStyle = 'rgba(10,7,5,.72)';
+        ctx.fillRect(barX, y, barWidth, 6);
+        if (i === 0 && health.remaining > 0) {
+          ctx.fillStyle = enemy.elite ? '#ef6a4e' : '#d33b31';
+          ctx.fillRect(barX, y, barWidth * health.currentPct / 100, 6);
+        } else if (i < health.remaining) {
+          ctx.fillStyle = enemy.elite ? 'rgba(210,89,55,.62)' : 'rgba(180,48,42,.55)';
+          ctx.fillRect(barX, y, barWidth, 6);
+        }
+      }
+      ctx.fillStyle = 'rgba(10,7,5,.72)';
+      ctx.fillRect(barX, postureBarY, barWidth, 5);
+      ctx.fillStyle = enemy.status.broken ? '#ffe8a6' : '#d8b85e';
+      ctx.fillRect(barX, postureBarY, barWidth * clamp(enemy.posture / enemy.maxPosture, 0, 1), 5);
+      ctx.fillStyle = 'rgba(239,227,200,.88)';
+      ctx.font = canvasFont(isBoss ? 16 : 12, 'serif');
+      ctx.textAlign = 'center';
+      ctx.fillText(`${enemy.name}${health.segments > 1 ? `  尚余 ${health.remaining} 道防线` : ''}`, barCenterX, barY - 8);
+    }
     if (enemy.status.broken) {
       ctx.fillStyle = '#ffe4a0';
       ctx.font = canvasFont(13, '"Noto Serif SC", serif', 'bold');
@@ -13002,12 +13124,27 @@ function breakPlayerPosture() {
       if (['auto','xbox','nintendo'].includes(storedGamepadLayout)) state.gamepadLayout = storedGamepadLayout;
     } catch (_) {}
     const storedGameSettings = readStorageJson(GAME_SETTINGS_KEY, {}) || {};
-    const legacyVolume = (() => { try { return Number(localStorage.getItem('longMarchVolumeV1')); } catch (_) { return NaN; } })();
+    // 注意：键不存在时 getItem 返回 null，而 Number(null) === 0（不是 NaN）。
+    // 之前直接 Number(...) 会让"从没存过音量"被读成 0，进而覆盖默认值 1，
+    // 表现为全新安装全程无声，而且这个 0 还会被写回存储变成永久静音。
+    const legacyVolume = (() => {
+      try {
+        const raw = localStorage.getItem('longMarchVolumeV1');
+        if (raw === null || raw === '') return NaN;
+        const value = Number(raw);
+        return Number.isFinite(value) ? value : NaN;
+      } catch (_) { return NaN; }
+    })();
+    // 已经被上面那个 bug 写坏存档的机器（legacy 键是 0，但设置面板从没写过 masterVolume），
+    // 同样回落到默认音量，否则修了读取逻辑也救不回这些机器。
+    const hasExplicitMasterVolume = Object.prototype.hasOwnProperty.call(storedGameSettings, 'masterVolume');
+    const legacyVolumeUsable = Number.isFinite(legacyVolume) && !(legacyVolume === 0 && !hasExplicitMasterVolume);
+    const masterVolumeFallback = legacyVolumeUsable ? legacyVolume : savedVolume;
     const readSettingNumber = (key, fallback, min, max) => {
       const value = Number(storedGameSettings[key]);
       return clamp(Number.isFinite(value) ? value : fallback, min, max);
     };
-    savedVolume = readSettingNumber('masterVolume', Number.isFinite(legacyVolume) ? legacyVolume : savedVolume, 0, 1);
+    savedVolume = readSettingNumber('masterVolume', masterVolumeFallback, 0, 1);
     savedMusicVolume = readSettingNumber('musicVolume', savedMusicVolume, 0, 1);
     savedSfxVolume = readSettingNumber('sfxVolume', savedSfxVolume, 0, 1.5);
     if (['maximized', '1280x720', '1600x900', '1920x1080', '2560x1440'].includes(storedGameSettings.startupWindowMode)) savedStartupWindow = storedGameSettings.startupWindowMode;

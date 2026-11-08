@@ -1134,7 +1134,10 @@ body.performance-mode .event-detail-overlay { backdrop-filter: none; }
   cursor: pointer; box-shadow: 0 0 20px rgba(255,199,88,.18);
 }
 .parry-action-btn span {
-  display: inline-grid; place-items: center; width: 20px; height: 20px; margin-right: 6px;
+  /* 键帽固定 20px 宽时，"Shift" 这种长键名会左右溢出、压到后面的按钮文字上，
+     改成 min-width + 内边距，单键（F）看起来不变，长键名自动撑开。 */
+  display: inline-grid; place-items: center; box-sizing: border-box;
+  min-width: 20px; height: 20px; padding: 0 4px; margin-right: 6px;
   border: 1px solid rgba(255,238,185,.55); color: #ffe8a8; font-size: calc(11px * var(--font-scale));
 }
 .parry-action-btn:hover { background: linear-gradient(135deg, rgba(205,48,41,.98), rgba(111,20,18,.98)); }
@@ -2627,4 +2630,91 @@ body.performance-mode .gameplay-entry.attention { animation: none; }
   .single-map-room-info p { display: none; }
   .single-map-room-info { padding-top: 5px; padding-bottom: 5px; }
   .single-map-room-info h3 { font-size: calc(16px * var(--font-scale)); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   矮窗口收尾（v0.29.9）
+   ① 标题屏：760 断点里本来就有一套紧凑值，但文件后面 v0.26 的重置
+      （.title-content / .title-menu / .brush-btn）把它们盖掉了，导致
+      800×600、1024×640 下「退出游戏」被推到窗口外，要靠滚轮才找得到。
+      这里在最后重新声明一次，把紧凑值拿回来。
+   ② 演练选课：科目卡再多，「开始整套演练 / 逐项选课」也要始终看得见，
+      改成吸底，滚动时跟着面板走。
+   ───────────────────────────────────────────────────────────── */
+@media (max-height: 700px) {
+  .title-content { padding-top: 6px; padding-bottom: 8px; }
+  .title-content h1 { font-size: clamp(36px, 6.2vh, 58px); }
+  .title-screen .eyebrow { margin-bottom: 2px; padding: 3px 9px; font-size: clamp(11px, 1.2vw, 14px); }
+  .title-theme { margin: 4px 0 2px; font-size: clamp(13px, 1.5vw, 18px); }
+  .seed-row { margin: 5px auto 4px; gap: 7px; }
+  .seed-row input { width: 150px; padding: 6px 9px; font-size: 13px; }
+  .active-save-label { margin: 0 0 5px; font-size: 11px; }
+  .title-menu { gap: 4px; }
+  .title-menu .brush-btn { min-height: 40px; padding: 5px 16px; font-size: calc(16px * var(--font-scale)); letter-spacing: .12em; }
+}
+
+.training-menu-actions,
+.training-brief-actions,
+.tutorial-actions,
+.restart-confirm-actions {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 12px 0 6px;
+  /* 实心底栏 + 上方 22px 渐隐，正文滚到底下时不会被按钮缝切碎 */
+  /* 必须完全不透明：97% 也会把正文透成一道灰影 */
+  background: #0f0a08;
+  box-shadow: 0 -12px 20px -14px rgba(0, 0, 0, .85);
+}
+.training-menu-actions::before,
+.training-brief-actions::before,
+.tutorial-actions::before,
+.restart-confirm-actions::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -22px;
+  height: 22px;
+  background: linear-gradient(180deg, rgba(15, 10, 8, 0), #0f0a08 82%);
+  pointer-events: none;
+}
+
+/* ── 首领战同屏元素收尾（v0.29.9） ─────────────────────────────────
+   ① 顶部 #elite-health-hud 高度由 JS 写成 --elite-hud-h，警告横幅顺排到它下面。
+      原来写死 top:88px，而那条血条 14px 起、96px 高，正好压住 22px。
+   ② 「目标」角标是 right:7px/top:-7px 的绝对定位，会啃到「尚余 N 道防线」
+      的右上角，给名字行留出角标宽度。
+   ③ 战斗日志重复计数用的小角标。
+   ─────────────────────────────────────────────────────────────── */
+body.elite-hud-active .boss-warning { top: calc(14px + var(--elite-hud-h, 96px) + 10px); }
+body.elite-hud-active .player-state-warning { top: calc(14px + var(--elite-hud-h, 96px) + 48px); }
+
+.enemy-card.target .enemy-name { padding-right: calc(20px * var(--font-scale) + 18px); }
+
+.log-count {
+  margin-left: 6px; padding: 0 4px; border: 1px solid rgba(215,166,76,.42);
+  color: #e7c780; font-size: calc(9px * var(--font-scale)); letter-spacing: 0; white-space: nowrap;
+}
+
+/* ── 弹反提示：收紧布局（v0.29.9） ──────────────────────────────────
+   minimal-cue 模式下 .parry-copy 的 min-width:0 会让它的网格列塌成 0px，
+   而 thrust（枪刺）时又必须显示 h3「识破」，结果这行字从 0px 列里溢出来，
+   正好钻到「弹反 / 格挡」按钮底下。给它撑住最小宽度，窄屏直接叠成两行。 */
+.parry-overlay.minimal-cue .parry-copy { min-width: max-content; }
+/* 窄屏下画面只有 300 来像素高，叠成两行会整块盖住双方。
+   这里干脆只留按钮（「闪避 / 识破」已经带了同样信息），保证一行放下。 */
+@media (max-width: 700px) {
+  .parry-overlay.minimal-cue .parry-copy { display: none; }
+  .parry-overlay.minimal-cue .parry-callout { grid-template-columns: auto; gap: 3px; }
+  .parry-overlay.minimal-cue .parry-actions { flex-wrap: nowrap; gap: 4px; justify-content: center; }
+  /* 640 宽时画面只有 318px，两个按钮按原尺寸会各占 169px 而被迫换行，缩一档就排得下 */
+  .parry-overlay.minimal-cue .parry-action-btn { padding: 5px 7px; font-size: calc(10px * var(--font-scale)); letter-spacing: .04em; }
+  .parry-overlay.minimal-cue .parry-action-btn span { min-width: 15px; height: 15px; padding: 0 3px; margin-right: 4px; font-size: calc(9px * var(--font-scale)); }
+}
+
+/* v0.29.10 小屏首领战收尾：640 宽时首领条加横幅超过画布高度，
+   隐藏仅作装饰的“最后的封锁线”横幅，保留首领状态与其他关键提示。 */
+@media (max-width: 700px) {
+  body.elite-hud-active .boss-warning { display: none; }
 }

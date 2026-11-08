@@ -1,6 +1,6 @@
 {
   "name": "spark-trail-the-long-march",
-  "version": "0.29.8",
+  "version": "0.29.10",
   "private": true,
   "description": "A real-time action roguelike inspired by the Long March.",
   "scripts": {
