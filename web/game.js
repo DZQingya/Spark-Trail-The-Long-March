@@ -970,6 +970,15 @@
   };
 
   const STABLE_FPS_TIERS = [30, 20, 15, 10];
+  const MAP_PIXEL_BUDGET = 1.75e6;
+  const BATTLE_PIXEL_BUDGET = 1.15e6;
+
+  function budgetDpr(cssWidth, cssHeight, capDpr, budget) {
+    const area = Math.max(1, cssWidth * cssHeight);
+    const base = Math.min(window.devicePixelRatio || 1, capDpr);
+    return Math.max(.35, Math.min(base, Math.sqrt(budget / area)));
+  }
+
 
   function createStableFramePacer(label) {
     return {
@@ -1197,7 +1206,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.29.12';
+  const GAME_VERSION = '0.29.13';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -5011,7 +5020,11 @@
   function drawSingleMap(now) {
     const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
     if (!singleMapContextCache) singleMapContextCache = canvas.getContext('2d', { alpha: false, desynchronized: true });
-    const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540, dpr = state.performanceMode ? (mapFramePacer.targetFps <= 10 ? .55 : mapFramePacer.targetFps <= 15 ? .6 : mapFramePacer.targetFps <= 20 ? .7 : .8) : Math.min(1.5, window.devicePixelRatio || 1);
+    const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540;
+    const perfScale = state.performanceMode ? (mapFramePacer.targetFps <= 10 ? .55 : mapFramePacer.targetFps <= 15 ? .6 : mapFramePacer.targetFps <= 20 ? .7 : .8) : 1;
+    // 普通模式按高分屏像素预算封顶；性能模式固定以 1 倍 DPR 为基准再降档。
+    const baseDpr = budgetDpr(width, height, state.performanceMode ? 1 : 1.5, MAP_PIXEL_BUDGET);
+    const dpr = Math.max(.45, baseDpr * perfScale);
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
     const bounds = map.bounds, mapWidth = bounds.maxX - bounds.minX, mapHeight = bounds.maxY - bounds.minY;
@@ -5022,12 +5035,12 @@
     const viewMinY = camY - 140, viewMaxY = camY + height + 140;
     let mapCache = singleMapStaticCache.get(map);
     if (!mapCache) { mapCache = { regionCenters: null, pathBBox: new WeakMap(), areaGradients: new WeakMap(), viewport: null }; singleMapStaticCache.set(map, mapCache); }
-    if (state.performanceMode) {
-      // 性能模式缓存当前视口内的区域底色、暗渠和道路。缓存只占一屏，滚动时复制旧画面并只补边缘，
-      // 避免大地图离屏缓存占用成倍显存，也避免每帧重新铺设整张道路。
+    {
+      // 当前视口内的区域底色、暗渠和道路始终复用缓存。缓存只占一屏，滚动时复制旧画面并只补边缘，
+      // 避免普通模式每帧重新铺设整张道路，也避免大地图离屏缓存占用成倍显存。
       const viewport = mapCache.viewport;
       const stateSignature = [
-        map.player.layer, map.charts.map((value) => value ? 1 : 0).join(''),
+        state.performanceMode ? 1 : 0, map.player.layer, map.charts.map((value) => value ? 1 : 0).join(''),
         map.hiddenAreas?.map((value) => value ? 1 : 0).join('') || '',
         map.puzzleSolved?.map((value) => value ? 1 : 0).join('') || '',
         map.cleared?.length || 0, map.visited?.length || 0,
@@ -5063,8 +5076,6 @@
         drawSingleMapTerrain(ctx, map, now, camX, camY, width, height);
         ctx.restore();
       }
-    } else {
-      drawSingleMapTerrain(ctx, map, now, camX, camY, width, height);
     }
     ctx.save();
     ctx.translate(-camX, -camY);
@@ -6455,6 +6466,16 @@
     enemyHit: {}, stars: [], duel: null, clash: null, projectiles: [], shotAim: null, mikiri: null, execution: null
   };
   const backgroundCache = new Map();
+  const battleGradientCache = new Map();
+  function cachedBattleGradient(ctx, key, build) {
+    let gradient = battleGradientCache.get(key);
+    if (!gradient) {
+      if (battleGradientCache.size > 48) battleGradientCache.clear();
+      gradient = build();
+      battleGradientCache.set(key, gradient);
+    }
+    return gradient;
+  }
 
   let routeMapAnimationFrame = 0;
   let routeMapMotionStart = 0;
@@ -6553,22 +6574,21 @@
     if (wrap) fitCanvasWrapToStage(wrap);
     const rect = dom.canvas.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
-    const dprCap = state.performanceMode ? 1 : 2;
     const widthCap = state.performanceMode ? 1280 : 3840;
     const fixedWidth = state.resolutionMode === 'auto' ? 0 : Number(state.resolutionMode);
-    const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
     const fittedCssWidth = Math.min(rect.width, rect.height * 16 / 9);
-    // 下限只留 320 兜底：帧首已经把 960×540 坐标系整体 setTransform 缩放到
-    // 实际缓冲尺寸，小窗口下没必要再按 960 渲染（800×600 时画面只有 ~430 CSS 宽，
-    // 却要填 960×540 的像素，白扔掉四分之三的填充量）。
-    const naturalWidth = fixedWidth ? Math.round(fixedWidth) : Math.round(fittedCssWidth * dpr);
-    // 性能模式用略低的内部分辨率换取明显更少的像素填充；CSS 尺寸不变，画面不会缩小。
+    const fittedCssHeight = fittedCssWidth * 9 / 16;
+    // 像素预算优于 DPR 上限：保障高分屏观感的同时，不让核显承担数百万像素的每帧填充。
+    const budgetedDpr = budgetDpr(fittedCssWidth, fittedCssHeight, state.performanceMode ? 1 : 1.5, BATTLE_PIXEL_BUDGET);
+    // 性能模式在像素预算基础上继续按稳定帧档位降内部尺寸；CSS 显示尺寸不变。
     const renderScale = state.performanceMode ? (battleFramePacer.targetFps <= 10 ? .55 : battleFramePacer.targetFps <= 15 ? .6 : battleFramePacer.targetFps <= 20 ? .7 : .8) : 1;
-    const targetWidth = clamp(Math.round(naturalWidth * renderScale), 320, widthCap);
+    const baseWidth = fixedWidth ? fixedWidth : fittedCssWidth * budgetedDpr;
+    const targetWidth = clamp(Math.round(baseWidth * renderScale), 320, widthCap);
     const targetHeight = Math.round(targetWidth * 9 / 16);
     if (Math.abs(dom.canvas.width - targetWidth) > 1 || Math.abs(dom.canvas.height - targetHeight) > 1) {
       dom.canvas.width = targetWidth;
       dom.canvas.height = targetHeight;
+      battleGradientCache.clear();
       scene.lastRender = 0;
     }
   }
@@ -13145,10 +13165,14 @@ function breakPlayerPosture() {
     ctx.restore();
 
     if (focusAmount > 0) {
-      const focusEdge = ctx.createRadialGradient(480, 270, 150, 480, 270, 565);
-      focusEdge.addColorStop(0, 'rgba(0,0,0,0)');
-      focusEdge.addColorStop(.7, `rgba(12,7,3,${focusAmount * .045})`);
-      focusEdge.addColorStop(1, `rgba(8,4,2,${focusAmount * .32})`);
+      const focusQ = Math.round(focusAmount * 20) / 20;
+      const focusEdge = cachedBattleGradient(ctx, `focus:${focusQ}`, () => {
+        const gradient = ctx.createRadialGradient(480, 270, 150, 480, 270, 565);
+        gradient.addColorStop(0, 'rgba(0,0,0,0)');
+        gradient.addColorStop(.7, `rgba(12,7,3,${focusQ * .045})`);
+        gradient.addColorStop(1, `rgba(8,4,2,${focusQ * .32})`);
+        return gradient;
+      });
       ctx.fillStyle = focusEdge;
       ctx.fillRect(0, 0, 960, 540);
       ctx.save();
@@ -13167,11 +13191,15 @@ function breakPlayerPosture() {
       ctx.fillRect(0, 0, 960, 540);
     }
     if (scene.perfectFlash > 0) {
-      const edge = ctx.createRadialGradient(480, 270, 165, 480, 270, 560);
-      edge.addColorStop(0, 'rgba(255,226,126,0)');
-      edge.addColorStop(.58, `rgba(255,205,90,${scene.perfectFlash * .025})`);
-      edge.addColorStop(.84, `rgba(255,210,105,${scene.perfectFlash * .16})`);
-      edge.addColorStop(1, `rgba(255,242,185,${scene.perfectFlash * .42})`);
+      const perfectQ = Math.round(scene.perfectFlash * 20) / 20;
+      const edge = cachedBattleGradient(ctx, `perfect:${perfectQ}`, () => {
+        const gradient = ctx.createRadialGradient(480, 270, 165, 480, 270, 560);
+        gradient.addColorStop(0, 'rgba(255,226,126,0)');
+        gradient.addColorStop(.58, `rgba(255,205,90,${perfectQ * .025})`);
+        gradient.addColorStop(.84, `rgba(255,210,105,${perfectQ * .16})`);
+        gradient.addColorStop(1, `rgba(255,242,185,${perfectQ * .42})`);
+        return gradient;
+      });
       ctx.fillStyle = edge;
       ctx.fillRect(0, 0, 960, 540);
       ctx.save();
