@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>长征·星火征途</title>
   <link rel="icon" href="app-icon.ico">
-  <link rel="stylesheet" href="style.css?v=0.30.0">
+  <link rel="stylesheet" href="style.css?v=0.31.0">
 </head>
 <body data-screen="title">
   <div id="app">
@@ -13,7 +13,7 @@
       <div class="topbar-left">
         <div class="brand">
           <span class="brand-star">★</span>
-          <div><strong>长征 · 星火征途</strong><small>v0.30.0</small></div>
+          <div><strong>长征 · 星火征途</strong><small>v0.31.0</small></div>
         </div>
         <div id="merit-hud" class="merit-hud hidden" aria-label="当前军功">
           <div class="merit-main"><span class="merit-star">★</span><span class="merit-label">军功</span><strong id="meta-merit">0</strong></div>
@@ -23,16 +23,16 @@
       </div>
       <div class="gameplay-access">
         <div id="global-player-hud" class="global-player-hud hidden" role="status" aria-label="我方兵力">
-          <div class="global-hp-head"><span><b class="global-hp-icon">血</b>我方兵力</span><strong id="global-player-hp-text">100 / 100</strong></div>
+          <div class="global-hp-head"><span><b class="global-hp-icon">✚</b>我方兵力</span><strong id="global-player-hp-text">100 / 100</strong></div>
           <div class="global-hp-track"><i id="global-player-hp-bar"></i></div>
         </div>
         <div class="gameplay-entry-row">
           <button id="growth-toggle" class="gameplay-entry growth-entry hidden" type="button" aria-haspopup="dialog" aria-controls="growth-overlay">
-            <span class="gameplay-entry-icon">才</span>
+            <span class="gameplay-entry-icon">✦</span>
             <span class="gameplay-entry-copy"><strong>技能树</strong><small id="growth-entry-meta">0 点可分配</small></span>
           </button>
           <button id="equipment-toggle" class="gameplay-entry equipment-entry hidden" type="button" aria-haspopup="dialog" aria-controls="equipment-overlay">
-            <span class="gameplay-entry-icon">备</span>
+            <span class="gameplay-entry-icon">⚙</span>
             <span class="gameplay-entry-copy"><strong>军备栏</strong><small id="equipment-entry-meta">已装备 0 / 2</small></span>
           </button>
         </div>
@@ -69,6 +69,7 @@
             <button id="tutorial-btn" class="brush-btn secondary" type="button">行军手册</button>
             <button id="run-history-btn" class="brush-btn secondary" type="button">战史</button>
             <button id="enemy-codex-btn" class="brush-btn secondary" type="button">行军图鉴</button>
+            <button id="clue-codex-btn" class="brush-btn secondary" type="button">线索集</button>
             <button id="save-manager-btn" class="brush-btn secondary" type="button">存档夹</button>
             <button id="exit-game-btn" class="brush-btn secondary title-exit-btn" type="button">退出游戏</button>
           </nav>
@@ -206,13 +207,14 @@
           <div><p class="eyebrow" id="single-map-eyebrow">山河寻路</p><h2 id="single-map-title">区域地图</h2></div>
           <div class="single-map-stats"><span>区域 <strong id="single-map-region-count">1 / 3</strong></span><span>地势 <strong id="single-map-layer-name">地表</strong></span><span>区域图 <strong id="single-map-chart-count">1 / 3</strong></span><span>收集 <strong id="single-map-collect-count">0</strong></span><span>已探 <strong id="single-map-progress-count">1</strong></span></div>
         </div>
-        <div id="single-map-board" class="single-map-board"><canvas id="single-map-canvas" class="single-map-canvas" aria-label="俯视探索地图"></canvas><div id="single-map-controls-hint" class="single-map-controls-hint" aria-live="polite" aria-hidden="true">使用移动键探索 · 长按疾跑键冲刺 · 按互动键调查</div><div id="single-map-action-hint" class="single-map-action-hint">靠近敌人、遗迹或可疑角落后按 <b data-binding-label="interact">E</b> 互动</div><aside id="single-map-task-panel" class="single-map-task-panel hidden" aria-live="polite"><div class="single-map-task-head"><span>行军任务</span><strong id="single-map-task-count">0</strong></div><div id="single-map-task-list" class="single-map-task-list"></div></aside></div>
+        <div id="single-map-board" class="single-map-board"><canvas id="single-map-canvas" class="single-map-canvas" aria-label="俯视探索地图"></canvas><div id="single-map-controls-hint" class="single-map-controls-hint" aria-live="polite" aria-hidden="true">使用移动键探索 · 长按疾跑键冲刺 · 按互动键调查</div><div id="single-map-action-hint" class="single-map-action-hint">靠近敌人、遗迹或可疑角落后按 <b data-binding-label="interact">F</b> 互动</div><aside id="single-map-task-panel" class="single-map-task-panel hidden" aria-live="polite"><div class="single-map-task-head"><span>行军任务</span><strong id="single-map-task-count">0</strong></div><div id="single-map-task-list" class="single-map-task-list"></div></aside></div>
         <div class="single-map-bottom">
           <div class="single-map-room-info">
             <span id="single-map-room-region">云岭山道</span>
             <h3 id="single-map-room-name">出发地</h3>
             <p id="single-map-room-desc">穿过山河图与暗道，靠近敌人、遗迹或隐藏物资后主动互动。</p>
           </div>
+          <button id="single-map-test-exit" class="small-btn danger hidden" type="button">退出测试</button>
         </div>
       </section>
 
@@ -570,7 +572,7 @@
             <h3>1 · 这局要做什么</h3>
             <p>三幕远征以事件、精英和每幕首领推进，适合连续成长与高强度首领战；山河寻路则要在连续区域地图上自由移动，穿行房间与走廊，收集物资并寻找区域入口。两种玩法都要击败最终封锁线，才能完成会师。</p>
             <div class="tutorial-tip">山河寻路是一片四层互通的山河图。使用移动与疾跑探索；地表、崖上层、河谷下层与地下暗渠由石阶、索桥、岩缝和竖井相连。</div>
-            <div class="tutorial-tip">靠近敌人、遗迹、信号闸或可疑角落后，按 <b data-binding-label="interact">E</b> 调查。精英与首领守住要道，击败后才能继续。</div>
+            <div class="tutorial-tip">靠近敌人、遗迹、信号闸或可疑角落后，按 <b data-binding-label="interact">F</b> 调查。精英与首领守住要道，击败后才能继续。</div>
             <div class="tutorial-tip">初上征途，<b>侦察连</b>最趁手：先手快，容易压垮敌将架势。</div>
             <div class="tutorial-tip">交过手的敌将会留在“<b>行军图鉴</b>”；没见过的仍是谜。</div>
           </article>
@@ -670,6 +672,8 @@
           <button class="codex-category" type="button" data-codex-tab="equipment" role="tab" aria-selected="false">军备</button>
           <button class="codex-category" type="button" data-codex-tab="relics" role="tab" aria-selected="false">信物</button>
           <button class="codex-category" type="button" data-codex-tab="techniques" role="tab" aria-selected="false">战法</button>
+          <button class="codex-category" type="button" data-codex-tab="clues" role="tab" aria-selected="false">线索</button>
+          <button class="codex-category" type="button" data-codex-tab="achievements" role="tab" aria-selected="false">成就</button>
         </div>
         <div class="codex-layout">
           <div id="enemy-codex-grid" class="enemy-codex-grid codex-entry-grid"></div>
@@ -785,7 +789,7 @@
     <div id="acquisition-overlay" class="item-acquisition-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="acquisition-title">
       <div class="item-acquisition-panel">
         <p id="acquisition-kicker" class="eyebrow">获得物品</p>
-        <div id="acquisition-icon" class="acquisition-icon">物</div>
+        <div id="acquisition-icon" class="acquisition-icon">✦</div>
         <h2 id="acquisition-title">物品</h2>
         <p id="acquisition-meta" class="acquisition-meta"></p>
         <p id="acquisition-desc" class="acquisition-desc"></p>
@@ -849,6 +853,6 @@
     <div id="level-toast" class="level-toast hidden">等级提升</div>
     <pre id="runtime-error" class="runtime-error hidden"></pre>
   </div>
-  <script src="game.js?v=0.30.0"></script>
+  <script src="game.js?v=0.31.0"></script>
 </body>
 </html>

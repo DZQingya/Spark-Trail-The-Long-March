@@ -23,6 +23,29 @@
   const lerpPoint = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   const randInt = (rng, min, max) => Math.floor(rng() * (max - min + 1)) + min;
   const choice = (rng, list) => list[Math.floor(rng() * list.length)];
+  const ICON_GLYPHS = {
+    '入': '➜', '出': '➜', '迹': '⌘', '敌': '⚔', '将': '♜', '营': '⌂', '藏': '▣', '首': '☠',
+    '粮': '▣', '药': '✚', '弹': '•', '功': '✦', '材': '⚙', '囊': '◫', '星': '✦', '图': '⌖', '匣': '▣', '备': '⚒', '卷': '▤',
+    '缝': '≋', '绞': '⚙', '锁': '⚿', '闸': '⚡', '守': '▰', '疾': '⌁', '火': '♨', '骑': '♞', '寒': '❄', '伏': '◈', '断': '⛓', '回': '↩', '狙': '⌖', '围': '☠',
+    '壁': '▰', '影': '◒', '铳': '•', '霜': '❄', '沼': '≋', '流': '↝', '旋': '↻', '破': '✹', '交': '✕', '劲': '⚡', '稳': '▰', '闪': '➜', '行': '➜', '整': '⚒', '架': '▥', '箱': '▣', '截': '✕', '贯': '➤', '魂': '✦', '护': '✚', '列': '▤', '簿': '▤', '向': '⌖', '脉': '≋',
+    '履': '➜', '号': '♬', '砺': '◇', '渡': '≈', '盘': '⌖', '哨': '♬', '钩': '⌁', '谱': '▤', '绷': '✚', '模': '⚙', '会': '⚑', '绳': '⌁', '盐': '◇', '章': '✪', '带': '⚑', '笛': '♬',
+    '猎': '⌖', '医': '✚', '货': '▣', '钥': '⚿', '侦': '⌖', '船': '≈', '通': '⌖', '信': '▤', '换': '⇄', '勋': '✪',
+    '铃': '♬', '息': '◌', '响': '♪', '血': '✚', '刀': '⚔', '锋': '⚔', '斩': '⚔', '刺': '➤', '缨': '⚑', '衣': '▣', '盔': '♜', '腕': '◫', '钢': '◈', '机': '⚙', '包': '▣', '镜': '◇', '战': '⚔', '水': '≈', '烟': '≋', '蒺': '✹', '酒': '◇', '盒': '▣', '焰': '♨', '鼓': '♬', '练': '↻', '搜': '⌖', '诱': '◈', '夹': '✕', '夜': '☾', '闯': '➤', '事': '⌘', '益': '✪', '封': '⛓', '集': '▤'
+  };
+  function iconGlyph(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '◆';
+    if (ICON_GLYPHS[raw]) return ICON_GLYPHS[raw];
+    if (raw.length === 1 && /[\u3400-\u9fff]/.test(raw)) return '◆';
+    return raw;
+  }
+  function normalizeIconObjects(value, seen = new Set()) {
+    if (!value || typeof value !== 'object' || seen.has(value)) return;
+    seen.add(value);
+    if (Array.isArray(value)) { value.forEach((entry) => normalizeIconObjects(entry, seen)); return; }
+    ['icon', 'glyph'].forEach((key) => { if (typeof value[key] === 'string') value[key] = iconGlyph(value[key]); });
+    Object.values(value).forEach((entry) => normalizeIconObjects(entry, seen));
+  }
   const shuffle = (rng, list) => {
     const copy = [...list];
     for (let i = copy.length - 1; i > 0; i--) {
@@ -242,7 +265,7 @@
   const DEFAULT_KEY_BINDINGS = {
     moveUp: 'KeyW', moveDown: 'KeyS', moveLeft: 'KeyA', moveRight: 'KeyD',
     attack: 'KeyJ', guard: 'KeyF', jump: 'Space', dodge: 'ShiftLeft', sprint: 'ShiftLeft',
-    shoot: 'KeyR', interact: 'KeyE', execute: 'KeyX', heal: 'KeyQ', item: 'KeyG', buffs: 'KeyB',
+    shoot: 'KeyR', interact: 'KeyF', execute: 'KeyX', heal: 'KeyQ', item: 'KeyG', buffs: 'KeyB',
     confirm: 'Enter', cancel: 'Escape', pause: 'Escape'
   };
   const DEFAULT_GAMEPAD_BINDINGS = {
@@ -251,6 +274,7 @@
     execute: 2, heal: 13, item: 12, buffs: 8, confirm: 0, cancel: 1, pause: 9
   };
   const INPUT_BINDINGS_STORAGE_KEY = 'longMarchInputBindingsV1';
+  const INTERACT_F_MIGRATION_KEY = 'longMarchInteractFDefaultV1';
 
   const RELICS = [
     { id: 'red_star', name: '红星章', icon: '星', rarity: '稀有', tags: ['信念', '守阵'], desc: '完美弹反额外削去敌将架势。', effect: '完美弹反额外削架势', apply: (p) => { p.relicParryPosture = (p.relicParryPosture || 0) + .55; } },
@@ -302,27 +326,42 @@
   ];
 
   const STORY_CLUES = [
-    { id: 'clue_ruijin_order', region: 0, title: '瑞金出发前的命令', source: '行军旧件', text: '命令纸只剩半页，落款处的红星仍清晰。出发的队伍没有等到所有伤员归队。' },
-    { id: 'clue_xiangjiang_bridge', region: 0, title: '湘江浮桥木牌', source: '地图拾取', text: '木牌上记着一句“桥在，队伍就还能过”。背面刻着七个已经看不清的姓名。' },
-    { id: 'clue_zunyi_meeting', region: 1, title: '会议桌角的铅笔痕', source: '行军遗迹', text: '铅笔痕反复圈住“机动”两个字。有人在这里否定了继续硬撞封锁线的走法。' },
-    { id: 'clue_chishui_ferry', region: 1, title: '船工留下的渡口水路', source: 'NPC对话', text: '船工把四处浅滩画成折返路线，让追兵看不清真正的渡口。' },
-    { id: 'clue_jinsha_boat', region: 2, title: '皎平渡的船桨刻记', source: '行军旧件', text: '船桨上刻着“七日七夜”。有限的木船把主力一船一船送过大江。' },
-    { id: 'clue_dadu_chain', region: 3, title: '泸定桥铁索铭文', source: '地图拾取', text: '铁索冰冷，桥板却只剩零星几块。先头队伍在枪火中向对岸爬去。' },
-    { id: 'clue_snow_binding', region: 3, title: '夹金山互助绑带', source: 'NPC对话', text: '两条旧绑带打成一个结。翻山时，前面的人把后面的人一点点拉过雪坡。' },
-    { id: 'clue_grass_ration', region: 4, title: '草地里的半袋炒面', source: '行军遗迹', text: '袋口写着“留给后队”。饥饿与疲惫藏在草地的每一步里。' },
-    { id: 'clue_rally_signal', region: 4, title: '会师前的联络暗号', source: '地图拾取', text: '暗号写着“星火”“征途”。不同方向的队伍约好用这两个词确认彼此身份。' },
-    { id: 'clue_boss_confession', region: 4, title: '封锁线军令残页', source: '首领初见', text: '敌军军令要求死守会师道路。纸页背面，却有人写下“不要再追了”。' }
+    { id: 'clue_ruijin_order', region: 0, title: '瑞金出发前的命令', source: '行军旧件', text: '命令纸只剩半页，落款处的红星仍清晰。出发的队伍没有等到所有伤员归队，只把能带走的药和子弹分成一份份，交给走在最前面的人。' },
+    { id: 'clue_xiangjiang_bridge', region: 0, title: '湘江浮桥木牌', source: '地图拾取', text: '木牌上记着一句“桥在，队伍就还能过”。背面刻着七个已经看不清的姓名。江水退下去以后，岸边的人仍把每一块断板拾回来。' },
+    { id: 'clue_tongdao_map', region: 0, title: '通道转兵的行军图', source: 'NPC口述', text: '图上没有一条直路，几支箭头在山口前忽然折返。画图的人把敌军的封锁线压在纸边，把自己的队伍藏进了最窄的一条山道。' },
+    { id: 'clue_xiangjiang_roster', region: 0, title: '渡口名册残页', source: '行军遗迹', text: '名册上没有完整的姓名，只有一行行编号和“已过”“未到”。最后几页被水泡皱，仍能看见有人用铅笔补写了“继续走”。' },
+    { id: 'clue_zunyi_meeting', region: 1, title: '会议桌角的铅笔痕', source: '行军遗迹', text: '铅笔痕反复圈住“机动”两个字。有人在这里否定了继续硬撞封锁线的走法，留下的不是答案，而是一条要在山河之间不断寻找的活路。' },
+    { id: 'clue_chishui_ferry', region: 1, title: '船工留下的渡口水路', source: 'NPC对话', text: '船工把四处浅滩画成折返路线，让追兵看不清真正的渡口。图中每个弯都标着水声，像是在提醒后来的人：夜色里也要记得辨别方向。' },
+    { id: 'clue_loushan_bugle', region: 1, title: '娄山关上的旧号嘴', source: '地图拾取', text: '铜号嘴被子弹磕出一个缺口。山风吹过时，它仍像在发出短促的回声，提醒人们：有些关口不靠蛮力夺下，而靠最后一刻也不乱的队列。' },
+    { id: 'clue_chishui_ledger', region: 1, title: '赤水河边的借粮簿', source: 'NPC对话', text: '借粮簿上写着“有粮出粮，有船出船”，字迹一行比一行急。几户船家把最后一块盐和一只旧橹记在同一页，后面只补了四个字：“不用归还”。' },
+    { id: 'clue_jinsha_boat', region: 2, title: '皎平渡的船桨刻记', source: '行军旧件', text: '船桨上刻着“七日七夜”。有限的木船把主力一船一船送过大江，渡口每一个人都只记得下一位客人，不记得自己已经划了多少趟。' },
+    { id: 'clue_yihai_oath', region: 2, title: '彝海边的一撮草灰', source: '地图拾取', text: '小纸包里的草灰已经发黑。当地人把路口、林子和可信的人告诉了队伍；队伍把借来的每一匹马都记下，继续向大渡河赶去。' },
+    { id: 'clue_anshunchang_rope', region: 2, title: '安顺场的渡河麻绳', source: '行军遗迹', text: '麻绳只剩一节，结头却被反复打紧。急流对岸没有现成的路，先过去的人把绳索拴在礁石上，后面的人才知道该从哪里下水。' },
+    { id: 'clue_jinsha_guide', region: 2, title: '船工的夜航口哨', source: 'NPC对话', text: '口哨没有曲调，只有三短一长。船工说，听到第四声就换岸，听不见就等。漆黑的江面上，许多人靠这一串短音找到了彼此。' },
+    { id: 'clue_dadu_chain', region: 3, title: '泸定桥铁索铭文', source: '地图拾取', text: '铁索冰冷，桥板却只剩零星几块。先头队伍在枪火中向对岸爬去，铁索上的铭文被手掌磨得发亮，像一条没有写完的路。' },
+    { id: 'clue_snow_binding', region: 3, title: '夹金山互助绑带', source: 'NPC对话', text: '两条旧绑带打成一个结。翻山时，前面的人把后面的人一点点拉过雪坡。没有人知道自己拉过多少人，只记得每次停下都有人把最后一口热水递过来。' },
+    { id: 'clue_lazikou_ladder', region: 3, title: '腊子口断梯', source: '地图拾取', text: '木梯只剩三根横档，背面刻着“上去以后不要回头”。山口的夜色吞没了脚步声，等天亮时，拦路的火力已经哑了。' },
+    { id: 'clue_snow_camp', region: 3, title: '雪线上的半截火绒', source: '行军遗迹', text: '火绒被雪水打湿，仍被包在油布里。有人在旁边写下“能点着就再走一里”。雪山没有留下姓名，只在石缝里留下这一点干燥的火。' },
+    { id: 'clue_grass_ration', region: 4, title: '草地里的半袋炒面', source: '行军旧件', text: '袋口写着“留给后队”。饥饿与疲惫藏在草地的每一步里，前面的队伍把能吃的都留下，自己只带着一张标出沼泽的旧纸条继续走。' },
+    { id: 'clue_rally_signal', region: 4, title: '会师前的联络暗号', source: '地图拾取', text: '暗号写着“星火”“征途”。不同方向的队伍约好用这两个词确认彼此身份，哪怕衣衫和口音都不同，只要答得出，就能把疲惫的脚步并在一起。' },
+    { id: 'clue_grass_letter', region: 4, title: '草地尽头的家书', source: 'NPC对话', text: '信纸上没有抱怨，只问家里今年的庄稼有没有收。写信的人把“还要走”写得很大，把“想你”写在纸角，字迹被雨水化开了一半。' },
+    { id: 'clue_boss_confession', region: 4, title: '封锁线军令残页', source: '首领初见', text: '敌军军令要求死守会师道路。纸页背面，却有人写下“不要再追了”。风把两行字吹在一起，像两场战争在最后一刻同时迟疑。' },
+    { id: 'clue_huining_reunion', region: 4, title: '会宁城外的会师旗角', source: '最终会师', text: '旗角上缝着两块颜色不同的布，针脚歪斜却很牢。会合的人没有先问走了多少路，只把手里的枪放下，确认彼此都还在。' }
   ];
 
   const ACHIEVEMENTS = [
-    { id: 'first_stand', name: '星火初燃', desc: '取得第一次战斗胜利。', check: (p, stats) => (stats.victories || 0) >= 1 },
-    { id: 'parry_ten', name: '十响金鸣', desc: '完成 10 次完美格挡。', check: (p, stats) => (stats.parries || 0) >= 10 },
-    { id: 'counter_ten', name: '借势还刀', desc: '完成 10 次反击。', check: (p, stats) => (stats.counters || 0) >= 10 },
-    { id: 'execution_five', name: '败势终结者', desc: '完成 5 次处决。', check: (p, stats) => (stats.executions || 0) >= 5 },
-    { id: 'hidden_way', name: '暗渠寻踪', desc: '发现一处地下暗渠。', check: (p) => (p.storyClues || []).length >= 2 },
-    { id: 'camp_three', name: '星火相连', desc: '点亮 3 处星火营火。', check: (p) => (p.bonfiresLit || 0) >= 3 },
-    { id: 'sword_path', name: '刀锋不折', desc: '学会 3 种以上变招。', check: (p) => (p.techniques || []).length >= 3 },
-    { id: 'story_chain', name: '征途成篇', desc: '收集 8 条行军线索。', check: (p) => (p.storyClues || []).length >= 8 }
+    { id: 'first_stand', name: '第一步', desc: '打赢第一场接战。', check: (p, stats) => (stats.victories || 0) >= 1, difficulty: '入门' },
+    { id: 'parry_ten', name: '金鸣初成', desc: '在一局中完成 30 次完美格挡。', check: (p, stats) => (stats.parries || 0) >= 30, difficulty: '熟练' },
+    { id: 'counter_ten', name: '刀锋回礼', desc: '完成 20 次反击。', check: (p, stats) => (stats.counters || 0) >= 20, difficulty: '熟练' },
+    { id: 'execution_five', name: '不留后患', desc: '完成 12 次处决。', check: (p, stats) => (stats.executions || 0) >= 12, difficulty: '老练' },
+    { id: 'hidden_way', name: '暗渠寻踪', desc: '在同一局中打开两处隐藏区域。', check: (p) => (p.hiddenAreas || []).filter(Boolean).length >= 2, difficulty: '探索' },
+    { id: 'camp_three', name: '星火相连', desc: '点亮 5 处星火营火。', check: (p) => (p.bonfiresLit || 0) >= 5, difficulty: '探索' },
+    { id: 'sword_path', name: '刀锋不折', desc: '学会全部四种变招。', check: (p) => (p.techniques || []).length >= 4, difficulty: '构筑' },
+    { id: 'story_chain', name: '征途成篇', desc: '在同一局中收集 12 条行军线索。', check: (p) => (p.storyClues || []).length >= 12, difficulty: '探索' },
+    { id: 'trap_survivor', name: '险路回头', desc: '触发两次机关后仍完成本局。', check: (p, stats) => (stats.trapsSprung || 0) >= 2 && (stats.completed || false), difficulty: '冒险' },
+    { id: 'no_heal_march', name: '一口干粮', desc: '连续三场战斗不使用战地补给。', check: (p, stats) => (stats.noHealVictories || 0) >= 3, difficulty: '挑战' },
+    { id: 'parry_counter_chain', name: '以守代攻', desc: '完成 50 次完美格挡与 25 次反击。', check: (p, stats) => (stats.parries || 0) >= 50 && (stats.counters || 0) >= 25, difficulty: '大师' },
+    { id: 'boss_breaker', name: '破阵者', desc: '击败首领并完成一局。', check: (p, stats) => (stats.bossVictories || 0) >= 1, difficulty: '首领' }
   ];
   const EQUIPMENT_RARITIES = {
     common: { name: '制式', order: 1, color: '#b9a27f' },
@@ -336,7 +375,7 @@
     { id: 'smoke_pellet', name: '烟雾丸', icon: '烟', category: '控制', cost: 34, desc: '遮住敌军视线，使当前目标短暂迟滞。', effect: '目标迟滞 · 打断普通起手' },
     { id: 'fire_pot', name: '火油罐', icon: '火', category: '攻击', cost: 38, desc: '对当前目标造成固定伤害并大量削减架势。', effect: '即时伤害 · 架势伤害' },
     { id: 'caltrops', name: '铁蒺藜', icon: '蒺', category: '控制', cost: 30, desc: '撒在敌军脚下，使其脚步停顿。', effect: '目标迟滞 · 额外架势伤害' },
-    { id: 'salt_water', name: '盐水壶', icon: '水', category: '恢复', cost: 28, desc: '恢复部分兵力与士气，适合长线战斗。', effect: '恢复兵力 · 士气 +12' },
+    { id: 'salt_water', name: '盐水壶', icon: '水', category: '恢复', cost: 28, desc: '恢复部分兵力，适合长线战斗。', effect: '恢复兵力' },
     { id: 'rice_wine', name: '药酒', icon: '酒', category: '恢复', cost: 36, desc: '恢复兵力并大幅清理我方架势。', effect: '恢复兵力 · 架势大幅降低' },
     { id: 'gun_oil', name: '枪油', icon: '油', category: '军需', cost: 24, desc: '立即补充 3 发弹药并稍微恢复架势。', effect: '弹药 +3' },
     { id: 'signal_flare', name: '信号焰火', icon: '焰', category: '控制', cost: 40, desc: '照亮战场，使所有敌将短暂迟滞。', effect: '全体敌军迟滞' },
@@ -395,31 +434,36 @@
     { id: 'variation_master', branch: '刀法', tier: 4, name: '交刃连斩', icon: '交', cost: 2, requires: ['variation_advanced', 'technique_edge'], desc: '学会格挡接闪避后切入连斩。', effect: '解锁变招：交刃连斩；已会时变招架势 +12%', techniqueId: 'crosscut', apply: (p) => { if (!p.techniques.includes('crosscut')) p.techniques.push('crosscut'); else p.techniquePostureBonus += .12; } },
     { id: 'technique_edge', branch: '刀法', tier: 3, name: '换步发力', icon: '劲', cost: 1, requires: ['variation_basic'], desc: '变招换步时把腰腿力量送进刀锋。', effect: '变招威力 +12%', apply: (p) => { p.techniqueDamageBonus += .12; } },
     { id: 'guard_breath', branch: '守势', tier: 1, name: '沉气守中', icon: '守', cost: 1, requires: [], desc: '稳住重心，阵脚更耐压。', effect: '架势上限 +12', apply: (p) => { p.maxPosture += 12; } },
-    { id: 'steady_guard', branch: '守势', tier: 2, name: '稳手护刃', icon: '稳', cost: 1, requires: ['guard_breath'], desc: '守反时脚步和刀架更稳。', effect: '防御 +1，守反时机 +60', apply: (p) => { p.defense += 1; p.guardCounterWindowBonus += 60; } },
+    { id: 'steady_guard', branch: '守势', tier: 2, name: '稳手护刃', icon: '稳', cost: 1, requires: ['guard_breath', 'dodge_form'], desc: '守反时脚步和刀架更稳。', effect: '防御 +1，守反时机 +60', apply: (p) => { p.defense += 1; p.guardCounterWindowBonus += 60; } },
     { id: 'dodge_form', branch: '机动', tier: 1, name: '低身换步', icon: '闪', cost: 1, requires: [], desc: '闪身后的重心恢复更快。', effect: '闪避恢复 +8%', apply: (p) => { p.dodgeCooldownReduction += .08; } },
     { id: 'light_step', branch: '机动', tier: 2, name: '轻装疾行', icon: '行', cost: 1, requires: ['dodge_form'], desc: '行军和战斗中的脚步更轻。', effect: '移动速度 +6%', apply: (p) => { p.moveSpeedBonus += .06; } },
     { id: 'field_kit', branch: '军需', tier: 1, name: '随身整备', icon: '整', cost: 1, requires: [], desc: '修补装备，也顺手扩大行囊。', effect: '补给上限 +16', apply: (p) => { p.maxSupplies += 16; p.supplies = Math.min(p.supplies, p.maxSupplies); } },
-    { id: 'equipment_harness', branch: '军需', tier: 2, name: '军备挂架', icon: '架', cost: 2, requires: ['field_kit'], desc: '在背包和腰间增加一组可靠的军备挂点。', effect: '军备槽 +1（总上限 4）', apply: (p) => { p.bonusEquipmentSlots += 1; } },
+    { id: 'equipment_harness', branch: '军需', tier: 2, name: '军备挂架', icon: '架', cost: 2, requires: ['field_kit', 'blade_flow'], desc: '在背包和腰间增加一组可靠的军备挂点。', effect: '军备槽 +1（总上限 4）', apply: (p) => { p.bonusEquipmentSlots += 1; } },
     { id: 'trail_read', branch: '探查', tier: 1, name: '读路辨迹', icon: '迹', cost: 1, requires: [], desc: '更早发现岔路、暗门和藏在角落的物资。', effect: '地图发现范围 +80', apply: (p) => { p.relicMapReveal += 80; } },
     { id: 'chest_luck', branch: '探查', tier: 2, name: '搜箱有方', icon: '箱', cost: 1, requires: ['trail_read'], desc: '更懂得从旧箱和缴获中挑出好东西。', effect: '宝箱稀有度提升', apply: (p) => { p.chestLuck += 15; } },
-    { id: 'counter_edge', branch: '刀法', tier: 3, name: '回锋截击', icon: '截', cost: 2, requires: ['blade_flow'], desc: '在敌人收招的缝隙里把刀锋送回去。', effect: '闪反与守反威力 +12%，反击窗口 +80', apply: (p) => { p.dodgeCounterBonus += .12; p.guardCounterBonus += .12; p.dodgeCounterWindowBonus += 80; p.guardCounterWindowBonus += 80; } },
+    { id: 'counter_edge', branch: '刀法', tier: 3, name: '回锋截击', icon: '截', cost: 2, requires: ['blade_flow', 'steady_guard'], desc: '在敌人收招的缝隙里把刀锋送回去。', effect: '闪反与守反威力 +12%，反击窗口 +80', apply: (p) => { p.dodgeCounterBonus += .12; p.guardCounterBonus += .12; p.dodgeCounterWindowBonus += 80; p.guardCounterWindowBonus += 80; } },
     { id: 'blade_mastery', branch: '刀法', tier: 4, name: '刀势贯通', icon: '贯', cost: 3, requires: ['variation_master', 'technique_edge'], desc: '把五式连锋和变招合成一口气，刀势不再散。', effect: '连锋威力 +8，变招威力 +14%', apply: (p) => { p.basicBonus += 8; p.techniqueDamageBonus += .14; } },
     { id: 'blade_tempest', branch: '刀法', tier: 5, name: '百战刀魂', icon: '魂', cost: 4, requires: ['blade_mastery'], desc: '久战之后，收刀、换步与回锋都变成本能。', effect: '连锋威力 +12，变招威力/架势 +20%', apply: (p) => { p.basicBonus += 12; p.techniqueDamageBonus += .2; p.techniquePostureBonus += .2; } },
-    { id: 'iron_wall', branch: '守势', tier: 3, name: '铁壁护阵', icon: '壁', cost: 2, requires: ['steady_guard'], desc: '把肩、腰和刀架连成一道稳固的防线。', effect: '防御 +2，架势上限 +18', apply: (p) => { p.defense += 2; p.maxPosture += 18; } },
+    { id: 'iron_wall', branch: '守势', tier: 3, name: '铁壁护阵', icon: '壁', cost: 2, requires: ['steady_guard', 'light_step'], desc: '把肩、腰和刀架连成一道稳固的防线。', effect: '防御 +2，架势上限 +18', apply: (p) => { p.defense += 2; p.maxPosture += 18; } },
     { id: 'perfect_echo', branch: '守势', tier: 4, name: '弹刃回响', icon: '响', cost: 3, requires: ['steady_guard'], desc: '完美架开敌刃后，反击的窗口和刀势都更长。', effect: '完美弹反削架势 +35%，守反窗口 +120', apply: (p) => { p.relicParryPosture += .35; p.guardCounterWindowBonus += 120; } },
     { id: 'last_stand', branch: '守势', tier: 5, name: '绝境不倒', icon: '屹', cost: 4, requires: ['iron_wall', 'perfect_echo'], desc: '兵力将尽时仍能把阵脚钉在地上。', effect: '兵力上限 +30，低兵力减伤 +10%', apply: (p) => { p.maxHp += 30; p.lowHpDefenseBonus += .1; } },
-    { id: 'shadow_step', branch: '机动', tier: 3, name: '影步回身', icon: '影', cost: 2, requires: ['light_step'], desc: '闪身落地时已经找好下一次出刀的角度。', effect: '闪避恢复 +10%，闪反威力 +10%', apply: (p) => { p.dodgeCooldownReduction += .1; p.dodgeCounterBonus += .1; } },
+    { id: 'shadow_step', branch: '机动', tier: 3, name: '影步回身', icon: '影', cost: 2, requires: ['light_step', 'counter_edge'], desc: '闪身落地时已经找好下一次出刀的角度。', effect: '闪避恢复 +10%，闪反威力 +10%', apply: (p) => { p.dodgeCooldownReduction += .1; p.dodgeCounterBonus += .1; } },
     { id: 'mountain_stride', branch: '机动', tier: 4, name: '翻山越岭', icon: '越', cost: 3, requires: ['light_step'], desc: '长距离行军与战斗换位都更从容。', effect: '移动速度 +12%，架势上限 +12', apply: (p) => { p.moveSpeedBonus += .12; p.maxPosture += 12; } },
     { id: 'untouchable', branch: '机动', tier: 5, name: '踏雪无痕', icon: '雪', cost: 4, requires: ['shadow_step'], desc: '连续的侧身与追刀让敌人很难抓住队伍。', effect: '闪反窗口 +180，闪避恢复 +16%', apply: (p) => { p.dodgeCounterWindowBonus += 180; p.dodgeCooldownReduction += .16; } },
-    { id: 'field_medic', branch: '军需', tier: 3, name: '战地救护所', icon: '护', cost: 2, requires: ['field_kit'], desc: '把急救和补给整理成一套可持续的战地流程。', effect: '治疗 +10，兵力上限 +12', apply: (p) => { p.healBonus += 10; p.maxHp += 12; } },
+    { id: 'field_medic', branch: '军需', tier: 3, name: '战地救护所', icon: '护', cost: 2, requires: ['field_kit', 'guard_breath'], desc: '把急救和补给整理成一套可持续的战地流程。', effect: '治疗 +10，兵力上限 +12', apply: (p) => { p.healBonus += 10; p.maxHp += 12; } },
     { id: 'supply_column', branch: '军需', tier: 4, name: '辎重长列', icon: '列', cost: 3, requires: ['field_kit'], desc: '把补给线拉长，让队伍能连续作战。', effect: '补给上限 +30，补给消耗 -2', apply: (p) => { p.maxSupplies += 30; p.supplyCostReduction = Math.min(8, p.supplyCostReduction + 2); } },
     { id: 'merit_ledger', branch: '军需', tier: 5, name: '军功簿', icon: '簿', cost: 4, requires: ['supply_column'], desc: '每一次缴获都被记在册上，换来更长的军需线。', effect: '军功收益 +12%，军需价格 -8%', apply: (p) => { p.meritGainBonus += .12; p.shopDiscount = Math.min(.3, (p.shopDiscount || 0) + .08); } },
-    { id: 'pathfinder', branch: '探查', tier: 3, name: '山路向导', icon: '向', cost: 2, requires: ['trail_read'], desc: '提前读到山势和旧路，少走许多冤枉路。', effect: '发现范围 +120，暗道感知 +100', apply: (p) => { p.relicMapReveal += 120; p.relicSecretSense += 100; } },
-    { id: 'veteran_cache', branch: '探查', tier: 4, name: '老练搜整', icon: '整', cost: 3, requires: ['chest_luck'], desc: '看一眼箱扣就知道里面值不值得打开。', effect: '宝箱幸运 +25，地图收益 +20%', apply: (p) => { p.chestLuck += 25; p.relicMapBonus += .2; } },
+    { id: 'pathfinder', branch: '探查', tier: 3, name: '山路向导', icon: '向', cost: 2, requires: ['trail_read', 'light_step'], desc: '提前读到山势和旧路，少走许多冤枉路。', effect: '发现范围 +120，暗道感知 +100', apply: (p) => { p.relicMapReveal += 120; p.relicSecretSense += 100; } },
+    { id: 'veteran_cache', branch: '探查', tier: 4, name: '老练搜整', icon: '整', cost: 3, requires: ['chest_luck', 'field_kit'], desc: '看一眼箱扣就知道里面值不值得打开。', effect: '宝箱幸运 +25，地图收益 +20%', apply: (p) => { p.chestLuck += 25; p.relicMapBonus += .2; } },
     { id: 'hidden_marrow', branch: '探查', tier: 5, name: '暗线通脉', icon: '脉', cost: 4, requires: ['pathfinder', 'veteran_cache'], desc: '把散落在地图边缘的暗线和军资连成一张网。', effect: '发现范围 +180，暗道感知 +160，架势上限 +10', apply: (p) => { p.relicMapReveal += 180; p.relicSecretSense += 160; p.maxPosture += 10; } }
   ];
 
   const NPC_DEFINITIONS = [
+    {
+      id: 'supply_broker', name: '随军供给员', icon: '换', regions: [0, 1, 2], role: '材料交换',
+      greeting: '我只做材料、战备和行军凭条的交换。军功不够就先记着，别拿队伍的命来抵。',
+      resourceTrade: { regionPrices: [24, 32, 40], stock: 2 }
+    },
     {
       id: 'hunter', name: '老猎人', icon: '猎', regions: [0], role: '山中委托',
       greeting: '山里那队守军踩坏了我布下的套索。替我拔掉他们，我把珍藏的护具给你。',
@@ -483,7 +527,7 @@
   const SINGLE_ROOM_INFO = {
     entry: { glyph: '入', name: '区域入口', desc: '山河图边缘的入口，向前便是新的探索区域。' },
     exit: { glyph: '出', name: '山口', desc: '通往下一片山河的狭窄山口。' },
-    event: { glyph: '迹', name: '行军遗迹', desc: '附近的旧迹需要靠近调查，才能知道留下了什么。' },
+    event: { glyph: '迹', iconShape: 'ruins', name: '行军遗迹', desc: '附近的旧迹需要靠近调查，才能知道留下了什么。' },
     battle: { glyph: '敌', name: '敌军游哨', desc: '敌军正在附近巡守。主动靠近后可以发起挑战。' },
     elite: { glyph: '将', name: '精英营帐', desc: '一名强敌直接扼守山河图深处，正面挑战会得到更厚回报。' },
     camp: { glyph: '营', name: '废弃营地', desc: '残火还未熄，可以短暂休整，也可能留下补给。' },
@@ -496,7 +540,10 @@
     ration: { glyph: '粮', name: '散落粮袋', desc: '补充队伍口粮。' },
     herb: { glyph: '药', name: '山草药包', desc: '为队伍处理伤口。' },
     cartridge: { glyph: '弹', name: '遗留弹壳', desc: '回收后换取军功。' },
-    star: { glyph: '星', name: '红星纸片', desc: '鼓舞队伍士气。' },
+    merit: { glyph: '功', name: '缴获凭条', desc: '回收后可兑换军功。' },
+    material: { glyph: '材', name: '军备材料', desc: '用于强化军备的稀有材料。' },
+    consumable: { glyph: '囊', name: '战备小包', desc: '打开后可获得一件战斗小道具。' },
+    star: { glyph: '星', name: '旧红星纸片', desc: '一张被雨水打湿的纪念纸片。' },
     chart: { glyph: '图', name: '残缺区域图', desc: '补全一片山河图的小地图。' },
     relic: { glyph: '匣', name: '星火残匣', desc: '机关后的旧木匣，只有解开双信号闸才会显现。' },
     equipment: { glyph: '备', name: '遗落军备', desc: '散落在山野角落的制式或精制军备。' },
@@ -507,7 +554,7 @@
     secret_wall: { glyph: '缝', action: '拨开石缝', name: '松动石缝', desc: '石缝后有一条通向地下暗渠的旧运粮道。' },
     winch: { glyph: '绞', action: '扳动绞盘', name: '旧渡口绞盘', desc: '铁索会放下通往隐藏渡槽的吊桥。' },
     ice_lock: { glyph: '锁', action: '砸开冰锁', name: '冰封暗门', desc: '冻死的门闩后是通往地下暖渠的另一块区域。' },
-    relay: { glyph: '闸', action: '接通信号闸', name: '旧信号闸', desc: '同一区域的两座信号闸同时接通后，暗格才会打开。' }
+    relay: { glyph: '闸', action: '接通信号闸', name: '旧信号闸', desc: '把同一区域的信号点全部接通后，隐藏入口才会显形。' }
   };
 
   const TRAP_INFO = {
@@ -691,7 +738,7 @@
   const UPGRADES = [
     { id: 'bayonet', name: '刺刀见红', icon: '刃', desc: '五式刀势更重', detail: '接下来每一式普通连锋都会多几分劲力，越敢把刀势走完，收获越大。', effects: [{ label: '连锋威力', value: '+6', tone: 'gain' }], notes: ['五式连锋都会变强。', '突刺、射击和处决不受影响。'], apply: (p) => { p.basicBonus += 6; } },
     { id: 'ironfoot', name: '铁脚板', icon: '行', desc: '带得动更多伤亡', detail: '队伍能承受更多损失，换编时也会立刻补回一点兵力。', effects: [{ label: '兵力上限', value: '+24', tone: 'gain' }, { label: '立即补回', value: '+10', tone: 'gain' }], notes: ['上限提高后，恢复空间更大。', '不会直接把兵力补满。'], apply: (p) => { p.maxHp += 24; p.hp = Math.min(p.maxHp, p.hp + 10); } },
-    { id: 'breath', name: '静气凝神', icon: '息', desc: '阵脚更稳', detail: '全队更能扛住连续压迫，喘息时还会卸去一点已经积起的架势。', effects: [{ label: '架势上限', value: '+18', tone: 'gain' }, { label: '立即卸力', value: '-8', tone: 'gain' }], notes: ['架势更耐压，不容易被连招打崩。', '收刀换气时，累积的架势也会减轻。'], apply: (p) => { p.maxPosture += 18; p.posture = Math.max(0, p.posture - 8); } },
+    { id: 'breath', name: '静气凝神', icon: '息', desc: '阵脚更稳', detail: '全队更能扛住连续压迫，危急时也能多撑住一口气。', effects: [{ label: '架势上限', value: '+18', tone: 'gain' }, { label: '低兵力减伤', value: '+3%', tone: 'gain' }], notes: ['架势更耐压，不容易被连招打崩。', '低兵力时受到的伤害会略降。'], apply: (p) => { p.maxPosture += 18; p.lowHpDefenseBonus += .03; } },
     { id: 'marksman', name: '神枪手', icon: '准', desc: '刀枪更易命中要害', detail: '全队更容易在交锋中抓住敌将破绽，打出格外沉重的一击。', effects: [{ label: '暴击', value: '+9%', tone: 'gain' }], notes: ['连锋、突刺、射击和反击都可能打出暴击。', '暴击会让这一击格外沉重。'], apply: (p) => { p.crit += .09; } },
     { id: 'logistics', name: '群众支前', icon: '粮', desc: '队伍走得更远', detail: '乡亲们送来更多粮食和弹药，队伍能多撑几次急行军与苦战。', effects: [{ label: '补给上限', value: '+24', tone: 'gain' }, { label: '立即补足', value: '+22', tone: 'gain' }], notes: ['突刺与紧急补给都要靠补给。', '军需补足后，长线行军会更从容。'], apply: (p) => { p.maxSupplies += 24; p.supplies = Math.min(p.maxSupplies, p.supplies + 22); } },
     { id: 'charge', name: '突刺训练', icon: '锋', desc: '长枪般的突刺更狠', detail: '长按左键的突刺更加凌厉，最适合刺穿敌将收招后的大空档。', effects: [{ label: '突刺威力', value: '+28%', tone: 'gain' }], notes: ['专门磨砺长按左键的突刺。', '离敌将太远会刺空。'], apply: (p) => { p.chargeBonus += .28; } },
@@ -706,11 +753,11 @@
     { id: 'field_hospital', name: '战地救护', icon: '医', cost: 120, step: 60, max: 2, desc: '每战多带一次急救', detail: '随军医箱里多备一份急救药。代价不轻，却能在最危险的时候把队伍拉回来。', effects: [{ label: '每场急救', value: '+1', tone: 'gain' }], notes: ['每场交锋开始时都会备好。', '本店只有一件，卖完即止。'], apply: (p) => { p.emergencyBonus += 1; } },
     { id: 'parry_edge', name: '弹刃淬锋', icon: '刃', cost: 64, step: 22, max: 3, desc: '挡开敌刃后反击更狠', detail: '架开敌刃后顺势劈出的守反更加凌厉。', effects: [{ label: '守反威力', value: '+18%', tone: 'gain' }], notes: ['弹反本身不伤敌，强的是紧接着的一刀。', '普通格挡与完美弹反都能接出更重的守反。'], apply: (p) => { p.guardCounterBonus += .18; } },
     { id: 'iron_body', name: '百炼体魄', icon: '体', cost: 46, step: 16, max: 4, desc: '全队更能吃苦', detail: '队伍能承受更多损失，换防时也会立刻补回一股力气。', effects: [{ label: '兵力上限', value: '+22', tone: 'gain' }, { label: '立即补回', value: '+18', tone: 'gain' }], notes: ['买下即可受用。', '本店只有一件，卖完即止。'], apply: (p) => { p.maxHp += 22; p.hp = Math.min(p.maxHp, p.hp + 18); } },
-    { id: 'deep_breath', name: '吐纳心法', icon: '息', cost: 42, step: 15, max: 4, desc: '阵脚更稳，气息更长', detail: '队伍更耐连招压迫，调息时也能卸去更多架势。', effects: [{ label: '架势上限', value: '+20', tone: 'gain' }, { label: '立即卸力', value: '-10', tone: 'gain' }], notes: ['架势越稳，越不容易被连招打崩。', '本店只有一件，卖完即止。'], apply: (p) => { p.maxPosture += 20; p.posture = Math.max(0, p.posture - 10); } },
+    { id: 'deep_breath', name: '吐纳心法', icon: '息', cost: 42, step: 15, max: 4, desc: '阵脚更稳，气息更长', detail: '队伍更耐连招压迫，长久行军也更会照顾伤员。', effects: [{ label: '架势上限', value: '+20', tone: 'gain' }, { label: '治疗', value: '+4', tone: 'gain' }], notes: ['架势越稳，越不容易被连招打崩。', '本店只有一件，卖完即止。'], apply: (p) => { p.maxPosture += 20; p.healBonus += 4; } },
     { id: 'dodge_counter', name: '追风反击', icon: '闪', cost: 58, step: 20, max: 3, desc: '闪开后追刀更狠', detail: '侧身让过锋刃后，顺着敌将收招的空档追上去，反击更重也更好接。', effects: [{ label: '闪避反击威力', value: '+20%', tone: 'gain' }, { label: '追刀时机', value: '更从容', tone: 'gain' }], notes: ['闪身时的护身时间不会因此变长。', '只强化闪开后接出的追刀。'], apply: (p) => { p.dodgeCounterBonus += .2; p.dodgeCounterWindowBonus += 120; } },
     { id: 'guard_counter', name: '守正反击', icon: '守', cost: 54, step: 18, max: 3, desc: '挡刀之后接得更稳', detail: '架开敌刃后有更充裕的时间顺势劈回去，守反也更重。', effects: [{ label: '守反时机', value: '更从容', tone: 'gain' }, { label: '守反威力', value: '+8%', tone: 'gain' }], notes: ['挡刀本身不会伤敌。', '与弹刃淬锋一起使用时，守反会更加沉重。'], apply: (p) => { p.guardCounterBonus += .08; p.guardCounterWindowBonus += 150; } },
     { id: 'pack_mule', name: '随军辎重', icon: '粮', cost: 38, step: 12, max: 3, desc: '粮弹更充裕', detail: '辎重队多带一程粮弹，马上补足队伍行囊。', effects: [{ label: '补给上限', value: '+22', tone: 'gain' }, { label: '立即补足', value: '+20', tone: 'gain' }], notes: ['突刺与紧急补给都会更从容。', '本店只有一件，卖完即止。'], apply: (p) => { p.maxSupplies += 22; p.supplies = Math.min(p.maxSupplies, p.supplies + 20); } },
-    { id: 'war_drum', name: '战鼓催锋', icon: '鼓', cost: 42, step: 14, max: 3, desc: '鼓声一响，刀势更盛', detail: '士气越旺，队伍的刀势越重；战鼓响起时也会立刻提振全队。', effects: [{ label: '士气带来的威力', value: '+12%', tone: 'gain' }, { label: '立刻提振', value: '+12', tone: 'gain' }], notes: ['士气高涨时，增势更明显。', '本店只有一件，卖完即止。'], apply: (p) => { p.moralePower += .12; p.morale = Math.min(100, p.morale + 12); } },
+    { id: 'war_drum', name: '战鼓催锋', icon: '鼓', cost: 42, step: 14, max: 3, desc: '鼓声一响，刀势更盛', detail: '战鼓让队伍每场交锋的起手更有气势。', effects: [{ label: '士气带来的威力', value: '+12%', tone: 'gain' }, { label: '开战士气', value: '+6', tone: 'gain' }], notes: ['开战士气只在每场交锋开始时结算。', '本店只有一件，卖完即止。'], apply: (p) => { p.moralePower += .12; p.openingMoraleBonus += 6; } },
     { id: 'march_boots', name: '行军绑腿', icon: '绑', cost: 52, step: 18, max: 2, desc: '走得更快，闪身更顺', detail: '绑腿收住脚步，长路和战斗换位都更利落。', effects: [{ label: '移动速度', value: '+8%', tone: 'gain' }, { label: '闪避恢复', value: '+8%', tone: 'gain' }], notes: ['地图移动和战斗走位同时生效。', '不改变闪避无敌帧。'], apply: (p) => { p.moveSpeedBonus += .08; p.dodgeCooldownReduction += .08; } },
     { id: 'field_cook', name: '随军灶', icon: '灶', cost: 34, step: 12, max: 3, desc: '热饭热汤，队伍走得更远', detail: '一口热饭能把疲惫压下去，补给线也更耐用。', effects: [{ label: '补给上限', value: '+18', tone: 'gain' }, { label: '治疗', value: '+4', tone: 'gain' }], notes: ['补给与治疗都会受益。'], apply: (p) => { p.maxSupplies += 18; p.healBonus += 4; } },
     { id: 'merit_scroll', name: '军功簿页', icon: '簿', cost: 48, step: 16, max: 2, desc: '把战果记清楚，军需更好谈', detail: '缴获、处决和战果被详细记账，后续军需更容易压价。', effects: [{ label: '军功收益', value: '+10%', tone: 'gain' }, { label: '军需价格', value: '-5%', tone: 'gain' }], notes: ['军功收益只影响战斗所得。', '军需折扣在本局后续商店生效。'], apply: (p) => { p.meritGainBonus = (p.meritGainBonus || 0) + .1; p.shopDiscount = Math.min(.3, (p.shopDiscount || 0) + .05); } },
@@ -771,12 +818,12 @@
     {
       id: 'flank', icon: '↗', title: '迂回穿插', subtitle: '绕开正面，咬住薄弱点',
       desc: '战后获得补给。',
-      tags: ['补给'], supply: 12, heal: 0, xp: 1.1, count: 1
+      tags: ['补给'], supply: 8, heal: 0, xp: 1.1, count: 1
     },
     {
       id: 'support', icon: '民', title: '群众带路', subtitle: '沿熟悉地形隐蔽接敌',
       desc: '战前恢复少量兵力。',
-      tags: ['恢复'], supply: 8, heal: 12, xp: 1.0, count: 1
+      tags: ['恢复'], supply: 4, heal: 12, xp: 1.0, count: 1
     },
     {
       id: 'night', icon: '夜', title: '夜袭接敌', subtitle: '借黑夜先打乱敌军',
@@ -966,7 +1013,7 @@
     squadId: null, player: null, difficulty: 'march', runMode: 'roguelike', singlePace: 'normal', act: 0, actStep: 0, actBoss: null, singleMap: null, chapter: 0, battle: 0, battleNumber: 0,
     routeOptions: [], squadOptions: [], currentRoute: null, combat: null, pendingRewards: [], currentEvent: null, usedEvents: [], eventContinue: null, shopItems: [], shopReturn: null, shopSource: null, shopResumeAction: null, lastRandomShopAt: -99,
     historyContinue: null, boss: false, finished: false, training: null, testMode: false, testModeOpen: false, testRestoreInProgress: false, acquisitionOpen: false, npcPanelOpen: false, pauseOpen: false, pauseStartedAt: 0, keyBindings: { ...DEFAULT_KEY_BINDINGS }, gamepadBindings: {}, bindingCapture: null, runElapsedMs: 0, runActiveSince: 0, runArchived: false, shopResumeAction: null, saveManagerOpen: false,
-    stats: { victories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, seed: 0 }
+    stats: { victories: 0, bossVictories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, noHealVictories: 0, trapsSprung: 0, completed: false, seed: 0 }
   };
 
   const STABLE_FPS_TIERS = [30, 20, 15, 10];
@@ -1127,7 +1174,7 @@
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
     manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
-    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
+    modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapTestExit: $('single-map-test-exit'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), clueCodexBtn: $('clue-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
     routeMap: $('route-map'), routeMapProgress: $('route-map-progress'), routeCards: $('route-cards'), routeMerit: $('route-merit'), routeShopHint: $('route-shop-hint'),
@@ -1239,7 +1286,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.30.0';
+  const GAME_VERSION = '0.31.0';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -1257,6 +1304,7 @@
   const ENEMY_CODEX_KEY = 'longMarchEnemyCodexV1';
   let discoveredEnemyCodexIds = new Set();
   let activeCodexTab = 'enemies';
+  let codexReturnFocus = null;
   let selectedCodexKey = '';
   let saveSlots = [];
   let activeSaveSlotId = '';
@@ -1349,6 +1397,13 @@
     Object.entries(saved?.keyboard || {}).forEach(([action, code]) => { if (typeof code === 'string') state.keyBindings[action] = code; });
     state.gamepadBindings = {};
     Object.entries(saved?.gamepad || {}).forEach(([action, index]) => { if (Number.isInteger(index)) state.gamepadBindings[action] = index; });
+    try {
+      if (saved?.keyboard?.interact === 'KeyE' && localStorage.getItem(INTERACT_F_MIGRATION_KEY) !== '1') {
+        state.keyBindings.interact = 'KeyF';
+        persistInputBindings();
+      }
+      localStorage.setItem(INTERACT_F_MIGRATION_KEY, '1');
+    } catch (_) {}
   }
 
   function persistInputBindings() {
@@ -2070,7 +2125,9 @@
     enemies: { title: '敌情图鉴', lead: '交过手的敌将会留下姓名、习性与招式；没见过的仍是谜。' },
     equipment: { title: '军备图鉴', lead: '查看全部军备的类别、稀有度与完整效果；本局持有的军备会高亮。' },
     relics: { title: '信物图鉴', lead: '查看信物效果、标签和联动；本局取得的信物会高亮。' },
-    techniques: { title: '战法图鉴', lead: '查看全部刀法变招的输入方式、用途与节奏；本局学会的变招会高亮。' }
+    techniques: { title: '战法图鉴', lead: '查看全部刀法变招的输入方式、用途与节奏；本局学会的变招会高亮。' },
+    clues: { title: '线索集', lead: '沿途的旧纸、刻记与口述会拼成一条完整的长征叙事；已获得的段落会亮起。' },
+    achievements: { title: '行军成就', lead: '每项成就都写在路途上；完成条件与当前状态会清楚标出。' }
   };
 
   function codexEntriesForTab(tab) {
@@ -2098,9 +2155,31 @@
         };
       });
     }
+    if (tab === 'clues') {
+      return STORY_CLUES.map((clue) => {
+        const owned = (p?.storyClues || []).includes(clue.id);
+        return {
+          key: `clue:${clue.id}`, name: owned ? clue.title : '未发现的线索', glyph: owned ? '▤' : '?',
+          color: owned ? '#d1a75f' : '#594636', eyebrow: `第 ${clue.region + 1} 段 · ${clue.source}`,
+          desc: owned ? clue.text : '继续探索地图、与老乡交谈或击破封锁，才能续上这段故事。',
+          body: owned ? clue.text : '', owned, revealed: owned, source: clue.source
+        };
+      });
+    }
+    if (tab === 'achievements') {
+      return ACHIEVEMENTS.map((achievement) => {
+        const owned = (p?.achievements || []).includes(achievement.id);
+        return {
+          key: `achievement:${achievement.id}`, name: achievement.name, glyph: owned ? '✪' : '◇',
+          color: owned ? '#e1bd67' : '#65523b', eyebrow: achievement.difficulty || '行军成就',
+          desc: achievement.desc, effects: [owned ? '已完成' : '未完成'], owned, revealed: true,
+          condition: achievement.desc
+        };
+      });
+    }
     if (tab === 'techniques') {
       return Object.values(PLAYER_TECHNIQUES).map((technique) => ({
-        key: `technique:${technique.id}`, name: technique.name, glyph: technique.short?.slice(0, 1) || '式', color: '#b85a3e',
+        key: `technique:${technique.id}`, name: technique.name, glyph: '✦', color: '#b85a3e',
         eyebrow: technique.input || '刀法变招', desc: technique.desc,
         owned: (p?.techniques || []).includes(technique.id),
         effects: [`${technique.hits > 1 ? `${technique.hits} 段` : '单段'} · 前摇 ${Math.round(technique.windup)} · 收招 ${Math.round(technique.recovery)}`]
@@ -2115,7 +2194,19 @@
       dom.codexDetail.innerHTML = '<div class="codex-detail-empty"><span>图鉴详情</span><p>选择一个条目查看完整信息。</p></div>';
       return;
     }
-    const title = `<div class="codex-detail-head"><span class="codex-detail-glyph" style="--entry-color:${entry.color || '#b98d4b'}">${entry.glyph || '录'}</span><div><small>${entry.eyebrow || entry.rank || '图鉴条目'}</small><h3>${entry.name}</h3></div></div>`;
+    const title = `<div class="codex-detail-head"><span class="codex-detail-glyph" style="--entry-color:${entry.color || '#b98d4b'}">${iconGlyph(entry.glyph || '录')}</span><div><small>${entry.eyebrow || entry.rank || '图鉴条目'}</small><h3>${entry.name}</h3></div></div>`;
+    if (tab === 'clues') {
+      if (!entry.owned) {
+        dom.codexDetail.innerHTML = `${title}<p class="codex-detail-note">这条线索还没有找到。地图边角、行军遗迹、老乡口述和首领初见都可能留下下一段。</p><p class="clue-detail-lock">尚未获得 · 当前已收集 ${(state.player?.storyClues || []).length} / ${STORY_CLUES.length}</p>`;
+        return;
+      }
+      dom.codexDetail.innerHTML = `${title}<p class="clue-detail-source">来源：${entry.source || '行军途中'}</p><p class="clue-detail-text">${entry.body || entry.desc || ''}</p><div class="codex-detail-state owned">已收入线索集</div>`;
+      return;
+    }
+    if (tab === 'achievements') {
+      dom.codexDetail.innerHTML = `${title}<p class="clue-detail-text">${entry.desc || ''}</p><div class="achievement-condition"><span>完成条件</span><strong>${entry.condition || entry.desc || ''}</strong></div><div class="codex-detail-state ${entry.owned ? 'owned' : ''}">${entry.owned ? '已完成' : '尚未完成'}</div>`;
+      return;
+    }
     if (tab === 'enemies') {
       const moves = (entry.moves || []).map((move) => `<span>${INTENT_LABELS[move] || move}</span>`).join('');
       dom.codexDetail.innerHTML = `${title}<p>${entry.role || ''}</p><dl class="codex-detail-facts"><dt>出没</dt><dd>${entry.habitat || '长征沿线'}</dd><dt>招式</dt><dd><div class="codex-detail-tags">${moves || '<span>常规接战</span>'}</div></dd>${entry.signature ? `<dt>专属绝技</dt><dd>${entry.signature}</dd>` : ''}</dl><p class="codex-detail-note">观察起手动作，留意刀光提示，再选择弹反、闪避或拉开距离。</p>`;
@@ -2142,6 +2233,7 @@
     activeCodexTab = tab;
     const meta = CODEX_TAB_META[tab];
     const entries = codexEntriesForTab(tab);
+    const displayEntries = tab === 'clues' ? entries.filter((entry) => entry.owned) : entries;
     if (dom.enemyCodexTitle) dom.enemyCodexTitle.textContent = meta.title;
     if (dom.enemyCodexLeadText) dom.enemyCodexLeadText.textContent = meta.lead;
     dom.codexCategoryRow?.querySelectorAll('[data-codex-tab]').forEach((button) => {
@@ -2153,25 +2245,29 @@
       if (tab === 'enemies') dom.enemyCodexProgress.textContent = `已识 ${entries.filter((entry) => entry.revealed).length} 名 · 共 ${entries.length} 名`;
       else if (tab === 'equipment') dom.enemyCodexProgress.textContent = `共 ${entries.length} 件 · 持有 ${entries.filter((entry) => entry.owned).length} 件`;
       else if (tab === 'relics') dom.enemyCodexProgress.textContent = `共 ${entries.length} 件 · 持有 ${entries.filter((entry) => entry.owned).length} 件`;
+      else if (tab === 'clues') dom.enemyCodexProgress.textContent = `已收集 ${entries.filter((entry) => entry.owned).length} / ${entries.length} 条`;
+      else if (tab === 'achievements') dom.enemyCodexProgress.textContent = `已完成 ${entries.filter((entry) => entry.owned).length} / ${entries.length} 项`;
       else dom.enemyCodexProgress.textContent = `共 ${entries.length} 式 · 已学 ${entries.filter((entry) => entry.owned).length} 式`;
     }
-    dom.enemyCodexGrid.innerHTML = entries.map((entry, index) => {
+    dom.enemyCodexGrid.innerHTML = displayEntries.length ? displayEntries.map((entry, index) => {
       if (tab === 'enemies' && !entry.revealed) {
         return `<article class="enemy-codex-card unknown" aria-label="未知敌人 ${index + 1}"><div class="codex-glyph">?</div><div class="codex-copy"><span>尚未交手</span><h3>未知敌将</h3><p>交过手，才会留下姓名。</p></div><div class="codex-redacted"><i></i><i></i><i></i></div></article>`;
       }
       const detailLine = (entry.effects || []).join(' · ');
-      const summary = tab === 'enemies' ? `招式：${(entry.moves || []).slice(0, 5).map((move) => INTENT_LABELS[move] || move).join(' · ') || '常规接战'}` : detailLine;
-      return `<button class="enemy-codex-card discovered codex-entry-card ${entry.owned ? 'codex-owned' : ''}" type="button" tabindex="0" data-gamepad-focusable="true" data-codex-key="${entry.key}" style="--enemy-codex-color:${entry.color || '#8f5b3b'}" aria-label="${entry.name}">
-        <div class="codex-glyph">${entry.glyph || '录'}</div>
+      const summary = tab === 'enemies' ? `招式：${(entry.moves || []).slice(0, 5).map((move) => INTENT_LABELS[move] || move).join(' · ') || '常规接战'}` : tab === 'clues' ? (entry.owned ? entry.desc : '尚未发现 · 继续探索') : tab === 'achievements' ? (entry.owned ? '已完成' : entry.condition || entry.desc) : detailLine;
+      return `<button class="enemy-codex-card discovered codex-entry-card ${entry.owned ? 'codex-owned' : ''} ${tab === 'clues' || tab === 'achievements' ? (entry.owned ? 'codex-complete' : 'codex-locked') : ''}" type="button" tabindex="0" data-gamepad-focusable="true" data-codex-key="${entry.key}" style="--enemy-codex-color:${entry.color || '#8f5b3b'}" aria-label="${entry.name}">
+        <div class="codex-glyph">${iconGlyph(entry.glyph || '录')}</div>
         <div class="codex-copy"><span>${entry.eyebrow || `${entry.rank || ''} · ${entry.habitat || ''}`}</span><h3>${entry.name}</h3><p>${entry.role || entry.desc || ''}</p><small>${summary || ''}</small>${entry.signature ? `<small class="codex-signature">绝技：${entry.signature}</small>` : ''}${entry.owned ? '<em class="codex-owned-mark">本局持有</em>' : ''}</div>
       </button>`;
-    }).join('');
-    const defaultEntry = entries.find((entry) => entry.key === selectedCodexKey && (tab !== 'enemies' || entry.revealed)) || entries.find((entry) => tab !== 'enemies' || entry.revealed);
+    }).join('') : `<div class="codex-empty-state"><strong>还没有找到行军线索</strong><span>探索地图边角、与老乡交谈、调查遗迹或直面首领，故事会从这里开始。</span></div>`;
+    const defaultEntry = displayEntries.find((entry) => entry.key === selectedCodexKey) || displayEntries.find((entry) => tab !== 'enemies' || entry.revealed) || displayEntries[0];
     selectedCodexKey = defaultEntry?.key || '';
     if (selectedCodexKey) selectCodexEntry(tab, selectedCodexKey); else renderCodexDetail(tab, null);
   }
 
-  function openEnemyCodex() {
+  function openEnemyCodex(tab = 'enemies', returnFocus = null) {
+    if (CODEX_TAB_META[tab]) activeCodexTab = tab;
+    codexReturnFocus = returnFocus;
     renderEnemyCodex();
     dom.enemyCodexOverlay?.classList.remove('hidden');
     setTimeout(() => {
@@ -2184,8 +2280,10 @@
   function closeEnemyCodex() {
     dom.enemyCodexOverlay?.classList.add('hidden');
     setTimeout(() => {
-      if (activeGamepad && dom.enemyCodexBtn) focusGamepadElement(dom.enemyCodexBtn);
-      else dom.enemyCodexBtn?.focus({ preventScroll: true });
+      const target = codexReturnFocus || dom.enemyCodexBtn;
+      if (activeGamepad && target) focusGamepadElement(target);
+      else target?.focus({ preventScroll: true });
+      codexReturnFocus = null;
     }, 0);
   }
 
@@ -3218,7 +3316,7 @@
     state.pendingRewards = [];
     state.currentEvent = null;
     state.shopItems = [];
-    state.stats = { victories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, seed: state.seed };
+    state.stats = { victories: 0, bossVictories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, noHealVictories: 0, trapsSprung: 0, completed: false, seed: state.seed };
     state.runElapsedMs = 0;
     state.runActiveSince = Date.now();
     if (state.runMode === 'single') {
@@ -3240,7 +3338,7 @@
     return {
       squadId, name: squad.name, icon: squad.icon, passive: squad.passive,
       hp: squad.maxHp, maxHp: squad.maxHp, atk: squad.atk, defense: squad.defense,
-      crit: squad.crit, supplies: squad.supplies, maxSupplies: squad.supplies,
+      crit: squad.crit, supplies: Math.round(squad.supplies * .76), maxSupplies: Math.round(squad.supplies * .76),
       morale: squad.morale, level: 1, xp: 0, xpNext: 42, merit: 60,
       guard: 0, cooldowns: { charge: 0, tactic: 0 }, firstAction: true, firstGuard: true, firstSupply: true,
       posture: 0, maxPosture: 78, postureRecoverAt: 0, postureBroken: false, postureBreakUntil: 0, hitstunUntil: 0, dodgeCooldownUntil: 0,
@@ -3374,7 +3472,7 @@
   }  function grantKey(player, keyId, options = {}) {
     const key = KEYS[keyId]; if (!player || !key) return false;
     player.keys = player.keys || {}; player.keys[keyId] = (player.keys[keyId] || 0) + 1;
-    if (!options.silent && player === state.player) queueAcquisition({ type: 'key', kicker: options.kicker || '获得钥匙', name: key.name, icon: key.icon, meta: options.source || '可开启对应暗门', desc: key.desc, effects: [`当前持有 ${player.keys[keyId]} 把`], note: '靠近对应门锁后按 E/X 使用。' });
+    if (!options.silent && player === state.player) queueAcquisition({ type: 'key', kicker: options.kicker || '获得钥匙', name: key.name, icon: key.icon, meta: options.source || '可开启对应暗门', desc: key.desc, effects: [`当前持有 ${player.keys[keyId]} 把`], note: '靠近对应门锁后按 F/X 使用。' });
     return true;
   }
   function consumeKey(player, keyId) {
@@ -3428,7 +3526,7 @@
     if (item.id === 'smoke_pellet' && enemy) { enemy.status.stun = Math.max(enemy.status.stun || 0, 1); enemy.hitstunUntil = Math.max(enemy.hitstunUntil || 0, performance.now() + 800); enemy.intent = { type: 'stunned', label: '烟雾遮眼 · 迟滞', value: 0 }; }
     if (item.id === 'fire_pot' && enemy) { dealDamageToEnemy(enemy, Math.round(24 + p.atk * .5 + p.lowHpBonus * 20), false, '火油罐', { postureMultiplier: 2.15 }); }
     if (item.id === 'caltrops' && enemy) { enemy.status.stun = Math.max(enemy.status.stun || 0, 1); enemy.hitstunUntil = Math.max(enemy.hitstunUntil || 0, performance.now() + 600); addEnemyPosture(enemy, 24, { source: 'caltrops' }); }
-    if (item.id === 'salt_water') { p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp * .14) + p.healBonus); p.morale = Math.min(100, p.morale + 12); }
+    if (item.id === 'salt_water') { p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp * .14) + p.healBonus); }
     if (item.id === 'rice_wine') { p.hp = Math.min(p.maxHp, p.hp + Math.round(p.maxHp * .18) + p.healBonus); p.posture = Math.max(0, p.posture - Math.round(p.maxPosture * .55)); }
     if (item.id === 'gun_oil') { combat.ammo += 3; p.posture = Math.max(0, p.posture - 8); }
     if (item.id === 'signal_flare') (combat.enemies || []).forEach((target) => { if (!target.dead) { target.status.stun = Math.max(target.status.stun || 0, 1); target.hitstunUntil = Math.max(target.hitstunUntil || 0, performance.now() + 720); target.intent = { type: 'stunned', label: '信号焰火 · 迟滞', value: 0 }; } });
@@ -3454,7 +3552,7 @@
     if (!entry) { acquisitionActive = false; acquisitionCurrent = null; state.acquisitionOpen = false; dom.acquisitionOverlay?.classList.add('hidden'); return; }
     acquisitionActive = true; acquisitionCurrent = entry; state.acquisitionOpen = true;
     dom.acquisitionKicker.textContent = entry.kicker || '获得物品';
-    dom.acquisitionIcon.textContent = entry.icon || '物';
+    dom.acquisitionIcon.textContent = iconGlyph(entry.icon || '物');
     dom.acquisitionTitle.textContent = entry.name || '物品';
     dom.acquisitionMeta.textContent = entry.meta || '';
     dom.acquisitionDesc.textContent = entry.desc || '';
@@ -3502,7 +3600,7 @@
     while (dom.achievementToastStack.children.length >= 4) dom.achievementToastStack.firstElementChild?.remove();
     const card = document.createElement('article');
     card.className = 'achievement-toast';
-    card.innerHTML = `<span class="achievement-toast-icon">勋</span><div><small>行军成就</small><strong>${achievement.name}</strong><p>${achievement.desc}</p><em>军功 +${merit}</em></div>`;
+    card.innerHTML = `<span class="achievement-toast-icon">✪</span><div><small>行军成就</small><strong>${achievement.name}</strong><p>${achievement.desc}</p><em>军功 +${merit}</em></div>`;
     dom.achievementToastStack.appendChild(card);
     requestAnimationFrame(() => card.classList.add('show'));
     setTimeout(() => {
@@ -3518,7 +3616,20 @@
       if ((p.achievements || []).includes(achievement.id)) return;
       if (achievement.check(p, state.stats || {})) unlockAchievement(achievement);
     });
-  }  function talentPoints(player = state.player) { return player ? Math.max(0, (player.level || 1) - (player.talentSpent || 0)) : 0; }
+  }  const TALENT_VARIANTS = [
+    { id: 'edge', name: '锋锐', effect: '变招威力 +3%', apply: (p) => { p.techniqueDamageBonus = (p.techniqueDamageBonus || 0) + .03; } },
+    { id: 'breath', name: '沉气', effect: '架势上限 +4', apply: (p) => { p.maxPosture = (p.maxPosture || 100) + 4; } },
+    { id: 'travel', name: '行旅', effect: '移动速度 +2%', apply: (p) => { p.moveSpeedBonus = (p.moveSpeedBonus || 0) + .02; } },
+    { id: 'supply', name: '筹粮', effect: '补给上限 +8', apply: (p) => { p.maxSupplies = (p.maxSupplies || 100) + 8; p.supplies = Math.min(p.supplies, p.maxSupplies); } }
+  ];
+  function talentVariantFor(node) {
+    if (!node) return TALENT_VARIANTS[0];
+    return TALENT_VARIANTS[hashSeed(`${state.seed || 1}:${node.id}:talent-variant`) % TALENT_VARIANTS.length];
+  }
+  function talentNodesForSeed() {
+    return [...TALENT_TREE].sort((a, b) => a.tier - b.tier || (hashSeed(`${state.seed || 1}:${a.id}:order`) % 997) - (hashSeed(`${state.seed || 1}:${b.id}:order`) % 997));
+  }
+  function talentPoints(player = state.player) { return player ? Math.max(0, (player.level || 1) - (player.talentSpent || 0)) : 0; }
   function talentCanUnlock(node, player = state.player) {
     return !!player && !!node && !(player.talents || []).includes(node.id) && talentPoints(player) >= node.cost && (node.requires || []).every((id) => (player.talents || []).includes(id));
   }
@@ -3527,8 +3638,9 @@
     if (!node || !p) return false;
     if ((p.talents || []).includes(node.id)) { showToast('这项天赋已经学会。'); return false; }
     if (!talentCanUnlock(node, p)) { showToast(talentPoints(p) < node.cost ? '天赋点不足，升级后才能继续。' : '前置天赋还没有点亮。'); return false; }
-    p.talents = p.talents || []; p.talents.push(node.id); p.talentSpent = (p.talentSpent || 0) + node.cost; node.apply(p);
-    queueAcquisition({ type: 'talent', kicker: '点亮天赋', name: node.name, icon: node.icon, meta: `${node.branch} · 消耗 ${node.cost} 点`, desc: node.desc, effects: [node.effect], note: node.techniqueId && p.techniques.includes(node.techniqueId) ? '对应变招已加入可用招式。' : '天赋效果已即时生效。' });
+    const variant = talentVariantFor(node);
+    p.talents = p.talents || []; p.talents.push(node.id); p.talentSpent = (p.talentSpent || 0) + node.cost; node.apply(p); variant.apply(p);
+    queueAcquisition({ type: 'talent', kicker: '点亮天赋', name: `${node.name} · ${variant.name}`, icon: node.icon, meta: `${node.branch} · 消耗 ${node.cost} 点`, desc: node.desc, effects: [node.effect, `本局变体：${variant.effect}`], note: node.techniqueId && p.techniques.includes(node.techniqueId) ? '对应变招已加入可用招式。' : '天赋效果已即时生效。' });
     updateMetaBars(); renderGrowthPanel(); return true;
   }
   function relicArtSvg(id) {
@@ -3624,14 +3736,14 @@
       { icon: '刺', name: '识破', input: '敌将突刺时闪避', desc: '大幅削减敌方架势' },
       { icon: '铳', name: '射击', input: '射击键', desc: '远程补伤 · 子弹可挡可闪' }
     ];
-    dom.growthCombos.innerHTML = `<h3 class="growth-section-title">基础招式与连招</h3><div class="growth-combo-grid">${comboGuides.map((combo) => `<article class="growth-combo-card"><b>${combo.icon} ${combo.name}</b><span>${combo.input}</span><p>${combo.desc}</p></article>`).join('')}</div>`;
+    dom.growthCombos.innerHTML = `<h3 class="growth-section-title">基础招式与连招</h3><div class="growth-combo-grid">${comboGuides.map((combo) => `<article class="growth-combo-card"><b>${iconGlyph(combo.icon)} ${combo.name}</b><span>${combo.input}</span><p>${combo.desc}</p></article>`).join('')}</div>`;
     const learned = (p.techniques || []).map((id) => PLAYER_TECHNIQUES[id]).filter(Boolean);
     dom.growthTechniques.innerHTML = `<h3 class="growth-section-title">已学变招 <small>${learned.length} / ${Object.keys(PLAYER_TECHNIQUES).length}</small></h3>${learned.length ? `<div class="growth-technique-list">${learned.map((technique) => `<article class="growth-technique-card"><b>${technique.name}</b><span>${technique.input}</span><p>${technique.desc}</p></article>`).join('')}</div>` : '<div class="buff-empty">还没有习得额外变招，继续战斗与探索可以获得。</div>'}`;
-    const branches = [...new Set(TALENT_TREE.map((node) => node.branch))];
-    dom.talentTree.innerHTML = branches.map((branch) => `<section class="talent-branch"><h4>${branch}</h4>${TALENT_TREE.filter((node) => node.branch === branch).sort((a, b) => a.tier - b.tier).map((node) => { const learnedNode = p.talents.includes(node.id); const can = talentCanUnlock(node, p); return `<button type="button" data-talent-id="${node.id}" class="talent-node ${learnedNode ? 'learned' : can ? '' : 'locked'} ${selectedTalentId === node.id ? 'selected' : ''}"><strong>${node.icon} ${node.name}</strong><small>${node.effect}</small><em>${learnedNode ? '已点亮' : `${node.cost} 点${node.requires.length ? ' · 有前置' : ''}`}</em></button>`; }).join('')}</section>`).join('');
+    const orderedNodes = talentNodesForSeed();
+    dom.talentTree.innerHTML = `<div class="talent-interwoven-head"><span>本局天赋脉络</span><small>前置会跨越刀法、守势、机动、军需与探查；每个种子会改变节点顺序和一项细枝效果。</small></div><div class="talent-branch talent-branch-interwoven">${orderedNodes.map((node) => { const learnedNode = p.talents.includes(node.id); const can = talentCanUnlock(node, p); const variant = talentVariantFor(node); return `<button type="button" data-talent-id="${node.id}" class="talent-node ${learnedNode ? 'learned' : can ? '' : 'locked'} ${selectedTalentId === node.id ? 'selected' : ''}"><strong>${node.icon} ${node.name}</strong><small>${node.effect}</small><em>${node.branch} · ${node.tier} 层 · ${learnedNode ? '已点亮' : `${node.cost} 点`} · ${variant.name}</em></button>`; }).join('')}</div>`;
     if (!selectedTalentId) selectedTalentId = TALENT_TREE[0]?.id || null;
     const node = TALENT_TREE.find((entry) => entry.id === selectedTalentId);
-    if (node) { const learnedNode = p.talents.includes(node.id), can = talentCanUnlock(node, p); dom.talentDetail.innerHTML = `<strong>${node.icon} ${node.name}</strong> · ${node.branch} ${node.tier} 层<p class="talent-description">${node.desc}</p><div class="talent-effect-highlight"><span>天赋效果</span><strong>${node.effect}</strong></div><small>${learnedNode ? '已点亮' : can ? `消耗 ${node.cost} 点` : node.requires.some((id) => !p.talents.includes(id)) ? '需要前置天赋' : `需要 ${node.cost} 点`}</small>`; dom.talentConfirm.disabled = learnedNode || !can; dom.talentConfirm.textContent = learnedNode ? '已学会' : '学习天赋'; } else { dom.talentDetail.textContent = '选择一项天赋。'; dom.talentConfirm.disabled = true; }
+    if (node) { const learnedNode = p.talents.includes(node.id), can = talentCanUnlock(node, p), variant = talentVariantFor(node); dom.talentDetail.innerHTML = `<strong>${node.icon} ${node.name}</strong> · ${node.branch} ${node.tier} 层<p class="talent-description">${node.desc}</p><div class="talent-effect-highlight"><span>天赋效果</span><strong>${node.effect}</strong><em>本局变体 · ${variant.name}：${variant.effect}</em></div><small>${learnedNode ? '已点亮' : can ? `消耗 ${node.cost} 点` : node.requires.some((id) => !p.talents.includes(id)) ? '需要前置天赋' : `需要 ${node.cost} 点`}</small>`; dom.talentConfirm.disabled = learnedNode || !can; dom.talentConfirm.textContent = learnedNode ? '已学会' : '学习天赋'; } else { dom.talentDetail.textContent = '选择一项天赋。'; dom.talentConfirm.disabled = true; }
   }
   function openGrowthPanel() { if (!state.player) return; renderGrowthPanel(); dom.growthOverlay?.classList.remove('hidden'); setTimeout(() => { const activeTalent = dom.talentTree?.querySelector('.talent-node.selected') || dom.talentTree?.querySelector('[data-talent-id]'); if (activeGamepad && activeTalent) focusGamepadElement(activeTalent); else dom.talentConfirm?.focus({ preventScroll: true }); }, 0); }
   function closeGrowthPanel() { dom.growthOverlay?.classList.add('hidden'); }
@@ -3663,6 +3775,8 @@
     if (!Array.isArray(map.hiddenAreas) || map.hiddenAreas.length !== (map.regionCount || 3)) map.hiddenAreas = Array.from({ length: map.regionCount || 3 }, (_, index) => !!map.hiddenAreas?.[index]);
     const alreadyUnlocked = !!map.hiddenAreas[region];
     map.hiddenAreas[region] = true;
+    state.player.hiddenAreas = Array.isArray(state.player.hiddenAreas) ? state.player.hiddenAreas : [];
+    state.player.hiddenAreas[region] = true;
     map.charts[region] = true;
     const secret = (map.interactions || []).find((item) => item.id === `secret-${region}`);
     if (secret && options.openEntrance !== false) {
@@ -3704,6 +3818,7 @@
     if (npc.intel) status.push('情报：区域图与宝箱位置');
     if (npc.hiddenRoute) status.push('知道一条地图上没有的暗渠入口');
     if (npc.heal) status.push(`处理伤情：军功 ${npc.heal.cost}`);
+    if (npc.resourceTrade) status.push('材料交换：军功换材料 · 旧材料换军功');
     dom.npcStatus.innerHTML = status.map((item) => `<span>${item}</span>`).join('');
     const options = [];
     if (npc.quest) {
@@ -3730,6 +3845,15 @@
     if (npc.heal) {
       const used = npcUsedFlag(npc, 'heal');
       options.push(`<button class="npc-option" type="button" data-npc-action="heal" ${used ? 'disabled' : ''}><strong>${used ? '伤情已经处理' : '恢复队伍兵力'}</strong>${used ? '' : `<small>军功 -${npc.heal.cost}</small>`}</button>`);
+    }
+    if (npc.resourceTrade) {
+      const price = npc.resourceTrade.regionPrices?.[region] || 32;
+      const tradeState = p.npcTrades[npc.id] || {};
+      const materialBought = tradeState.resourceBought || 0;
+      const stock = npc.resourceTrade.stock || 2;
+      options.push(`<button class="npc-option" type="button" data-npc-action="buy-material" ${materialBought >= stock ? 'disabled' : ''}><strong>${materialBought >= stock ? '材料已兑换完' : `兑换${MATERIALS.tempered_steel.name}`}</strong>${materialBought >= stock ? '' : `<small>军功 -${price} · 当前 ${materialBought}/${stock}</small>`}</button>`);
+      const sellable = Object.keys(MATERIALS).find((id) => (p.materials?.[id] || 0) > 0);
+      options.push(`<button class="npc-option" type="button" data-npc-action="sell-material" ${sellable ? '' : 'disabled'}><strong>${sellable ? `售出${MATERIALS[sellable].name}` : '没有可售材料'}</strong>${sellable ? `<small>回收 ${MATERIALS[sellable].name} · 军功 +${Math.round(price * .7)}</small>` : ''}</button>`);
     }
     options.push('<button class="npc-option" type="button" data-npc-action="leave"><strong>结束交谈</strong></button>');
     dom.npcOptions.innerHTML = options.join('');
@@ -3769,6 +3893,24 @@
       p.merit -= cost; p.npcTrades[npc.id] = { ...(p.npcTrades[npc.id] || {}), key: true };
       grantKey(p, keyId, { source: '钥匙交易' });
       updateMetaBars(); saveCurrentRun('map'); renderNpcPanel(); return;
+    }
+    if (action === 'buy-material' && npc.resourceTrade) {
+      const price = npc.resourceTrade.regionPrices?.[spawn.region] || 32;
+      const tradeState = p.npcTrades[npc.id] || {};
+      if ((tradeState.resourceBought || 0) >= (npc.resourceTrade.stock || 2)) { showToast('这位供给员的材料已经换完了。'); return; }
+      if ((p.merit || 0) < price) { showToast('军功不足，无法兑换材料。'); return; }
+      p.merit -= price;
+      p.npcTrades[npc.id] = { ...tradeState, resourceBought: (tradeState.resourceBought || 0) + 1 };
+      grantMaterial(p, 'tempered_steel', 1, { source: '随军供给员' });
+      showToast(`材料兑换：${MATERIALS.tempered_steel.name} +1`); updateMetaBars(); saveCurrentRun('map'); renderNpcPanel(); return;
+    }
+    if (action === 'sell-material' && npc.resourceTrade) {
+      const materialId = Object.keys(MATERIALS).find((id) => (p.materials?.[id] || 0) > 0);
+      if (!materialId) { showToast('没有可出售的军备材料。'); return; }
+      const price = Math.round((npc.resourceTrade.regionPrices?.[spawn.region] || 32) * .7);
+      p.materials[materialId] -= 1;
+      p.merit = (p.merit || 0) + price;
+      showToast(`售出${MATERIALS[materialId].name} · 军功 +${price}`); updateMetaBars(); saveCurrentRun('map'); renderNpcPanel(); return;
     }
     if (action === 'intel' && npc.intel) {
       if (npcUsedFlag(npc, 'intel')) { showToast('这份情报已经记下。'); return; }
@@ -4017,10 +4159,10 @@
   }
   function singleMapBlockerName(map, roomId) {
     const room = singleMapRoom(map, roomId);
-    if (!room) return '拦路敌军';
+    if (!room) return '前方敌军';
     if (room.enemy?.boss) return room.bossTitle || room.name.split(' · ')[0] || '首领';
     if (room.enemy?.elite) return ELITE_VARIANTS[room.enemy.typeId]?.name || ENEMY_TYPES[room.enemy.typeId]?.name || room.name.split(' · ')[0] || '精英';
-    return ENEMY_TYPES[room.enemy?.typeId]?.name || room.name.split(' · ')[0] || '拦路敌军';
+    return ENEMY_TYPES[room.enemy?.typeId]?.name || room.name.split(' · ')[0] || '前方敌军';
   }
   function organicPathPoints(a, b, bend = 0) {
     const dx = b.x - a.x, dy = b.y - a.y;
@@ -4050,6 +4192,7 @@
     if (!Number.isFinite(enemy.mapHomeX)) enemy.mapHomeX = enemy.mapX;
     if (!Number.isFinite(enemy.mapHomeY)) enemy.mapHomeY = enemy.mapY;
     if (!Number.isFinite(enemy.patrolPhase)) enemy.patrolPhase = (room.local || 0) * .83 + room.x * .011;
+    if (!Number.isFinite(enemy.patrolRange)) { const base = enemy.boss ? 5 : enemy.elite ? 24 : 34; const extra = enemy.boss ? 5 : enemy.elite ? 32 : 52; enemy.patrolRange = base + (hashSeed(`${room.id}:${state.seed}:patrol`) % 1000) / 1000 * extra; }
     if (typeof enemy.mapAggro !== 'boolean') enemy.mapAggro = false;
     if (!enemy.mapFacing) enemy.mapFacing = 'right';
     return enemy;
@@ -4193,7 +4336,7 @@
       transitions.push({ id: returnTransitionId, region, kind: 'shaft_up', aId: hiddenExit.id, bId: returnTarget.id, aLayer: hiddenExit.layer, bLayer: returnTarget.layer, aX: hiddenExit.x + 52, aY: hiddenExit.y - 12, bX: returnTarget.x - 52, bY: returnTarget.y + 12, discovered: false, requiresHiddenArea: true, hiddenArea: true, reverseRequiresDiscovery: true });
       doors.push({ id: `hidden-door-${region}`, region, layer: secretSource.layer, x: gate.x, y: gate.y - 38, keyId: REGION_KEY_IDS[region], open: false, pathId: secretPathId, revealed: false, hidden: true, secretGate: true, hiddenArea: false });
 
-      const relayCandidates = shuffle(state.rng, nodes.filter((entry) => entry.region === region && !entry.hiddenArea && !['entry', 'exit', 'boss', 'camp'].includes(entry.type))).slice(0, 2);
+      const relayCandidates = shuffle(state.rng, nodes.filter((entry) => entry.region === region && !entry.hiddenArea && !['entry', 'exit', 'boss', 'camp'].includes(entry.type))).slice(0, 3);
       relayCandidates.forEach((relayNode, relayIndex) => interactions.push({ id: `relay-${region}-${relayIndex}`, region, layer: relayNode.layer, nodeId: relayNode.id, kind: 'relay', relayIndex, x: relayNode.x - 52 + relayIndex * 28, y: relayNode.y - 48, solved: false, targetPathId: null }));      const trapPaths = shuffle(state.rng, paths.filter((path) => path.region === region && !path.hiddenArea && !path.secret));
       const trapCount = longRun ? 2 : 1;
       for (let trapIndex = 0; trapIndex < trapCount && trapIndex < trapPaths.length; trapIndex++) { const path = trapPaths[trapIndex], point = path.points[4 + Math.floor(state.rng() * Math.max(1, path.points.length - 8))] || path.points[Math.floor(path.points.length / 2)]; traps.push({ id: `trap-${region}-${trapIndex}`, region, layer: path.layer, x: point.x, y: point.y, pathId: path.id, kind: choice(state.rng, Object.keys(TRAP_INFO)), armed: true, disarmed: false, triggered: false }); }
@@ -4207,7 +4350,7 @@
       const visibleHosts = shuffle(state.rng, nodes.filter((entry) => entry.region === region && !entry.hiddenArea && !['entry', 'exit', 'boss'].includes(entry.type)));
       const visiblePaths = paths.filter((entry) => entry.region === region && !entry.hiddenArea && (!entry.secret || entry.open));
       const hiddenHosts = nodes.filter((entry) => entry.region === region && entry.hiddenArea);
-      const pickupCount = 7;
+      const pickupCount = 8;
       for (let slot = 0; slot < pickupCount; slot++) {
         const offset = randomOffset(52, 98), usePath = slot > 0 && slot % 2 === 1 && visiblePaths.length;
         const pathHost = usePath ? choice(state.rng, visiblePaths) : null, pathPoint = pathHost ? choice(state.rng, pathHost.points) : null;
@@ -4215,17 +4358,25 @@
         const x = (pathPoint ? pathPoint.x : host.x) + offset.x, y = (pathPoint ? pathPoint.y : host.y) + offset.y;
         let kindId;
         if (slot === 0) kindId = 'chart';
-        else kindId = choice(state.rng, ['ration', 'herb', 'cartridge', 'star']);
+        else if (slot === 1) kindId = 'material';
+        else if (slot === 2) kindId = 'merit';
+        else if (slot === 3) kindId = state.rng() < .24 ? 'herb' : 'consumable';
+        else if (slot === 4) kindId = 'cartridge';
+        else kindId = state.rng() < .2 ? 'ration' : choice(state.rng, ['material', 'consumable', 'merit']);
         pickups.push({ id: `pickup-${region}-${slot}`, region, layer, x, y, kind: kindId, collected: false, revealRegion: kindId === 'chart' ? Math.min(finalRegion, region + 1) : null, requiresPuzzle: false, hiddenArea: false });
       }
       const relicHost = choice(state.rng, visibleHosts), relicOffset = randomOffset(70, 110);
       pickups.push({ id: `relic-cache-${region}`, region, layer: relicHost.layer, x: relicHost.x + relicOffset.x, y: relicHost.y + relicOffset.y, kind: 'relic', collected: false, revealRegion: null, requiresPuzzle: true, hiddenArea: false });
       const gearHost = nodes.find((entry) => entry.region === region && entry.local === hiddenCacheIndex), gearOffset = randomOffset(58, 88);
       pickups.push({ id: `equipment-cache-${region}`, region, layer: gearHost.layer, x: gearHost.x + gearOffset.x, y: gearHost.y + gearOffset.y, kind: 'equipment', equipmentRarity: region === 2 ? 'epic' : state.rng() < .48 ? 'rare' : 'common', collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true });
-      const clueCandidates = STORY_CLUES.filter((clue) => clue.region === region), clueHost = choice(state.rng, visibleHosts), clueOffset = randomOffset(64, 104);
-      if (clueCandidates.length) pickups.push({ id: `story-clue-${region}`, region, layer: clueHost.layer, x: clueHost.x + clueOffset.x, y: clueHost.y + clueOffset.y, kind: 'story', clueId: choice(state.rng, clueCandidates).id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: false });      const hiddenSupplyHost = nodes.find((entry) => entry.region === region && entry.local === hiddenEnd), hiddenSupplyOffset = randomOffset(62, 96);
-      pickups.push({ id: `hidden-supply-${region}`, region, layer: hiddenSupplyHost.layer, x: hiddenSupplyHost.x + hiddenSupplyOffset.x, y: hiddenSupplyHost.y + hiddenSupplyOffset.y, kind: choice(state.rng, ['ration', 'herb', 'cartridge', 'star']), collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true });
+      const clueCandidates = shuffle(state.rng, STORY_CLUES.filter((clue) => clue.region === region)), clueHost = choice(state.rng, visibleHosts), clueOffset = randomOffset(64, 104);
+      if (clueCandidates.length) pickups.push({ id: `story-clue-${region}`, region, layer: clueHost.layer, x: clueHost.x + clueOffset.x, y: clueHost.y + clueOffset.y, kind: 'story', clueId: clueCandidates[0].id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: false });
+      if (clueCandidates[1]) { const secondHost = choice(state.rng, visibleHosts), secondOffset = randomOffset(72, 108); pickups.push({ id: `story-clue-${region}-b`, region, layer: secondHost.layer, x: secondHost.x + secondOffset.x, y: secondHost.y + secondOffset.y, kind: 'story', clueId: clueCandidates[1].id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: false }); }
+      const hiddenSupplyHost = nodes.find((entry) => entry.region === region && entry.local === hiddenEnd), hiddenSupplyOffset = randomOffset(62, 96);
+      pickups.push({ id: `hidden-supply-${region}`, region, layer: hiddenSupplyHost.layer, x: hiddenSupplyHost.x + hiddenSupplyOffset.x, y: hiddenSupplyHost.y + hiddenSupplyOffset.y, kind: choice(state.rng, ['material', 'consumable', 'merit', 'relic']), collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true });
 
+      const hiddenClueCandidates = STORY_CLUES.filter((clue) => clue.region === region && !clueCandidates.slice(0, 2).some((picked) => picked.id === clue.id));
+      if (hiddenClueCandidates.length) { const hiddenClueHost = nodes.find((entry) => entry.region === region && entry.local === hiddenStart); const hiddenClueOffset = randomOffset(52, 88); pickups.push({ id: `hidden-story-${region}`, region, layer: hiddenClueHost.layer, x: hiddenClueHost.x + hiddenClueOffset.x, y: hiddenClueHost.y + hiddenClueOffset.y, kind: 'story', clueId: choice(state.rng, hiddenClueCandidates).id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true }); }
       const vaultBase = choice(state.rng, visibleHosts.filter((entry) => entry.layer <= 2)), vaultAngle = state.rng() * Math.PI * 2, vaultRadius = 260 + state.rng() * 85;
       const vaultX = vaultBase.x + Math.cos(vaultAngle) * vaultRadius, vaultY = vaultBase.y + Math.sin(vaultAngle) * vaultRadius;
       const doorId = `door-${region}`, chestId = `chest-${region}`, pathId = `vault-path-${region}`;
@@ -4500,7 +4651,7 @@
       const nodeA = singleMapRoom(map, transition.aId), nodeB = singleMapRoom(map, transition.bId);
       if (!nodeA || !nodeB) return;
       const blockerId = singleMapBlockedBy(map, transition);
-      const blockedLabel = blockerId ? `${singleMapBlockerName(map, blockerId)}拦住去路` : '';
+      const blockedLabel = blockerId ? `请先击败 ${singleMapBlockerName(map, blockerId)}` : '';
       if (layer === transition.aLayer) {
         const distance = Math.hypot(p.x - transition.aX, p.y - transition.aY);
         if (distance <= 52) actions.push({ kind: blockerId ? 'blocked' : 'transition', id: transition.id, side: 'a', distance, label: blockerId ? blockedLabel : layerTransitionLabel(transition.kind, 'a') });
@@ -4568,7 +4719,7 @@
     const hintSignature = `${activeGamepad ? 'pad' : 'key'}|${map.player.layer}|${action ? `${action.kind}:${action.id}:${action.side || ''}:${action.label}` : 'none'}`;
     if (hintSignature === singleMapActionHintSignature) return;
     singleMapActionHintSignature = hintSignature;
-    const interactKey = activeGamepad ? 'X' : 'E';
+    const interactKey = activeGamepad ? 'X' : inputBindingLabel('interact');
     const sprintHint = activeGamepad ? `长按 ${inputBindingLabel('sprint')} 疾跑` : `长按 ${inputBindingLabel('sprint')} 疾跑`;
     const moveKeys = `${formatKeyCode(keyBinding('moveUp'))}/${formatKeyCode(keyBinding('moveLeft'))}/${formatKeyCode(keyBinding('moveDown'))}/${formatKeyCode(keyBinding('moveRight'))}`;
     if (dom.singleMapControlsHint) dom.singleMapControlsHint.textContent = activeGamepad ? `左摇杆移动 · 长按 ${inputBindingLabel('sprint')} 疾跑 · ${inputBindingLabel('interact')} 互动` : `${moveKeys} 移动 · 长按 ${inputBindingLabel('sprint')} 疾跑 · ${inputBindingLabel('interact')} 互动`;
@@ -4614,9 +4765,12 @@
     dom.singleMapCollectCount.textContent = String(map.collected || 0);
     dom.singleMapProgressCount.textContent = `${map.cleared.length} / ${map.rooms.length}`;
     const room = singleMapRoom(map, map.currentId) || map.rooms[0];
+    const hiddenTheme = room.hiddenArea ? map.hiddenThemes?.[room.region] : null;
+    dom.singleMapEyebrow.textContent = hiddenTheme ? `地下暗渠 · ${hiddenTheme.title}` : (map.pace === 'quick' ? '山河寻路 · 快速模式' : `山河寻路 · 普通模式 · ${difficultyLabel()}`);
     dom.singleMapRoomRegion.textContent = SINGLE_REGIONS[room.region].name;
     dom.singleMapRoomName.textContent = room.name;
     dom.singleMapRoomDesc.textContent = room.desc;
+    dom.singleMapTestExit?.classList.toggle('hidden', !(state.testMode || testRunActive));
     updateSingleMapActionHint(map);
     renderSingleMapTasks(map);
     setMeta(); setScreen('map'); maybeShowSingleMapControlsHint(); singleMapSaveAt = performance.now(); singleMapWasMoving = false; saveCurrentRun('map'); startSingleMapLoop();
@@ -4629,7 +4783,7 @@
     let message = '';
     if (pickup.kind === 'ration') {
       const before = p.supplies;
-      p.supplies = Math.min(p.maxSupplies, p.supplies + Math.round(7 * bonus));
+      p.supplies = Math.min(p.maxSupplies, p.supplies + Math.round(4 * bonus));
       const gain = Math.max(0, Math.round(p.supplies - before));
       message = `补给 +${gain}`;
       queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 行军物资', name: SINGLE_PICKUP_INFO.ration.name, icon: '粮', meta: '常见物资 · 补给', desc: '一支队伍能在山路上走多远，往往取决于粮袋里还剩多少。', effects: [gain > 0 ? `补给 +${gain}` : '补给已满，仍收入行囊'], note: '补给用于突刺与紧急救护。' });
@@ -4644,6 +4798,22 @@
       p.merit = (p.merit || 0) + gain;
       message = `军功 +${gain}`;
       queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 缴获', name: SINGLE_PICKUP_INFO.cartridge.name, icon: '弹', meta: '常见物资 · 军功', desc: '散落在旧阵地里的弹壳还能回收换作军功。', effects: [`军功 +${gain}`], note: '军功可用于军需站与 NPC 交易。' });
+    } else if (pickup.kind === 'material') {
+      const materialId = choice(state.rng, Object.keys(MATERIALS));
+      const amount = 1 + (state.chapter >= 2 ? 1 : 0);
+      grantMaterial(p, materialId, amount, { source: '地图拾取 · 军备材料', silent: true });
+      message = `取得 ${MATERIALS[materialId].name} ×${amount}`;
+      queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 军备材料', name: MATERIALS[materialId].name, icon: MATERIALS[materialId].icon, meta: '稀有材料 · 可强化军备', desc: MATERIALS[materialId].desc, effects: [`数量 +${amount}`], note: '可在军备栏强化对应军备。' });
+    } else if (pickup.kind === 'consumable') {
+      const item = choice(state.rng, Object.values(CONSUMABLES));
+      addConsumable(p, item.id, 1, { silent: true });
+      message = `取得 ${item.name}`;
+      queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 战备', name: item.name, icon: item.icon, meta: `${item.category} · 战斗小道具`, desc: item.desc, effects: [item.effect], note: '战斗中用小道具键使用。' });
+    } else if (pickup.kind === 'merit') {
+      const gain = Math.round(18 * bonus);
+      p.merit = (p.merit || 0) + gain;
+      message = `军功 +${gain}`;
+      queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 缴获凭条', name: SINGLE_PICKUP_INFO.merit.name, icon: SINGLE_PICKUP_INFO.merit.glyph, meta: '军功资源', desc: '一张盖过旧印章的缴获凭条，能换到军需队认可的军功。', effects: [`军功 +${gain}`], note: '军功可用于军需站与 NPC 交换。' });
     } else if (pickup.kind === 'chart') {
       const revealRegion = pickup.revealRegion ?? Math.min(2, pickup.region + 1);
       state.singleMap.charts[revealRegion] = true;
@@ -4672,11 +4842,10 @@
       queueAcquisition({ type: 'equipment', kicker: '地图拾取 · 军备', name: item.name, icon: item.icon, meta: `${EQUIPMENT_RARITIES[item.rarity].name} · ${item.category}`, desc: item.desc, effects: item.effects.map((effect) => `${effect.label} ${effect.value}`), note: p.equippedEquipment.includes(unit.uid) ? '已自动装入空余军备槽，可在军备栏调整。' : '已收入军备栏，可在军备栏装备。' });
       message = `取得 ${item.name}`;
     } else {
-      const before = p.morale;
-      p.morale = Math.min(100, p.morale + Math.round(8 * bonus));
-      const gain = Math.max(0, Math.round(p.morale - before));
-      message = `士气 +${gain}`;
-      queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 鼓舞', name: SINGLE_PICKUP_INFO.star.name, icon: '星', meta: '常见物资 · 士气', desc: '一张被雨水打湿的红星纸片，仍让人想起队伍为何出发。', effects: [gain > 0 ? `士气 +${gain}` : '士气已满，仍收入行囊'], note: '士气越高，刀势与战意越强。' });
+      const gain = Math.round(8 * bonus);
+      p.merit = (p.merit || 0) + gain;
+      message = `军功 +${gain}`;
+      queueAcquisition({ type: 'pickup', kicker: '地图拾取 · 纪念物', name: SINGLE_PICKUP_INFO.star.name, icon: SINGLE_PICKUP_INFO.star.glyph, meta: '旧物 · 化为军功', desc: '这张旧纸片已经褪色，但它的来处仍值得被记住。', effects: [`军功 +${gain}`], note: '旧物会折算成军功。' });
     }
     dom.singleMapCollectCount.textContent = String(state.singleMap.collected || 0); dom.singleMapChartCount.textContent = `${state.singleMap.charts.filter(Boolean).length} / ${state.singleMap.regionCount || state.singleMap.charts.length}`;
     showToast(`${SINGLE_PICKUP_INFO[pickup.kind].name}：${message}`); updateMetaBars(); saveCurrentRun('map');
@@ -4685,12 +4854,20 @@
     const map = state.singleMap, p = state.player;
     if (!map || !trap || !trap.armed) return;
     trap.armed = false; trap.triggered = true;
-    const damage = Math.max(1, Math.round(p.maxHp * (trap.kind === 'spikepit' ? .16 : trap.kind === 'rockfall' ? .14 : .1)));
+    const damage = Math.max(1, Math.round(p.maxHp * (trap.kind === 'spikepit' ? .20 : trap.kind === 'rockfall' ? .18 : .14)));
+    const postureLoss = Math.round((p.maxPosture || 100) * .08);
     p.hp = Math.max(1, p.hp - damage);
-    p.morale = Math.max(0, p.morale - 3);
-    showToast(`${TRAP_INFO[trap.kind].name}触发：兵力 -${damage}`);
-    playSound('enemy');
-    updateMetaBars(); saveCurrentRun('map'); renderSingleMap();
+    p.posture = Math.min(p.maxPosture || 100, (p.posture || 0) + postureLoss);
+    state.stats.trapsSprung = (state.stats.trapsSprung || 0) + 1;
+    map.trapFlashUntil = performance.now() + 620;
+    const mapBoard = dom.singleMapBoard;
+    if (mapBoard) { mapBoard.classList.remove('trap-hit'); void mapBoard.offsetWidth; mapBoard.classList.add('trap-hit'); }
+    setTimeout(() => mapBoard?.classList.remove('trap-hit'), 640);
+    const info = TRAP_INFO[trap.kind] || { name: '行军机关' };
+    showToast(`${info.name}触发！兵力 -${damage} · 架势 +${postureLoss}`);
+    queueAcquisition({ type: 'trap-hit', kicker: '机关触发 · 行军受损', name: info.name, icon: info.glyph || '!', meta: '机关已触发 · 需要立刻整队', desc: '脚下的机关突然弹起，队伍被迫停下收拾伤口。', effects: [`兵力 -${damage}`, `架势 +${postureLoss}`], note: '离开机关覆盖范围后，从侧面靠近可以拆除未触发的机关。' });
+    playSound('boom');
+    updateMetaBars(); saveCurrentRun('map');
   }
   function resolveMapTrap(trap) {
     const map = state.singleMap, p = state.player;
@@ -4710,9 +4887,14 @@
       if (solvedCount >= relays.length) {
         state.singleMap.puzzleSolved[item.region] = true;
         state.player.merit = (state.player.merit || 0) + 12;
-        showToast('双信号闸接通：暗格显形，军功 +12。');
+        const newlyUnlocked = unlockHiddenAreaForMap(state.singleMap, item.region);
+        const entrance = (state.singleMap.transitions || []).find((entry) => entry.id === `hidden-entry-${item.region}`);
+        if (entrance) entrance.discovered = true;
+        state.singleMap.hiddenEntranceRegion = item.region;
+        showToast('三处信号接通：隐藏入口已显形，军功 +12。');
+        if (newlyUnlocked) queueAcquisition({ type: 'map', kicker: '线索机关 · 隐藏入口', name: '地下暗渠入口', icon: '⚿', meta: `${SINGLE_REGIONS[item.region].name} · 额外小地图`, desc: '三处旧信号点同时亮起，山壁后的暗渠入口显露出来。里面的道路、物资和敌人与主路不同。', effects: ['隐藏入口已标在地图上', '暗渠区域已点亮', '开启额外探索路线'], note: '沿入口进入后可以探索独立的小地图。' });
       } else {
-        showToast(`信号闸已接通 ${solvedCount} / ${relays.length}，还要找到另一座。`);
+        showToast(`信号点已接通 ${solvedCount} / ${relays.length}，还需要完成全部节点。`);
       }
       saveCurrentRun('map');
       return;
@@ -4730,6 +4912,10 @@
     const key = KEYS[door.keyId];
     if (!consumeKey(state.player, door.keyId)) { showToast(`这道门需要${key?.name || '对应钥匙'}。可以先找 NPC、精英敌人或宝箱。`); return false; }
     door.open = true;
+    door.revealed = true;
+    const doorPath = (state.singleMap.paths || []).find((entry) => entry.id === door.pathId);
+    if (doorPath) { doorPath.open = true; doorPath.revealed = true; }
+    (state.singleMap.transitions || []).filter((entry) => entry.aX === door.x && entry.aY === door.y).forEach((entry) => { entry.discovered = true; });
     showToast(door.secretGate ? `使用${key.name}打开了通往地下暗渠的旧闸门。` : `使用${key.name}打开了暗门。`);
     playSound('guard');
     saveCurrentRun('map');
@@ -4762,7 +4948,7 @@
       queueAcquisition({ type: 'chest', kicker: chest.masterVault ? '隐藏军仓 · 高级军备' : '宝箱开启', name: item.name, icon: item.icon, meta: `${rarityInfo.name}军备 · ${item.category}`, desc: `${item.desc} 宝箱中的物件比普通散落物资更完整。`, effects: item.effects.map((effect) => `${effect.label} ${effect.value}`), note: state.player.equippedEquipment.includes(unit.uid) ? '已自动装入空余军备槽。' : '已收入军备栏，可自由装备或卸下。' });
     } else if (roll < .93) {
       const merit = Math.round((15 + chest.tier * 12) * (1 + (state.player.relicMapBonus || 0) * .4));
-      const supplies = 8 + chest.tier * 4;
+      const supplies = 4 + chest.tier * 2;
       state.player.merit = (state.player.merit || 0) + merit;
       state.player.supplies = Math.min(state.player.maxSupplies, state.player.supplies + supplies);
       queueAcquisition({ type: 'chest', kicker: chest.masterVault ? '隐藏军仓 · 大批缴获' : '宝箱开启', name: '缴获物资', icon: '箱', meta: `${rarityInfo.name} · 军需`, desc: '箱内是散落的军功、口粮和可用零件。', effects: [`军功 +${merit}`, `补给 +${supplies}`], note: '资源已经直接收入队伍。' });
@@ -4792,7 +4978,7 @@
     if (nodeHasEnemy(room)) {
       const enemy = room.enemy;
       state.chapter = Math.min(5, [0, 1, 3, 4, 5][room.region] || 0);
-      const route = { id: `single-${room.id}`, title: room.type === 'boss' ? (room.bossTitle || room.name) : `${room.name} · ${SINGLE_REGIONS[room.region].name}`, kind: room.type === 'boss' ? 'boss' : 'battle', count: 1, xp: enemy.elite ? 1.72 : enemy.boss ? 2.1 : 1.12, supply: enemy.elite ? 8 : 0, heal: 0, elite: enemy.elite, singleRoomId: room.id, forcedEnemyType: room.type === 'boss' ? null : enemy.typeId, bossType: room.type === 'boss' ? enemy.typeId : null, bossTitle: room.type === 'boss' ? (room.bossTitle || map.bossTitle) : null, bossScale: room.type === 'boss' ? (room.bossScale || map.bossScale) : 1, bossTrait: room.bossTrait, bossCounter: room.bossCounter, bossIntro: room.bossIntro, finalBoss: room.type === 'boss' && room.region === map.finalRegion, bossRegion: room.region };
+      const route = { id: `single-${room.id}`, title: room.type === 'boss' ? (room.bossTitle || room.name) : `${room.name} · ${SINGLE_REGIONS[room.region].name}`, kind: room.type === 'boss' ? 'boss' : 'battle', count: 1, mapRegion: room.region, xp: enemy.elite ? 1.72 : enemy.boss ? 2.1 : 1.12, supply: enemy.elite ? 8 : 0, heal: 0, elite: enemy.elite, singleRoomId: room.id, forcedEnemyType: room.type === 'boss' ? null : enemy.typeId, bossType: room.type === 'boss' ? enemy.typeId : null, bossTitle: room.type === 'boss' ? (room.bossTitle || map.bossTitle) : null, bossScale: room.type === 'boss' ? (room.bossScale || map.bossScale) : 1, bossTrait: room.bossTrait, bossCounter: room.bossCounter, bossIntro: room.bossIntro, finalBoss: room.type === 'boss' && room.region === map.finalRegion, bossRegion: room.region };
       state.currentRoute = route; startBattle(route, room.type === 'boss'); return;
     }
     markSingleRoomCleared(room.id); map.triggering = false; renderSingleMap();
@@ -4813,7 +4999,7 @@
     if (!map || state.screen !== 'map' || map.triggering) return;
     const action = mapActionFor(map);
     if (!action) { showToast('附近没有可互动的目标。靠近敌人、遗迹、暗道或物资后再试。'); return; }
-    if (action.kind === 'blocked') { showToast(`${action.label}。先击败拦路强敌。`); playSound('deny'); return; }
+    if (action.kind === 'blocked') { showToast(action.label); playSound('deny'); return; }
     if (action.kind === 'pickup') { resolveSinglePickup(map.pickups.find((entry) => entry.id === action.id)); return; }
     if (action.kind === 'interaction') { resolveSingleInteraction(map.interactions.find((entry) => entry.id === action.id)); return; }
     if (action.kind === 'trap') { resolveMapTrap(map.traps.find((entry) => entry.id === action.id)); return; }
@@ -4824,7 +5010,7 @@
       const transition = map.transitions.find((entry) => entry.id === action.id);
       if (!transition) return;
       const blockerId = singleMapBlockedBy(map, transition);
-      if (blockerId) { showToast(`${singleMapBlockerName(map, blockerId)}拦住去路。先击败拦路强敌。`); playSound('deny'); return; }
+      if (blockerId) { showToast(`请先击败 ${singleMapBlockerName(map, blockerId)}`); playSound('deny'); return; }
       if (action.side === 'b' && transition.reverseRequiresDiscovery && !transition.discovered) { showToast('还没有找到通往这里的路。'); playSound('deny'); return; }
       const target = singleMapRoom(map, action.side === 'a' ? transition.bId : transition.aId);
       if (!target) return;
@@ -4940,7 +5126,7 @@
       } else {
         const homeX = enemy.mapHomeX ?? room.x;
         const homeY = enemy.mapHomeY ?? room.y;
-        const patrolRange = enemy.boss ? 3 : enemy.elite ? 14 : 24;
+        const patrolRange = enemy.patrolRange || (enemy.boss ? 5 : enemy.elite ? 24 : 34);
         const targetX = homeX + Math.sin(now * .00155 + enemy.patrolPhase) * patrolRange;
         const targetY = homeY + Math.cos(now * .0012 + enemy.patrolPhase * 1.7) * Math.min(7, patrolRange * .32);
         const oldX = enemy.mapX;
@@ -4991,7 +5177,7 @@
     if ((hasInput || p.moving) && now - singleMapSaveAt > 4000) { singleMapSaveAt = now; saveCurrentRun('map'); }
     else if (!hasInput && !p.moving && singleMapWasMoving) { singleMapSaveAt = now; saveCurrentRun('map'); }
     singleMapWasMoving = hasInput || p.moving;
-    if (sprinting && p.moving) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === p.layer && Math.hypot(p.x - trap.x, p.y - trap.y) < 30); if (sprung) { triggerMapTrap(sprung); return; } }
+    if (moved > .05) { const sprung = (map.traps || []).find((trap) => trap.armed && trap.layer === p.layer && Math.hypot(p.x - trap.x, p.y - trap.y) < 25); if (sprung) { triggerMapTrap(sprung); return; } }
     if (updateSingleMapEnemies(map, now, dt)) return;
     const room = singleMapRoomAt(map, map.player.x, map.player.y);
     if (room && room.id !== map.currentId) {
@@ -5018,6 +5204,59 @@
     for (let i = 0; i <= 18; i++) { const angle = (i / 18) * Math.PI * 2; const wobble = 1 + Math.sin(i * 2.7 + room.local * 1.3) * .08 + Math.cos(i * 1.9 + room.region) * .045; const x = room.x + Math.cos(angle) * room.r * wobble; const y = room.y + Math.sin(angle) * room.r * .78 * wobble; if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y); }
     ctx.closePath();
   }
+  function drawMapLandmarkIcon(ctx, type, x, y, size = 20, color = '#ffe2a1') {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    if (type === 'event') {
+      ctx.beginPath();
+      ctx.moveTo(-size * .55, size * .62);
+      ctx.lineTo(-size * .38, -size * .35);
+      ctx.lineTo(0, -size * .7);
+      ctx.lineTo(size * .42, -size * .3);
+      ctx.lineTo(size * .55, size * .62);
+      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-size * .22, -size * .07); ctx.lineTo(size * .18, size * .2); ctx.moveTo(size * .22, -size * .06); ctx.lineTo(-size * .18, size * .2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, -size * .45, size * .13, 0, Math.PI * 2); ctx.fill();
+    } else if (type === 'camp' || type === 'bonfire') {
+      ctx.beginPath(); ctx.moveTo(-size * .65, size * .55); ctx.lineTo(0, -size * .35); ctx.lineTo(size * .65, size * .55); ctx.closePath(); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, size * .55); ctx.lineTo(0, -size * .32); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, size * .18); ctx.quadraticCurveTo(size * .3, -size * .1, size * .12, -size * .5); ctx.quadraticCurveTo(-size * .05, -size * .24, 0, size * .18); ctx.fill();
+    } else if (type === 'cache') {
+      ctx.strokeRect(-size * .62, -size * .2, size * 1.24, size * .92);
+      ctx.beginPath(); ctx.moveTo(-size * .7, -size * .2); ctx.quadraticCurveTo(0, -size * .65, size * .7, -size * .2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(-size * .15, size * .02); ctx.lineTo(size * .15, size * .02); ctx.stroke();
+    } else if (type === 'battle' || type === 'elite' || type === 'boss') {
+      ctx.save(); ctx.rotate(-.72); ctx.beginPath(); ctx.moveTo(-size * .8, 0); ctx.lineTo(size * .62, 0); ctx.moveTo(size * .62, 0); ctx.lineTo(size * .35, -size * .2); ctx.stroke(); ctx.restore();
+      ctx.save(); ctx.rotate(.72); ctx.beginPath(); ctx.moveTo(-size * .8, 0); ctx.lineTo(size * .62, 0); ctx.moveTo(size * .62, 0); ctx.lineTo(size * .35, -size * .2); ctx.stroke(); ctx.restore();
+      if (type === 'elite' || type === 'boss') { ctx.beginPath(); ctx.arc(0, 0, size * .55, 0, Math.PI * 2); ctx.stroke(); }
+    } else {
+      ctx.beginPath(); ctx.moveTo(-size * .45, 0); ctx.lineTo(size * .45, 0); ctx.moveTo(size * .1, -size * .35); ctx.lineTo(size * .45, 0); ctx.lineTo(size * .1, size * .35); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawEnemyEmblem(ctx, enemy, size, color = '#f2d38a') {
+    ctx.save();
+    ctx.strokeStyle = color;
+    ctx.fillStyle = color;
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    if (enemy?.boss) {
+      for (let i = 0; i < 5; i++) { const a = -Math.PI / 2 + i * Math.PI * 2 / 5; const b = a + Math.PI * 2 / 5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(Math.cos(a) * size, Math.sin(a) * size); ctx.lineTo(Math.cos(b) * size * .42, Math.sin(b) * size * .42); ctx.stroke(); }
+    } else if (enemy?.elite) {
+      ctx.beginPath(); ctx.moveTo(-size, 0); ctx.lineTo(size, 0); ctx.moveTo(0, -size); ctx.lineTo(0, size); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0, 0, size * .6, 0, Math.PI * 2); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.moveTo(-size * .8, size * .5); ctx.lineTo(size * .8, -size * .5); ctx.moveTo(size * .8, size * .5); ctx.lineTo(-size * .8, -size * .5); ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawMapGuard(ctx, x, y, time, scale, elite, boss, facing = 'right') {
     ctx.save(); ctx.translate(x, y); ctx.scale(scale * (facing === 'left' ? -1 : 1), scale); const stride = Math.sin(time * .004 + x * .01) * 2.2;
     ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.ellipse(0, 22, 17, 6, 0, 0, Math.PI * 2); ctx.fill();
@@ -5116,7 +5355,7 @@
       if (path.gate) { ctx.save(); ctx.globalAlpha = .38; ctx.strokeStyle = '#e4b75e'; ctx.lineWidth = 2; ctx.setLineDash([8, 12]); ctx.stroke(); ctx.restore(); }
       if (path.secret && path.open) { ctx.save(); ctx.globalAlpha = .58; ctx.strokeStyle = '#f0c968'; ctx.lineWidth = 2; ctx.setLineDash([5, 9]); ctx.stroke(); ctx.restore(); }
       const blockerId = singleMapBlockedBy(map, path);
-      if (blockerId) { const mid = path.points[Math.floor(path.points.length * .55)] || path.points[0], isBossGate = path.requiresRegionBoss; ctx.save(); ctx.strokeStyle = isBossGate ? '#e25b47' : '#f0c76d'; ctx.fillStyle = isBossGate ? '#ff9b7a' : '#ffe1a0'; ctx.lineWidth = 3; ctx.setLineDash([4, 7]); ctx.beginPath(); ctx.moveTo(mid.x - path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x + path.width * .42, mid.y + path.width * .35); ctx.moveTo(mid.x + path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x - path.width * .42, mid.y + path.width * .35); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(mid.x, mid.y, 25, 0, Math.PI * 2); ctx.stroke(); drawMapGuard(ctx, mid.x, mid.y + 12, now, isBossGate ? 1.18 : 1.02, !isBossGate, isBossGate); ctx.fillStyle = isBossGate ? '#ffb09c' : '#ffe3a4'; ctx.font = 'bold 13px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(`${singleMapBlockerName(map, blockerId)}拦路`, mid.x, mid.y + 54); ctx.restore(); }
+      if (blockerId) { const mid = path.points[Math.floor(path.points.length * .55)] || path.points[0], isBossGate = path.requiresRegionBoss; ctx.save(); ctx.strokeStyle = isBossGate ? '#e25b47' : '#f0c76d'; ctx.fillStyle = isBossGate ? '#ff9b7a' : '#ffe1a0'; ctx.lineWidth = 3; ctx.setLineDash([4, 7]); ctx.beginPath(); ctx.moveTo(mid.x - path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x + path.width * .42, mid.y + path.width * .35); ctx.moveTo(mid.x + path.width * .42, mid.y - path.width * .35); ctx.lineTo(mid.x - path.width * .42, mid.y + path.width * .35); ctx.stroke(); ctx.setLineDash([]); ctx.beginPath(); ctx.arc(mid.x, mid.y, 25, 0, Math.PI * 2); ctx.stroke(); drawMapGuard(ctx, mid.x, mid.y + 12, now, isBossGate ? 1.18 : 1.02, !isBossGate, isBossGate); ctx.fillStyle = isBossGate ? '#ffb09c' : '#ffe3a4'; ctx.font = 'bold 13px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText('请先击败', mid.x, mid.y + 54); ctx.restore(); }
       ctx.restore();
     });
 
@@ -5129,7 +5368,7 @@
       ctx.fillStyle = isCleared ? '#1e1b15' : palette.ground; ctx.fill();
       ctx.strokeStyle = room.type === 'boss' ? '#d34f3e' : room.hiddenAccent && !isCleared ? room.hiddenAccent : isCleared ? 'rgba(137,116,78,.45)' : palette.edge; ctx.lineWidth = room.type === 'boss' ? 4 : room.hiddenArea ? 3.2 : 2.5; ctx.stroke();
       if (known) { ctx.fillStyle = isCleared ? 'rgba(219,197,155,.54)' : '#f0d69d'; ctx.font = 'bold 14px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(room.name.split(' · ')[0], room.x, room.y + room.r * .48); }
-      if (!isCleared && known && !nodeHasEnemy(room)) { const info = SINGLE_ROOM_INFO[room.type]; ctx.fillStyle = room.type === 'boss' ? '#7d271f' : '#3a2a1b'; ctx.beginPath(); ctx.arc(room.x, room.y, 24, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#ffe2a1'; ctx.font = 'bold 21px serif'; ctx.fillText(info.glyph, room.x, room.y + 7); }
+      if (!isCleared && known && !nodeHasEnemy(room)) { ctx.fillStyle = room.type === 'boss' ? '#7d271f' : '#3a2a1b'; ctx.beginPath(); ctx.arc(room.x, room.y, 24, 0, Math.PI * 2); ctx.fill(); ctx.strokeStyle = palette.accent; ctx.lineWidth = 2; ctx.stroke(); drawMapLandmarkIcon(ctx, room.type, room.x, room.y, 15, '#ffe2a1'); }
       ctx.restore();
     });
     ctx.restore();
@@ -5285,7 +5524,7 @@
       ctx.save(); ctx.globalAlpha = current ? .72 : .16; ctx.strokeStyle = blockerId ? '#e25b47' : '#a9c4c9'; ctx.lineWidth = blockerId ? 3 : 2; ctx.setLineDash(blockerId ? [4, 6] : [4, 8]);
       ctx.beginPath(); ctx.moveTo(transition.aX, transition.aY); ctx.lineTo(transition.bX, transition.bY); ctx.stroke(); ctx.setLineDash([]);
       if (blockerId) { ctx.beginPath(); ctx.moveTo(midX - 13, midY - 10); ctx.lineTo(midX + 13, midY + 10); ctx.moveTo(midX + 13, midY - 10); ctx.lineTo(midX - 13, midY + 10); ctx.stroke(); }
-      ctx.fillStyle = blockerId ? '#ffb09c' : '#dbe9e8'; ctx.font = 'bold 12px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(blockerId ? '封锁' : (SINGLE_LAYER_TRANSITION_SHORT[transition.kind] || '通'), midX, midY - 14); ctx.restore();
+      ctx.fillStyle = blockerId ? '#ffb09c' : '#dbe9e8'; ctx.font = 'bold 12px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(blockerId ? '⚔' : (SINGLE_LAYER_TRANSITION_SHORT[transition.kind] || '↕'), midX, midY - 14); ctx.restore();
     });
     drawSingleMapPlayer(ctx, map, now);
     let targetPoint = null, targetRadius = 40;
@@ -5468,8 +5707,8 @@
   }
   function battleRouteOptions() {
     return [
-      { id: 'battle-vanguard', kind: 'battle', icon: '锋', title: '截击前哨', subtitle: '主动咬住敌军前哨', desc: '一名敌将拦路。敌情较轻，适合稳定积累军功与历练。', tags: ['普通战', '稳扎稳打'], count: 1, xp: 1.12, supply: 0, heal: 0 },
-      { id: 'battle-supply', kind: 'battle', icon: '粮', title: '夺取辎重', subtitle: '趁敌军换防截下补给', desc: '战后获得补给，但敌军会有所防备。', tags: ['普通战', '补给'], count: 1, xp: 1.08, supply: 11, heal: 0, firstStun: false },
+      { id: 'battle-vanguard', kind: 'battle', icon: '锋', title: '截击前哨', subtitle: '主动咬住敌军前哨', desc: '请先击败一名敌将。敌情较轻，适合稳定积累军功与历练。', tags: ['普通战', '稳扎稳打'], count: 1, xp: 1.12, supply: 0, heal: 0 },
+      { id: 'battle-supply', kind: 'battle', icon: '粮', title: '夺取辎重', subtitle: '趁敌军换防截下补给', desc: '战后获得补给，但敌军会有所防备。', tags: ['普通战', '补给'], count: 1, xp: 1.08, supply: 7, heal: 0, firstStun: false },
       { id: 'battle-pincer', kind: 'battle', icon: '夹', title: '两面接敌', subtitle: '从侧翼同时压上', desc: '同时面对两名敌军，胜利后的历练更丰厚。', tags: ['双敌', '厚赏'], count: 2, xp: 1.5, supply: 0, heal: 0, support: true }
     ];
   }
@@ -5483,9 +5722,9 @@
   }
   function campRouteOptions() {
     return [
-      { id: `camp-rest-${state.act}`, kind: 'camp', icon: '营', title: '抓紧休整', subtitle: '先让队伍恢复体力', desc: '恢复较多兵力与士气，但不会获得额外历练。', tags: ['恢复', '整军'], count: 0, xp: 0, supply: 0, heal: 0, camp: { healPct: .3, morale: 12 } },
-      { id: `camp-drill-${state.act}`, kind: 'camp', icon: '练', title: '临阵操练', subtitle: '把刚才的失误重新走一遍', desc: '获得历练，并小幅提高士气。', tags: ['历练', '士气'], count: 0, xp: 0, supply: 0, heal: 0, camp: { xp: 32 + state.act * 16, morale: 6 } },
-      { id: `camp-scavenge-${state.act}`, kind: 'camp', icon: '搜', title: '轻装搜整', subtitle: '沿营地外围搜寻可用物资', desc: '获得补给与军功，但只恢复少量兵力。', tags: ['补给', '军功'], count: 0, xp: 0, supply: 0, heal: 0, camp: { healPct: .08, supplies: 14, merit: 24 } }
+      { id: `camp-rest-${state.act}`, kind: 'camp', icon: '营', title: '抓紧休整', subtitle: '先让队伍恢复体力', desc: '恢复较多兵力，但不会获得额外历练。', tags: ['恢复', '整军'], count: 0, xp: 0, supply: 0, heal: 0, camp: { healPct: .3 } },
+      { id: `camp-drill-${state.act}`, kind: 'camp', icon: '练', title: '临阵操练', subtitle: '把刚才的失误重新走一遍', desc: '获得历练与少量军功。', tags: ['历练', '军功'], count: 0, xp: 0, supply: 0, heal: 0, camp: { xp: 32 + state.act * 16, merit: 12 } },
+      { id: `camp-scavenge-${state.act}`, kind: 'camp', icon: '搜', title: '轻装搜整', subtitle: '沿营地外围搜寻可用物资', desc: '获得补给与军功，但只恢复少量兵力。', tags: ['补给', '军功'], count: 0, xp: 0, supply: 0, heal: 0, camp: { healPct: .08, supplies: 8, merit: 24 } }
     ];
   }
   function buildRoguelikeRouteOptions() {
@@ -5502,7 +5741,6 @@
     if (route.kind === 'camp') {
       const camp = route.camp || {}, gains = [];
       if (camp.healPct) gains.push(`兵力 +${Math.round(camp.healPct * 100)}%`);
-      if (camp.morale) gains.push(`士气 +${camp.morale}`);
       if (camp.supplies) gains.push(`补给 +${camp.supplies}`);
       if (camp.xp) gains.push(`历练 +${camp.xp}`);
       if (camp.merit) gains.push(`军功 +${camp.merit}`);
@@ -5516,7 +5754,7 @@
     const act = ROGUELIKE_ACTS[state.act] || ROGUELIKE_ACTS[0];
     const boss = currentActBoss();
     const stepKind = ROGUELIKE_STEPS[state.actStep] || 'event';
-    const stepNames = { event: '事件抉择', battle: '敌军拦路', elite: '精英拦路', camp: '整军抉择', boss: '本幕首领' };
+    const stepNames = { event: '事件抉择', battle: '请先击败敌军', elite: '请先击败精英', camp: '整军抉择', boss: '本幕首领' };
     const titles = { event: '这次要怎样走？', battle: '先打掉哪一路？', elite: '劲敌盘踞在前', camp: '短暂整军', boss: '本幕最后一战' };
     const descs = { event: '选择本段事件。', battle: '选择交战方式。', elite: '选择精英战法。', camp: '选择整军所得。', boss: `本幕首领：${boss.title}` };
     dom.routeEyebrow.textContent = `${act.name} · ${stepNames[stepKind] || '继续前进'}`;
@@ -5588,7 +5826,7 @@
         { label: '前方敌情', value: route.count === 1 ? '一名敌将' : '多名敌军', tone: 'neutral' },
         { label: '战后收获', value: route.xp >= 1.4 ? '丰厚' : route.xp > 1.1 ? '尚可' : '寻常', tone: route.xp > 1 ? 'gain' : 'neutral' }
       );
-      if (route.elite) effects.push({ label: '来势', value: '劲敌拦路', tone: 'loss' });
+      if (route.elite) effects.push({ label: '来势', value: '请先击败劲敌', tone: 'loss' });
       if (route.supply) effects.push({ label: '沿途补给', value: `+${route.supply}`, tone: 'gain' });
       if (route.heal) effects.push({ label: '战前休整', value: `恢复 ${route.heal} 兵力`, tone: 'gain' });
       if (route.firstStun) effects.push({ label: '夜袭先机', value: '敌将迟滞', tone: 'gain' });
@@ -5620,7 +5858,6 @@
     if (route.kind === 'camp') {
       const camp = route.camp || {};
       if (camp.healPct) state.player.hp = Math.min(state.player.maxHp, state.player.hp + Math.round(state.player.maxHp * camp.healPct));
-      if (camp.morale) state.player.morale = Math.min(100, state.player.morale + camp.morale);
       if (camp.supplies) state.player.supplies = Math.min(state.player.maxSupplies, state.player.supplies + camp.supplies);
       if (camp.merit) state.player.merit = (state.player.merit || 0) + camp.merit;
       if (camp.xp) gainXp(camp.xp);
@@ -5669,13 +5906,13 @@
     const tag = choice?.tag || '';
     const supportTags = ['恢复', '休整', '互助', '救护', '粮秣', '补给', '整备'];
     const scoutTags = ['侦察', '探路', '隐蔽', '夜行', '急行', '节粮'];
-    const meritGain = 10 + state.chapter * 3;
+    const chapterScale = 1 + state.chapter * .22;
+    const meritGain = Math.round((10 + state.chapter * 3) * chapterScale);
     player.merit = (player.merit || 0) + meritGain;
     if (supportTags.includes(tag)) {
-      player.hp = Math.min(player.maxHp, player.hp + 5);
-      player.morale = Math.min(100, player.morale + 2);
+      player.hp = Math.min(player.maxHp, player.hp + Math.round(5 * chapterScale));
     } else if (scoutTags.includes(tag)) {
-      player.supplies = Math.min(player.maxSupplies, player.supplies + 5);
+      player.supplies = Math.min(player.maxSupplies, player.supplies + Math.round(5 * chapterScale));
     }
     return { meritGain, support: supportTags.includes(tag), scout: scoutTags.includes(tag) };
   }
@@ -5693,6 +5930,9 @@
     if (cost.supplies) player.supplies = Math.max(0, player.supplies - cost.supplies);
     if (cost.morale) player.morale = Math.max(0, player.morale - cost.morale);
     if (cost.merit) player.merit = Math.max(0, (player.merit || 0) - cost.merit);
+    if (choice?.materialId) player.materials = { ...(player.materials || {}), [choice.materialId]: (player.materials?.[choice.materialId] || 0) + (choice.materialAmount || 1) };
+    if (choice?.consumableId) player.consumables = { ...(player.consumables || {}), [choice.consumableId]: (player.consumables?.[choice.consumableId] || 0) + (choice.consumableAmount || 1) };
+    if (choice?.equipmentSlot) player.bonusEquipmentSlots = Math.min(3, (player.bonusEquipmentSlots || 0) + choice.equipmentSlot);
     if (choice?.relicId) reward = grantRelic(player, choice.relicId);
     if (choice?.techniqueId) {
       techniqueUnlocked = unlockTechnique(player, choice.techniqueId);
@@ -5711,6 +5951,9 @@
       const technique = PLAYER_TECHNIQUES[choice.techniqueId];
       if (technique) return { label: '学会变招', name: technique.name, effect: `${technique.input} · ${technique.desc}`, cost };
     }
+    if (choice?.materialId) { const material = MATERIALS[choice.materialId]; if (material) return { label: '获得军备材料', name: material.name, effect: `用于强化军备 · +${choice.materialAmount || 1}`, cost }; }
+    if (choice?.consumableId) { const consumable = consumableById(choice.consumableId); if (consumable) return { label: '获得战备小包', name: consumable.name, effect: `${consumable.effect} · +${choice.consumableAmount || 1}`, cost }; }
+    if (choice?.equipmentSlot) return { label: '军备扩充', name: '额外军备挂点', effect: `军备槽 +${choice.equipmentSlot}`, cost };
     const preview = previewEventChoice(choice);
     const gains = preview.changes.filter((item) => item.value > 0);
     return {
@@ -5731,26 +5974,30 @@
     preview.changes.filter((item) => item.label !== '军功' && !costLabels.has(item.label)).forEach((item) => {
       chips.push({ label: item.label, value: `${item.value > 0 ? '+' : ''}${Math.round(item.value)}`, tone: item.value > 0 ? 'gain' : 'loss' });
     });
+    if (choice?.materialId && MATERIALS[choice.materialId]) chips.push({ label: MATERIALS[choice.materialId].name, value: `+${choice.materialAmount || 1}`, tone: 'gain' });
+    if (choice?.consumableId) { const item = consumableById(choice.consumableId); if (item) chips.push({ label: item.name, value: `+${choice.consumableAmount || 1}`, tone: 'gain' }); }
+    if (choice?.equipmentSlot) chips.push({ label: '军备槽', value: `+${choice.equipmentSlot}`, tone: 'gain' });
     return chips;
   }
 
   function previewEventChoice(choice) {
     const player = state.player;
     if (!player) return { changes: [], notes: [] };
-    const clone = { ...player, cooldowns: { ...player.cooldowns }, upgrades: [...player.upgrades], relics: [...(player.relics || [])], relicSynergies: [...(player.relicSynergies || [])], techniques: [...(player.techniques || [])] };
+    const clone = { ...player, cooldowns: { ...player.cooldowns }, upgrades: [...player.upgrades], relics: [...(player.relics || [])], relicSynergies: [...(player.relicSynergies || [])], techniques: [...(player.techniques || [])], materials: { ...(player.materials || {}) }, consumables: { ...(player.consumables || {}) } };
     const before = {
       hp: player.hp, maxHp: player.maxHp, supplies: player.supplies,
       maxSupplies: player.maxSupplies, morale: player.morale, merit: player.merit
     };
+    const moraleBefore = clone.morale;
     if (choice.apply) choice.apply(clone);
     const special = applyEventChoiceSpecial(clone, choice);
     const bonus = applyEventChoiceBonuses(clone, choice);
+    clone.morale = moraleBefore;
     const changes = [
       { label: '兵力', value: clone.hp - before.hp },
       { label: '兵力上限', value: clone.maxHp - before.maxHp },
       { label: '补给', value: clone.supplies - before.supplies },
       { label: '补给上限', value: clone.maxSupplies - before.maxSupplies },
-      { label: '士气', value: clone.morale - before.morale },
       { label: '军功', value: clone.merit - before.merit }
     ].filter((item) => Math.abs(item.value) > .01);
     const notes = [];
@@ -5788,6 +6035,82 @@
     if (selected) requestAnimationFrame(() => selected.focus({ preventScroll: true }));
   }
 
+  function sanitizeEventChoice(sourceChoice) {
+    const copy = { ...sourceChoice, cost: { ...(sourceChoice?.cost || {}) } };
+    if (copy.cost.morale) {
+      copy.cost.merit = (copy.cost.merit || 0) + copy.cost.morale * 2;
+      delete copy.cost.morale;
+    }
+    if (copy.tag === '士气') copy.tag = '军功';
+    copy.desc = String(copy.desc || '')
+      .replace(/提升士气|恢复少量士气|恢复士气|鼓舞士气/g, '获得军功')
+      .replace(/士气上升|士气提高/g, '军功上升')
+      .replace(/士气下降|士气略降|士气降低/g, '军功下降')
+      .replace(/消耗少量士气|消耗士气/g, '消耗军功')
+      .replace(/士气/g, '军功');
+    if (typeof sourceChoice?.apply === 'function') {
+      copy.apply = (p) => {
+        const beforeMorale = p.morale;
+        const beforeMerit = p.merit || 0;
+        sourceChoice.apply(p);
+        const moraleDelta = p.morale - beforeMorale;
+        p.morale = beforeMorale;
+        if (moraleDelta > 0) p.merit = beforeMerit + Math.round(moraleDelta * 2);
+        else if (moraleDelta < 0) p.merit = Math.max(0, (p.merit || 0) + Math.round(moraleDelta * 2));
+      };
+    }
+    return copy;
+  }
+
+  function buildEventChoices(sourceEvent) {
+    const chapter = clamp(state.chapter || 0, 0, 5);
+    const tier = chapter + 1;
+    const desired = state.rng() < 5 / 7 ? 2 : 3;
+    const base = (sourceEvent?.choices || []).map(sanitizeEventChoice);
+    let result = base.length > desired ? shuffle(state.rng, base).slice(0, desired) : [...base];
+    const minimumImpactful = 1;
+    if (minimumImpactful && result.length > desired - minimumImpactful) result = result.slice(0, desired - minimumImpactful);
+    const generated = [];
+    const materialId = choice(state.rng, Object.keys(MATERIALS));
+    const materialAmount = chapter >= 3 ? 2 : 1;
+    const materialCost = Math.round(18 + chapter * 12);
+    generated.push({
+      label: `调拨${MATERIALS[materialId].name}`, tag: '材料', cost: { merit: materialCost },
+      desc: `支付 ${materialCost} 军功，取得 ${materialAmount} 份${MATERIALS[materialId].name}，并小幅稳住军心。`,
+      materialId, materialAmount, outcomeLabel: '获得军备材料'
+    });
+    const consumablePool = Object.values(CONSUMABLES);
+    const consumable = choice(state.rng, consumablePool);
+    const consumableCost = Math.round(14 + chapter * 9);
+    generated.push({
+      label: `领取一件${consumable.category}小道具`, tag: '战备', cost: { merit: consumableCost },
+      desc: `支付 ${consumableCost} 军功，取得${consumable.name}；适合在下一场交锋中改变节奏。`,
+      consumableId: consumable.id, consumableAmount: 1, outcomeLabel: '获得战备'
+    });
+    const availableRelics = RELICS.filter((relic) => !(state.player?.relics || []).includes(relic.id));
+    if (availableRelics.length) {
+      const relic = choice(state.rng, availableRelics);
+      const relicCost = Math.round(28 + chapter * 16);
+      generated.push({
+        label: `为${relic.name}腾出位置`, tag: '信物', cost: { supplies: Math.round(8 + chapter * 4) },
+        desc: `消耗补给换取${relic.name}；它会在后续接战中持续生效。`, relicId: relic.id, outcomeLabel: '获得信物'
+      });
+    }
+    const slotCost = Math.round(10 + chapter * 7);
+    generated.push({
+      label: '拆出备用挂架', tag: '军备', cost: { hp: slotCost },
+      desc: `承受 ${slotCost} 点行军损耗，腾出一组额外军备挂点；后期更方便换装。`, equipmentSlot: 1, outcomeLabel: '军备扩充'
+    });
+    generated.push({
+      label: '整队再出发', tag: '整备', cost: { supplies: Math.round(6 + chapter * 5) },
+      desc: `消耗补给恢复 ${Math.round(8 + chapter * 5)} 点兵力，并提高本场后续的军功收益。`,
+      apply: (p) => { p.hp = Math.min(p.maxHp, p.hp + Math.round(8 + chapter * 5)); p.merit = (p.merit || 0) + Math.round(6 + chapter * 6); }
+    });
+    const needed = desired - result.length;
+    if (needed > 0) result = result.concat(shuffle(state.rng, generated).slice(0, needed));
+    return { choices: result, desired };
+  }
+
   function showChapterEvent(callback, presetEvent = null) {
     const available = EVENTS.filter((event) => !state.usedEvents.includes(event.id));
     if (!presetEvent && !available.length) {
@@ -5795,7 +6118,8 @@
       return;
     }
     const themed = available.filter((event) => event.chapters?.includes(state.chapter));
-    const event = presetEvent || choice(state.rng, themed.length ? themed : available);
+    const sourceEvent = presetEvent || choice(state.rng, themed.length ? themed : available);
+    const event = { ...sourceEvent, choices: buildEventChoices(sourceEvent).choices };
     state.currentEvent = event;
     if (!state.usedEvents.includes(event.id)) state.usedEvents.push(event.id);
     state.eventContinue = callback;
@@ -5853,9 +6177,11 @@
     const choice = event?.choices?.[index];
     if (!event || !choice || index !== selectedEventIndex) return;
     if (!eventChoiceAffordable(state.player, choice)) { showToast('当前资源不足，无法选择这一项。'); return; }
+    const moraleBefore = state.player.morale;
     if (choice.apply) choice.apply(state.player);
     const special = applyEventChoiceSpecial(state.player, choice);
     const eventBonus = applyEventChoiceBonuses(state.player, choice);
+    state.player.morale = moraleBefore;
     state.player.hp = clamp(state.player.hp, 1, state.player.maxHp);
     state.player.supplies = clamp(state.player.supplies, 0, state.player.maxSupplies);
     state.player.morale = clamp(state.player.morale, 0, 100);
@@ -6168,8 +6494,7 @@
   }
 
   function finishChapterAndContinue(chapterIndex) {
-    state.player.supplies = Math.min(state.player.maxSupplies, state.player.supplies + 18);
-    state.player.morale = Math.min(100, state.player.morale + 7);
+    state.player.supplies = Math.min(state.player.maxSupplies, state.player.supplies + 8);
     state.player.merit = (state.player.merit || 0) + 12;
     state.chapter = chapterIndex + 1;
     if (state.chapter >= CHAPTERS.length) showBossIntro();
@@ -6191,6 +6516,7 @@
 
   function showEnding(victory) {
     if (state.testMode || testRunActive) { exitTestMode(); return; }
+    if (victory) { grantStoryClue('clue_huining_reunion', { silent: true, source: '最终会师' }); state.stats.completed = true; checkAchievements(); }
     archiveRun(victory);
     state.finished = true;
     dom.endingScreen.classList.toggle('victory', victory);
@@ -6238,7 +6564,7 @@
     state.shopItems = [];
     state.shopSource = null;
     state.shopResumeAction = null;
-    state.stats = { victories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, seed: state.seed };
+    state.stats = { victories: 0, bossVictories: 0, damage: 0, upgrades: 0, parries: 0, counters: 0, executions: 0, shopPurchases: 0, noHealVictories: 0, trapsSprung: 0, completed: false, seed: state.seed };
     state.runElapsedMs = 0;
     state.runActiveSince = 0;
     state.runArchived = false;
@@ -8443,7 +8769,9 @@
   }
   function makeEnemy(typeId, route, index, boss = false) {
     const base = ENEMY_TYPES[typeId];
-    const scale = boss ? 1 : enemyScale();
+    const mapRegion = state.runMode === 'single' ? Math.max(0, Number(route.mapRegion ?? route.bossRegion ?? 0)) : 0;
+    const mapPressure = state.runMode === 'single' ? 1 + mapRegion * .13 : 1;
+    const scale = (boss ? 1 : enemyScale()) * mapPressure;
     const difficulty = state.runMode === 'single' ? difficultyProfile() : { enemyHp: 1, enemyAtk: 1, enemyPosture: 1, merit: 1 };
     const elite = !boss && route.elite === true;
     const bossVariant = boss && typeId !== 'boss' ? ELITE_VARIANTS[typeId] : null;
@@ -8454,7 +8782,7 @@
     const bossScale = boss ? (route.bossScale || 1) : 1;
     const bossBaseMultiplier = boss ? (typeId === 'boss' ? 5.2 : 7.2) : 1;
     const hp = Math.round(base.hp * scale * eliteHpScale * (boss ? bossBaseMultiplier * bossScale : 1.58) * difficulty.enemyHp);
-    const attack = Math.round(base.atk * (1 + state.chapter * .13 + Math.min(10, state.battleNumber) * .035) * eliteAttackScale * (boss ? 1.2 * bossScale : 1) * difficulty.enemyAtk);
+    const attack = Math.round(base.atk * (1 + state.chapter * .13 + Math.min(10, state.battleNumber) * .035) * eliteAttackScale * (boss ? 1.2 * bossScale : 1) * difficulty.enemyAtk * (state.runMode === 'single' ? 1 + mapRegion * .08 : 1));
     const homeX = index === 0 ? 735 : 610 + index * 170;
     const healthSegments = boss ? 3 : elite ? 2 : 1;
     const eliteSpecial = elite || bossVariant ? ELITE_SPECIALS[typeId] : null;
@@ -8467,7 +8795,7 @@
     const pattern = boss && Array.isArray(route.bossPattern) && route.bossPattern.length ? [...route.bossPattern] : normalPattern;
     const phase2Pattern = boss && Array.isArray(route.bossRagePattern) && route.bossRagePattern.length ? [...route.bossRagePattern] : null;
     const basePosture = eliteVariant?.posture || 380;
-    const elitePosture = Math.round(basePosture * (1 + lateElitePressure * .12));
+    const elitePosture = Math.round(basePosture * (1 + lateElitePressure * .12) * (1 + mapRegion * .07));
     return {
       id: `${typeId}-${Date.now()}-${index}-${Math.floor(state.rng() * 10000)}`,
       typeId,
@@ -8730,7 +9058,7 @@
     state.combat = {
       enemies: createEnemies(route, boss),
       busy: false, phase: 'player', holding: false, holdStart: 0, holdFrame: 0, playerX: 360, playerRenderX: 360, playerY: 352, playerRenderY: 352, facing: 1, ammo: 6, targetId: null, boss, actionHistory: [],
-      emergencyUses: 1 + (state.player?.emergencyBonus || 0), blockHeld: false, jumpHeight: 0, jumpVelocity: 0, grounded: true, stompDone: false, blockHeldAt: 0, dodge: null, invulnerableUntil: 0, moveVelocity: 0, moveVelocityY: 0, stepPhase: 0, lastFootstep: 0, queuedAttack: null, queuedDodge: false, counterWindowUntil: 0, comboStage: 0, comboExpiresAt: 0, dodgeCounterUntil: 0, counterKind: null, counterStep: 0, counterExpiresAt: 0, logs: [], started: Date.now(), finished: false, lastPostureUi: 0, actionSerial: 0
+      emergencyUses: 1 + (state.player?.emergencyBonus || 0), usedEmergency: false, blockHeld: false, jumpHeight: 0, jumpVelocity: 0, grounded: true, stompDone: false, blockHeldAt: 0, dodge: null, invulnerableUntil: 0, moveVelocity: 0, moveVelocityY: 0, stepPhase: 0, lastFootstep: 0, queuedAttack: null, queuedDodge: false, counterWindowUntil: 0, comboStage: 0, comboExpiresAt: 0, dodgeCounterUntil: 0, counterKind: null, counterStep: 0, counterExpiresAt: 0, logs: [], started: Date.now(), finished: false, lastPostureUi: 0, actionSerial: 0
     };
     if (resumeSnapshot) applyCombatSnapshot(state.combat, resumeSnapshot);
     const newlyDiscovered = state.combat.enemies.filter((enemy) => discoverEnemy(enemy)).map((enemy) => enemy.name);
@@ -8740,7 +9068,8 @@
       player.cooldowns.charge = 0;
       player.cooldowns.tactic = 0;
       player.firstAction = true;
-      if (player.openingMoraleBonus) player.morale = Math.min(100, player.morale + player.openingMoraleBonus);
+      const squadMorale = SQUADS[player.squadId]?.morale ?? 70;
+      player.morale = clamp(squadMorale + (player.openingMoraleBonus || 0), 0, 100);
       player.firstGuard = true;
       player.firstSupply = true;
       player.firstBlockHeal = true;
@@ -8769,7 +9098,7 @@
     if (boss && route.bossIntro && !resumeSnapshot) {
       const bossClue = STORY_CLUES.find((clue) => clue.id === 'clue_boss_confession') || STORY_CLUES.find((clue) => clue.region === route.bossRegion);
       if (bossClue) grantStoryClue(bossClue.id, { silent: true });
-      queueAcquisition({ type: 'boss-intro', kicker: '首领初见', name: route.bossTitle || route.title || '敌军首领', icon: '首', meta: state.combat.boss ? '首领战' : '强敌', desc: `${route.bossIntro || '敌军拦住去路。'}${bossClue ? `\n\n${bossClue.text}` : ''}`, effects: [route.bossTrait ? `特性：${route.bossTrait}` : '看清起手与收招', route.bossCounter ? `应对：${route.bossCounter}` : '先稳住架势'], note: '看清第一刀后，战斗才会开始。', onConfirm: () => startRealtimeCombat() });
+      queueAcquisition({ type: 'boss-intro', kicker: '首领初见', name: route.bossTitle || route.title || '敌军首领', icon: '首', meta: state.combat.boss ? '首领战' : '强敌', desc: `${route.bossIntro || '请先击败前方敌军。'}${bossClue ? `\n\n${bossClue.text}` : ''}`, effects: [route.bossTrait ? `特性：${route.bossTrait}` : '看清起手与收招', route.bossCounter ? `应对：${route.bossCounter}` : '先稳住架势'], note: '看清第一刀后，战斗才会开始。', onConfirm: () => startRealtimeCombat() });
     } else startRealtimeCombat();
     playSound('enemy');
   }
@@ -9107,6 +9436,8 @@ function breakPlayerPosture() {
       return;
     }
     combat.emergencyUses -= 1;
+    combat.usedEmergency = true;
+    state.stats.noHealVictories = 0;
     healPlayer(Math.round(p.maxHp * .28) + p.healBonus, '战地急救');
     updateMetaBars();
     setActionState();
@@ -11189,10 +11520,9 @@ function breakPlayerPosture() {
       p.maxPosture += 4;
       p.atk += 2;
       if (p.level % 2 === 0) p.defense += 1;
-      p.morale = Math.min(100, p.morale + 5);
       p.merit = (p.merit || 0) + 8;
       showLevelToast(p.level);
-      addLog(`队伍升至 <strong>Lv.${p.level}</strong>：兵力上限、架势上限、攻势与士气得到提升。`, 'good');
+      addLog(`队伍升至 <strong>Lv.${p.level}</strong>：兵力上限、架势上限与攻势得到提升。`, 'good');
     }
     const newSlotLimit = equipmentSlotLimit(p);
     if (newSlotLimit > oldSlotLimit) queueAcquisition({ type: 'slot', kicker: '等级成长 · 军备扩充', name: '新军备槽', icon: '架', meta: `队伍等级 ${p.level}`, desc: '队伍已经能稳定携带更多军备。', effects: [`军备槽上限提升至 ${newSlotLimit}`], note: '军备槽总上限为 4。' });
@@ -11205,7 +11535,10 @@ function breakPlayerPosture() {
     if (state.combat.finished) return;
     state.combat.finished = true;
     state.combat.busy = true;
-    state.stats.victories += 1; checkAchievements();
+    state.stats.victories += 1;
+    if (state.combat.boss) state.stats.bossVictories = (state.stats.bossVictories || 0) + 1;
+    if (!state.combat.usedEmergency) state.stats.noHealVictories = (state.stats.noHealVictories || 0) + 1;
+    checkAchievements();
     const xp = Math.round(state.combat.enemies.reduce((sum, enemy) => sum + enemy.maxHp * .42 + 10, 0) + 15 + state.battleNumber * 2);
     const p = state.player;
     const eliteEnemy = state.combat.enemies.find((enemy) => enemy.elite);
@@ -11220,8 +11553,7 @@ function breakPlayerPosture() {
     state.combat.xpMultiplier = xpMultiplier;
     p.merit = (p.merit || 0) + meritGain;
     spawnFloat(playerCenterX(), 220, `军功 +${meritGain}`, '#f3cf78');
-    p.supplies = Math.min(p.maxSupplies, p.supplies + 9);
-    p.morale = Math.min(100, p.morale + 6);
+    p.supplies = Math.min(p.maxSupplies, p.supplies + 4);
     addLog(`敌军被击退，缴获军功 <strong>+${meritGain}</strong>。`, 'good');
     playSound('win');
     spawnFloat(playerCenterX(), 258, `历练 +${xpEarned}`, '#e8c477');
@@ -12607,10 +12939,7 @@ function breakPlayerPosture() {
     if (!state.performanceMode) {
       ctx.save();
       ctx.scale(enemyFacing, 1);
-      ctx.fillStyle = 'rgba(239,227,200,.72)';
-      ctx.font = canvasFont(isBoss ? 26 : 18, 'serif');
-      ctx.textAlign = 'center';
-      ctx.fillText(enemy.glyph, 0, isBoss ? -31 : -29);
+      drawEnemyEmblem(ctx, enemy, isBoss ? 11 : 8, 'rgba(239,227,200,.72)');
       ctx.restore();
     }
 
@@ -13563,6 +13892,7 @@ function breakPlayerPosture() {
     dom.testGrantResources?.addEventListener('click', testGrantResources);
     dom.testEquipmentList?.addEventListener('click', (event) => { const button = event.target.closest('[data-test-equipment]'); if (button) testGrantEquipment(button.dataset.testEquipment); });
     dom.testExit?.addEventListener('click', exitTestMode);
+  dom.singleMapTestExit?.addEventListener('click', exitTestMode);
     dom.testComboButtons?.addEventListener('click', (event) => {
       const button = event.target.closest('[data-test-technique]');
       if (button) testGrantTechnique(button.dataset.testTechnique);
@@ -13602,7 +13932,8 @@ function breakPlayerPosture() {
     dom.runHistoryBtn?.addEventListener('click', openRunHistory);
     dom.runHistoryClose?.addEventListener('click', closeRunHistory);
     dom.runHistoryDone?.addEventListener('click', closeRunHistory);
-    dom.enemyCodexBtn?.addEventListener('click', openEnemyCodex);
+    dom.enemyCodexBtn?.addEventListener('click', () => openEnemyCodex('enemies', dom.enemyCodexBtn));
+  dom.clueCodexBtn?.addEventListener('click', () => openEnemyCodex('clues', dom.clueCodexBtn));
     dom.codexCategoryRow?.addEventListener('click', (event) => {
       const button = event.target.closest('[data-codex-tab]');
       if (!button) return;
@@ -14234,7 +14565,9 @@ function breakPlayerPosture() {
     }, 320);
   }
 
-  window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  [RELICS, CONSUMABLES, MATERIALS, EQUIPMENT_ITEMS, SHOP_ITEMS, UPGRADES, ROUTE_TYPES, EVENTS, SQUADS, CHAPTERS, GAME_MODES, DIFFICULTY_LEVELS, SINGLE_ROOM_INFO, SINGLE_PICKUP_INFO, SINGLE_INTERACTION_INFO, TRAP_INFO, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_VARIANTS, NPC_DEFINITIONS, TALENT_TREE, PLAYER_TECHNIQUES].forEach((entries) => normalizeIconObjects(entries));
+
+  window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, triggerMapTrap, buildEventChoices, talentVariantFor, ensureSingleMapEnemyState, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
   window.__longMarch.pressGuardInput = pressGuardInput;
   window.__longMarch.releaseGuardInput = releaseGuardInput;
   window.__longMarch.performJump = performJump;

@@ -2724,3 +2724,49 @@ body.elite-hud-active .player-state-warning { top: calc(14px + var(--elite-hud-h
 @media (max-width: 700px) {
   body.elite-hud-active .boss-warning { display: none; }
 }
+
+
+/* v0.31.0 clue archive, seeded talent weave, stronger trap feedback and map test exit */
+.clue-detail-source { color: #d6ad64 !important; letter-spacing: .08em; }
+.clue-detail-text {
+  margin: 14px 0 0;
+  padding: 16px 18px;
+  border-left: 4px solid #c8553b;
+  background: linear-gradient(135deg, rgba(112,42,28,.22), rgba(19,12,9,.72));
+  color: #f5e4bd !important;
+  font-family: "Noto Serif SC", serif;
+  font-size: calc(20px * var(--font-scale));
+  font-weight: 650;
+  line-height: 1.9;
+  letter-spacing: .035em;
+  text-shadow: 0 1px 10px rgba(255,196,94,.09);
+}
+.clue-detail-lock { margin-top: 14px; color: #a88f6a !important; }
+.clue-detail-note { margin-top: 14px; }
+.achievement-condition { display: grid; gap: 6px; margin-top: 16px; padding: 12px 14px; border: 1px solid rgba(225,179,92,.28); background: rgba(0,0,0,.2); }
+.achievement-condition span { color: #b99455; font-size: calc(11px * var(--font-scale)); letter-spacing: .12em; }
+.achievement-condition strong { color: #ffe1a0; font-size: calc(16px * var(--font-scale)); }
+.codex-entry-card.codex-locked { opacity: .58; }
+.codex-entry-card.codex-complete { border-color: rgba(226,187,93,.45); }
+.talent-interwoven-head { display: grid; gap: 3px; grid-column: 1 / -1; padding: 9px 11px; border-left: 3px solid #d0a24d; background: rgba(101,58,25,.14); }
+.talent-interwoven-head span { color: #f0d08d; font-size: calc(14px * var(--font-scale)); }
+.talent-interwoven-head small { color: #aa9270; line-height: 1.45; }
+.talent-branch-interwoven { grid-column: 1 / -1; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.talent-effect-highlight em { display: block; margin-top: 6px; color: #b9c997; font-size: calc(11px * var(--font-scale)); font-style: normal; }
+.single-map-bottom { position: relative; }
+#single-map-test-exit { margin: 8px 0 0 auto; display: block; }
+.single-map-board.trap-hit { animation: map-trap-shake .52s cubic-bezier(.36,.07,.19,.97); box-shadow: inset 0 0 0 5px rgba(238,86,59,.72), 0 0 42px rgba(232,80,44,.34); }
+@keyframes map-trap-shake {
+  10%, 90% { transform: translate3d(-2px, 0, 0); }
+  20%, 80% { transform: translate3d(5px, -1px, 0); }
+  30%, 50%, 70% { transform: translate3d(-8px, 2px, 0); }
+  40%, 60% { transform: translate3d(8px, -2px, 0); }
+}
+@media (max-width: 720px) {
+  .clue-detail-text { font-size: calc(17px * var(--font-scale)); padding: 12px 13px; }
+  .codex-category { flex: 1 1 30%; }
+}
+
+.codex-empty-state { grid-column: 1 / -1; min-height: 220px; display: grid; place-content: center; gap: 8px; padding: 24px; border: 1px dashed rgba(217,173,91,.28); background: radial-gradient(circle at 50% 0%, rgba(150,54,34,.14), transparent 55%); text-align: center; }
+.codex-empty-state strong { color: #f0d18f; font-size: calc(22px * var(--font-scale)); }
+.codex-empty-state span { max-width: 460px; color: #ad9572; line-height: 1.65; }

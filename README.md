@@ -4,7 +4,7 @@
 
 A real-time action roguelike inspired by the Long March, built with JavaScript and Canvas.
 
-Current version: **v0.30.0**
+Current version: **v0.31.0**
 
 Platform: **Windows 10/11**
 
@@ -64,7 +64,7 @@ For a browser-only run without the local save service, open `启动游戏.html`.
 | Execute | X | X |
 | Heal | Q | D-pad down |
 | Quick item | G | D-pad up |
-| Interact | E | X |
+| Interact | F | X |
 | Pause | Esc / P | Menu |
 | Buffs | B | View / Share |
 
