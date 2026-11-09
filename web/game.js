@@ -1026,22 +1026,88 @@
     return Math.max(.35, Math.min(base, Math.sqrt(budget / area)));
   }
 
+  // 关闭垂直同步且选“不限制”时给一个上限：画面超过这个数只会被合成器丢掉，
+  // 白白让主线程空转、发热，玩家看不到任何区别。
+  const MAX_UNLIMITED_FPS = 240;
   const normalFrameLimitState = { map: 0, battle: 0 };
   function resetVideoFramePacing() {
     normalFrameLimitState.map = 0;
     normalFrameLimitState.battle = 0;
   }
 
+  // 显示器刷新间隔（毫秒），来自循环里的实测 rAF 间隔。
+  // 地图和战斗各有一个 pacer，但显示器只有一个：谁采到样就用谁的，
+  // 免得在标题页（地图循环还没跑）按 60Hz 估算，把 144Hz 屏误判成 60Hz。
+  // 180/360 也要收：180Hz 屏实测常是 179.5，不在表里就不会吸附，
+  // 会算出 5.57ms 这种间隔，让下面的整数倍选择在档位边界上左右横跳。
+  const STANDARD_REFRESH_RATES = [30, 48, 50, 60, 75, 90, 100, 120, 144, 165, 180, 240, 360];
+  function displayRefreshMs() {
+    const active = activeFramePacer();
+    const other = active === mapFramePacer ? battleFramePacer : mapFramePacer;
+    const source = active.refreshSampled ? active : other;
+    const sampled = source.refreshSampled ? source.refreshMs : 0;
+    if (!(sampled >= 4 && sampled <= 40)) return 1000 / 60;
+    // 实测间隔有 ±1ms 抖动，直接除会得到 62.1Hz、31 帧这种数，档位文字跟着乱跳。
+    // 吸附到常见刷新率（±6% 内），60Hz 屏就稳定读作 60。
+    const fps = 1000 / sampled;
+    for (const standard of STANDARD_REFRESH_RATES) if (Math.abs(fps - standard) <= standard * .06) return 1000 / standard;
+    return sampled;
+  }
+
+  // 把“想要的帧间隔”换算成“这台显示器真能给出来的帧间隔”。
+  // 垂直同步下画面只能落在刷新间隔的整数倍上：60Hz 屏上 45 帧（22.2ms）最接近的是 1 倍刷新（16.7ms），
+  // 而不是 2 倍（33.3ms）。按 2 倍算的话 45 档实测只有 30 帧，比不设限还卡一半。
+  function frameLimitInterval(fps) {
+    const requested = 1000 / fps;
+    if (!state.videoVSync) return requested;
+    const refresh = displayRefreshMs();
+    if (requested <= refresh * 1.08) return refresh;
+    // 候选只有“多等一拍”（更慢）和“少等一拍”（更快）两档，挑哪档要按**输出帧率**离目标多远来算。
+    // 按时间比值四舍五入是错的：180Hz 屏上选 120 帧，8.33/5.56 = 1.5 四舍五入成 1 倍刷新 = 180 帧，
+    // 比不设限还高，而 2 倍刷新是 90 帧、只差 30 帧，那才是更接近的一档。
+    const ratio = requested / refresh;
+    const higher = Math.max(1, Math.floor(ratio));
+    const fpsHigher = 1000 / (refresh * higher);
+    const fpsLower = 1000 / (refresh * (higher + 1));
+    const overshoot = fpsHigher - fps;
+    const undershoot = fps - fpsLower;
+    // 两边差得一样多时取更高的一档：60Hz 屏上选 45 帧，60 和 30 各差 15 帧，
+    // 这时候必须给 60，掉到 30 就是这次要修的那个 bug。留 0.5 帧余量避免浮点抖动左右横跳。
+    return undershoot + .5 < overshoot ? refresh * (higher + 1) : refresh * higher;
+  }
+
+  // 设置里那一行下拉的真实说法：选 45 却在 60Hz 屏上只跑 30，标签得写出来。
+  function frameLimitOptionLabel(value) {
+    if (!value) return state.videoVSync ? '不限制（跟随刷新）' : `不限制（最高 ${MAX_UNLIMITED_FPS} 帧）`;
+    const actual = Math.round(1000 / frameLimitInterval(value));
+    return actual === value ? `${value} 帧` : `${value} 帧（实际 ${actual}）`;
+  }
+
   function normalFrameLimitDue(kind, now) {
     if (state.performanceMode) return { due: true, wait: 0 };
     const fps = Number(state.videoFrameLimit) || 0;
-    if (!(fps > 0)) return { due: true, wait: 0 };
-    const interval = 1000 / fps;
-    let nextAt = normalFrameLimitState[kind] || 0;
-    if (!nextAt || now - nextAt > interval * 2.5) nextAt = now;
-    if (now < nextAt) return { due: false, wait: Math.max(0, nextAt - now) };
+    let interval;
+    if (fps > 0) interval = frameLimitInterval(fps);
+    // 跟随刷新时不需要自己排帧，每次 rAF 都画。
+    else if (state.videoVSync) return { due: true, wait: 0 };
+    else interval = 1000 / MAX_UNLIMITED_FPS;
+
+    // 判定用容差，累加用真实间隔：容差只负责“正好踩在刷新格子上也算数”，
+    // 不能拿去做步长——绝对累加时它会把每一拍都缩短 9%，实测 60 档跑成 66 帧。
+    const step = Math.max(1, interval);
     const tolerance = Math.min(2.5, interval * .09);
-    normalFrameLimitState[kind] = now + interval - tolerance;
+    let nextAt = normalFrameLimitState[kind] || 0;
+    // 首次、刚切档、或落后/超前超过两拍半（切后台再回来）时重新起算，不补画。
+    if (!nextAt || now - nextAt > step * 2.5 || nextAt - now > step * 2.5) {
+      normalFrameLimitState[kind] = now + step;
+      return { due: true, wait: 0 };
+    }
+    if (now < nextAt - tolerance) return { due: false, wait: nextAt - now };
+    // 绝对截止时间累加：这一次晚了多少不会带进下一拍。
+    // 写成 now + step 的话，每次定时器的迟到都会固化进节拍，75 帧以上越跑越慢。
+    nextAt += step;
+    if (nextAt < now) nextAt = now + step;
+    normalFrameLimitState[kind] = nextAt;
     return { due: true, wait: 0 };
   }
 
@@ -1062,7 +1128,7 @@
 
   function createStableFramePacer(label) {
     return {
-      label, targetIndex: 0, targetFps: STABLE_FPS_TIERS[0], refreshMs: 1000 / 60,
+      label, targetIndex: 0, targetFps: STABLE_FPS_TIERS[0], refreshMs: 1000 / 60, refreshSampled: false,
       frameCounter: 0, forceDraw: true, lastRafAt: 0, lastDrawStartedAt: 0, nextDrawAt: 0,
       recentGaps: [], recentCosts: [], pressure: 0, unstableSince: 0, lastTierChangeAt: 0
     };
@@ -1094,13 +1160,18 @@
     document.body.dataset.renderTier = 'map-30 battle-30';
   }
 
-  function stableFrameDue(pacer, now) {
+  // 采样显示器刷新间隔。普通模式也要采——限帧要吸附到真实刷新节拍，才能知道这台屏能给多少帧。
+  // 只在循环由 rAF 驱动时采样：关掉垂直同步后循环跑在定时器上，量到的间隔反映的是定时器精度。
+  function sampleDisplayRefresh(pacer, now) {
+    if (!state.videoVSync && !state.performanceMode) { pacer.lastRafAt = 0; return; }
     if (pacer.lastRafAt > 0 && now > pacer.lastRafAt) {
       const gap = now - pacer.lastRafAt;
-      // 只从正常显示器刷新间隔中取样；CPU 卡顿造成的大间隔不能反过来改变目标节奏。
-      if (gap >= 6 && gap <= 25) pacer.refreshMs = pacer.refreshMs * .92 + gap * .08;
+      if (gap >= 4 && gap <= 25) { pacer.refreshMs = pacer.refreshMs * .9 + gap * .1; pacer.refreshSampled = true; }
     }
     pacer.lastRafAt = now;
+  }
+
+  function stableFrameDue(pacer, now) {
     pacer.frameCounter += 1;
     const targetInterval = 1000 / pacer.targetFps;
     const timingTolerance = Math.min(4, pacer.refreshMs * .22);
@@ -1286,7 +1357,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.31.0';
+  const GAME_VERSION = '0.31.1';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -4371,7 +4442,6 @@
       pickups.push({ id: `equipment-cache-${region}`, region, layer: gearHost.layer, x: gearHost.x + gearOffset.x, y: gearHost.y + gearOffset.y, kind: 'equipment', equipmentRarity: region === 2 ? 'epic' : state.rng() < .48 ? 'rare' : 'common', collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true });
       const clueCandidates = shuffle(state.rng, STORY_CLUES.filter((clue) => clue.region === region)), clueHost = choice(state.rng, visibleHosts), clueOffset = randomOffset(64, 104);
       if (clueCandidates.length) pickups.push({ id: `story-clue-${region}`, region, layer: clueHost.layer, x: clueHost.x + clueOffset.x, y: clueHost.y + clueOffset.y, kind: 'story', clueId: clueCandidates[0].id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: false });
-      if (clueCandidates[1]) { const secondHost = choice(state.rng, visibleHosts), secondOffset = randomOffset(72, 108); pickups.push({ id: `story-clue-${region}-b`, region, layer: secondHost.layer, x: secondHost.x + secondOffset.x, y: secondHost.y + secondOffset.y, kind: 'story', clueId: clueCandidates[1].id, collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: false }); }
       const hiddenSupplyHost = nodes.find((entry) => entry.region === region && entry.local === hiddenEnd), hiddenSupplyOffset = randomOffset(62, 96);
       pickups.push({ id: `hidden-supply-${region}`, region, layer: hiddenSupplyHost.layer, x: hiddenSupplyHost.x + hiddenSupplyOffset.x, y: hiddenSupplyHost.y + hiddenSupplyOffset.y, kind: choice(state.rng, ['material', 'consumable', 'merit', 'relic']), collected: false, revealRegion: null, requiresPuzzle: false, hiddenArea: true });
 
@@ -5562,6 +5632,7 @@
     singleMapPausedRendered = false;
     const tick = (now) => {
       if (state.screen !== 'map') { singleMapFrame = 0; return; }
+      sampleDisplayRefresh(mapFramePacer, now);
       const mapPaused = state.pauseOpen || state.saveManagerOpen || state.testModeOpen || state.restartPromptOpen || gameplayPausedByOverlay();
       if (mapPaused) {
         singleMapLastTime = now;
@@ -7092,7 +7163,13 @@
     if (dom.resolutionSelect) {
       dom.resolutionSelect.value = state.resolutionMode;
     }
-    if (dom.normalFrameLimitSelect) dom.normalFrameLimitSelect.value = String(Number(state.videoFrameLimit) || 0);
+    if (dom.normalFrameLimitSelect) {
+      for (const option of dom.normalFrameLimitSelect.options) {
+        const label = frameLimitOptionLabel(Number(option.value) || 0);
+        if (option.textContent !== label) option.textContent = label;
+      }
+      dom.normalFrameLimitSelect.value = String(Number(state.videoFrameLimit) || 0);
+    }
     if (dom.vsyncToggle) {
       dom.vsyncToggle.textContent = state.videoVSync ? '垂直同步：开' : '垂直同步：关';
       dom.vsyncToggle.setAttribute('aria-pressed', String(!!state.videoVSync));
@@ -11340,6 +11417,7 @@ function breakPlayerPosture() {
       } : undefined) : null;
       if (!enemy.dead && state.combat === combat && !combat.finished) enemyAttack(enemy, parryGrade);
     }
+    if (state.combat !== combat || combat.finished || !state.player) return;
     updateMetaBars();
     renderEnemyCards();
     if (combat.enemies.every((target) => target.dead)) {
@@ -13808,6 +13886,7 @@ function breakPlayerPosture() {
   function drawBattleScene(now) {
     let battleFast = false;
     try {
+      sampleDisplayRefresh(battleFramePacer, now);
       const battleVisible = state.screen === 'battle' && !!state.combat;
       // 菜单和地图也依赖这里轮询手柄，但不需要一直绘制隐藏的战斗画布。
       // 战斗内每次刷新都读手柄；非战斗界面限制到约 60–80Hz，省电时更轻。
@@ -14574,7 +14653,7 @@ function breakPlayerPosture() {
 
   window.__longMarch.getFramePacingDebug = () => ({
     tier: document.body.dataset.renderTier || '', active: state.screen === 'battle' ? 'battle' : 'map',
-    video: { frameLimit: Number(state.videoFrameLimit) || 0, vsync: !!state.videoVSync, nextMap: normalFrameLimitState.map, nextBattle: normalFrameLimitState.battle },
+    video: { frameLimit: Number(state.videoFrameLimit) || 0, vsync: !!state.videoVSync, nextMap: normalFrameLimitState.map, nextBattle: normalFrameLimitState.battle, refreshMs: +displayRefreshMs().toFixed(2), effectiveFps: Number(state.videoFrameLimit) > 0 ? Math.round(1000 / frameLimitInterval(Number(state.videoFrameLimit))) : 0 },
     map: { targetFps: mapFramePacer.targetFps, refreshMs: +mapFramePacer.refreshMs.toFixed(2), pressure: mapFramePacer.pressure, gaps: [...mapFramePacer.recentGaps], costs: [...mapFramePacer.recentCosts] },
     battle: { targetFps: battleFramePacer.targetFps, refreshMs: +battleFramePacer.refreshMs.toFixed(2), pressure: battleFramePacer.pressure, gaps: [...battleFramePacer.recentGaps], costs: [...battleFramePacer.recentCosts] }
   });
