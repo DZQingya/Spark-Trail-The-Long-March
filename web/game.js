@@ -396,9 +396,9 @@
     { id: 'tempered_narrowblade', name: '精钢窄刃', icon: '刃', category: '刀剑', rarity: 'rare', cost: 60, desc: '细窄刃身让格挡、闪避与跃击变招更容易切入。', effects: [{ label: '变招威力', value: '+14%' }, { label: '变招架势', value: '+8%' }], apply: (p, s = 1) => { p.techniqueDamageBonus += .14 * s; p.techniquePostureBonus += .08 * s; } },
     { id: 'bamboo_guard', name: '竹编护手', icon: '护', category: '刀剑', rarity: 'common', cost: 30, desc: '轻便护手不妨碍出刀，还能卸去一点震力。', effects: [{ label: '防御', value: '+1' }, { label: '闪避恢复', value: '+5%' }], apply: (p, s = 1) => { p.defense += s; p.dodgeCooldownReduction += .05 * s; } },
     { id: 'rally_blade', name: '会师战刀', icon: '会', category: '刀剑', rarity: 'epic', cost: 98, desc: '一路修补到会师的长刀，刀背刻着队伍走过的地名。', effects: [{ label: '攻势', value: '+4' }, { label: '连锋威力', value: '+5' }], apply: (p, s = 1) => { p.atk += 4 * s; p.basicBonus += 5 * s; } },
-    { id: 'steel_bracer', name: '钢制护腕', icon: '腕', category: '护具', rarity: 'common', cost: 35, desc: '护住手腕和刀架，格挡更稳。', effects: [{ label: '防御', value: '+1' }, { label: '架势上限', value: '+8' }], apply: (p, s = 1) => { p.defense += s; p.maxPosture += 8 * s; p.posture = clamp(p.posture, 0, p.maxPosture); } },
+    { id: 'steel_bracer', name: '钢制护腕', icon: '腕', category: '护具', rarity: 'common', cost: 35, desc: '护住手腕和刀架，格挡更稳。', effects: [{ label: '防御', value: '+1' }, { label: '架势上限', value: '+8' }], apply: (p, s = 1) => { p.defense += s; p.maxPosture += 8 * s; } },
     { id: 'padded_coat', name: '厚棉军衣', icon: '衣', category: '护具', rarity: 'common', cost: 42, desc: '挡不住刀锋，却能撑住长途损耗。', effects: [{ label: '兵力上限', value: '+18' }, { label: '防御', value: '+1' }], apply: (p, s = 1) => { p.maxHp += 18 * s; p.defense += s; if (s > 0) p.hp = Math.min(p.maxHp, p.hp + 18); else p.hp = Math.min(p.hp, p.maxHp); } },
-    { id: 'iron_helmet', name: '缴获铁盔', icon: '盔', category: '护具', rarity: 'rare', cost: 58, desc: '重是重了些，挨刀时却更清醒。', effects: [{ label: '架势上限', value: '+12' }, { label: '低兵力减伤', value: '+3%' }], apply: (p, s = 1) => { p.maxPosture += 12 * s; p.lowHpDefenseBonus += .03 * s; p.posture = clamp(p.posture, 0, p.maxPosture); } },
+    { id: 'iron_helmet', name: '缴获铁盔', icon: '盔', category: '护具', rarity: 'rare', cost: 58, desc: '重是重了些，挨刀时却更清醒。', effects: [{ label: '架势上限', value: '+12' }, { label: '低兵力减伤', value: '+3%' }], apply: (p, s = 1) => { p.maxPosture += 12 * s; p.lowHpDefenseBonus += .03 * s; } },
     { id: 'light_greaves', name: '轻便绑腿', icon: '履', category: '机动', rarity: 'common', cost: 40, desc: '收紧绑腿，追击与闪身更快。', effects: [{ label: '移动速度', value: '+7%' }, { label: '闪避恢复', value: '+8%' }], apply: (p, s = 1) => { p.moveSpeedBonus += .07 * s; p.dodgeCooldownReduction += .08 * s; } },
     { id: 'rifle_sling', name: '皮质枪背带', icon: '带', category: '枪械', rarity: 'common', cost: 38, desc: '出枪更稳，移动射击也更顺。', effects: [{ label: '步枪威力', value: '+12%' }], apply: (p, s = 1) => { p.rangedBonus += .12 * s; } },
     { id: 'match_trigger', name: '精修枪机', icon: '机', category: '枪械', rarity: 'rare', cost: 68, desc: '扳机行程更短，射击更容易打中要害。', effects: [{ label: '步枪威力', value: '+20%' }, { label: '暴击', value: '+3%' }], apply: (p, s = 1) => { p.rangedBonus += .2 * s; p.crit += .03 * s; } },
@@ -406,7 +406,7 @@
     { id: 'ammo_pouch', name: '加厚弹袋', icon: '弹', category: '军需', rarity: 'common', cost: 36, desc: '弹药摆放更顺，容易抓住射击机会。', effects: [{ label: '步枪威力', value: '+8%' }, { label: '暴击', value: '+2%' }], apply: (p, s = 1) => { p.rangedBonus += .08 * s; p.crit += .02 * s; } },
     { id: 'command_whistle', name: '铜制指挥哨', icon: '哨', category: '军需', rarity: 'rare', cost: 60, desc: '一开场便用哨声稳住队伍节奏。', effects: [{ label: '开战士气', value: '+8' }, { label: '士气威力', value: '+8%' }], apply: (p, s = 1) => { p.openingMoraleBonus += 8 * s; p.moralePower += .08 * s; } },
     { id: 'quartermaster_roll', name: '辎重卷包', icon: '包', category: '军需', rarity: 'common', cost: 34, desc: '多带一卷口粮和备用零件。', effects: [{ label: '补给上限', value: '+16' }], apply: (p, s = 1) => { p.maxSupplies += 16 * s; p.supplies = Math.min(p.supplies, p.maxSupplies); } },
-    { id: 'blacksteel_guard', name: '淬火护心镜', icon: '镜', category: '护具', rarity: 'epic', cost: 92, desc: '从缴获装备上拆下的整块护心镜，硬接重刀也不易乱息。', effects: [{ label: '防御', value: '+2' }, { label: '架势上限', value: '+16' }], apply: (p, s = 1) => { p.defense += 2 * s; p.maxPosture += 16 * s; p.posture = clamp(p.posture, 0, p.maxPosture); } },
+    { id: 'blacksteel_guard', name: '淬火护心镜', icon: '镜', category: '护具', rarity: 'epic', cost: 92, desc: '从缴获装备上拆下的整块护心镜，硬接重刀也不易乱息。', effects: [{ label: '防御', value: '+2' }, { label: '架势上限', value: '+16' }], apply: (p, s = 1) => { p.defense += 2 * s; p.maxPosture += 16 * s; } },
     { id: 'victory_saber', name: '百战卷刃刀', icon: '战', category: '刀剑', rarity: 'epic', cost: 94, desc: '刀锋卷过许多缺口，却仍能把变招的力道送进敌阵。', effects: [{ label: '攻势', value: '+5' }, { label: '变招威力', value: '+12%' }], apply: (p, s = 1) => { p.atk += 5 * s; p.techniqueDamageBonus += .12 * s; } },
     { id: 'scoped_carbine', name: '缴获瞄准镜', icon: '镜', category: '枪械', rarity: 'epic', cost: 96, desc: '镜片没有裂纹，远距离抓住枪线的机会更多。', effects: [{ label: '步枪威力', value: '+28%' }, { label: '暴击', value: '+4%' }], apply: (p, s = 1) => { p.rangedBonus += .28 * s; p.crit += .04 * s; } },
     { id: 'command_mapcase', name: '缴获指挥图匣', icon: '匣', category: '军需', rarity: 'epic', cost: 88, desc: '图匣里还留着敌军标过的粮道与弹药点。', effects: [{ label: '补给上限', value: '+28' }, { label: '每场急救', value: '+1' }], apply: (p, s = 1) => { p.maxSupplies += 28 * s; p.emergencyBonus += s; } }
@@ -428,35 +428,44 @@
   };  const REGION_KEY_IDS = ['iron_key', 'river_key', 'snow_key', 'grass_key', 'final_key'];
 
   const TALENT_TREE = [
-    { id: 'blade_flow', branch: '刀法', tier: 1, name: '顺势收刀', icon: '流', cost: 1, requires: [], desc: '收刀更快，下一式更容易接上。', effect: '连锋衔接窗口 +60', apply: (p) => { p.comboWindowBonus += 60; } },
-    { id: 'variation_basic', branch: '刀法', tier: 2, name: '回旋破阵', icon: '旋', cost: 1, requires: ['blade_flow'], desc: '学会闪避跃起后回身两刀横扫。', effect: '解锁变招：回旋破阵；已会时变招威力 +8%', techniqueId: 'whirlwind', apply: (p) => { if (!p.techniques.includes('whirlwind')) p.techniques.push('whirlwind'); else p.techniqueDamageBonus += .08; } },
-    { id: 'variation_advanced', branch: '刀法', tier: 3, name: '破锋进斩', icon: '破', cost: 2, requires: ['variation_basic'], desc: '学会先格挡再跃起重劈敌阵。', effect: '解锁变招：破锋进斩；已会时变招威力 +10%', techniqueId: 'breach', apply: (p) => { if (!p.techniques.includes('breach')) p.techniques.push('breach'); else p.techniqueDamageBonus += .1; } },
-    { id: 'variation_master', branch: '刀法', tier: 4, name: '交刃连斩', icon: '交', cost: 2, requires: ['variation_advanced', 'technique_edge'], desc: '学会格挡接闪避后切入连斩。', effect: '解锁变招：交刃连斩；已会时变招架势 +12%', techniqueId: 'crosscut', apply: (p) => { if (!p.techniques.includes('crosscut')) p.techniques.push('crosscut'); else p.techniquePostureBonus += .12; } },
-    { id: 'technique_edge', branch: '刀法', tier: 3, name: '换步发力', icon: '劲', cost: 1, requires: ['variation_basic'], desc: '变招换步时把腰腿力量送进刀锋。', effect: '变招威力 +12%', apply: (p) => { p.techniqueDamageBonus += .12; } },
-    { id: 'guard_breath', branch: '守势', tier: 1, name: '沉气守中', icon: '守', cost: 1, requires: [], desc: '稳住重心，阵脚更耐压。', effect: '架势上限 +12', apply: (p) => { p.maxPosture += 12; } },
-    { id: 'steady_guard', branch: '守势', tier: 2, name: '稳手护刃', icon: '稳', cost: 1, requires: ['guard_breath', 'dodge_form'], desc: '守反时脚步和刀架更稳。', effect: '防御 +1，守反时机 +60', apply: (p) => { p.defense += 1; p.guardCounterWindowBonus += 60; } },
-    { id: 'dodge_form', branch: '机动', tier: 1, name: '低身换步', icon: '闪', cost: 1, requires: [], desc: '闪身后的重心恢复更快。', effect: '闪避恢复 +8%', apply: (p) => { p.dodgeCooldownReduction += .08; } },
-    { id: 'light_step', branch: '机动', tier: 2, name: '轻装疾行', icon: '行', cost: 1, requires: ['dodge_form'], desc: '行军和战斗中的脚步更轻。', effect: '移动速度 +6%', apply: (p) => { p.moveSpeedBonus += .06; } },
-    { id: 'field_kit', branch: '军需', tier: 1, name: '随身整备', icon: '整', cost: 1, requires: [], desc: '修补装备，也顺手扩大行囊。', effect: '补给上限 +16', apply: (p) => { p.maxSupplies += 16; p.supplies = Math.min(p.supplies, p.maxSupplies); } },
-    { id: 'equipment_harness', branch: '军需', tier: 2, name: '军备挂架', icon: '架', cost: 2, requires: ['field_kit', 'blade_flow'], desc: '在背包和腰间增加一组可靠的军备挂点。', effect: '军备槽 +1（总上限 4）', apply: (p) => { p.bonusEquipmentSlots += 1; } },
-    { id: 'trail_read', branch: '探查', tier: 1, name: '读路辨迹', icon: '迹', cost: 1, requires: [], desc: '更早发现岔路、暗门和藏在角落的物资。', effect: '地图发现范围 +80', apply: (p) => { p.relicMapReveal += 80; } },
-    { id: 'chest_luck', branch: '探查', tier: 2, name: '搜箱有方', icon: '箱', cost: 1, requires: ['trail_read'], desc: '更懂得从旧箱和缴获中挑出好东西。', effect: '宝箱稀有度提升', apply: (p) => { p.chestLuck += 15; } },
-    { id: 'counter_edge', branch: '刀法', tier: 3, name: '回锋截击', icon: '截', cost: 2, requires: ['blade_flow', 'steady_guard'], desc: '在敌人收招的缝隙里把刀锋送回去。', effect: '闪反与守反威力 +12%，反击窗口 +80', apply: (p) => { p.dodgeCounterBonus += .12; p.guardCounterBonus += .12; p.dodgeCounterWindowBonus += 80; p.guardCounterWindowBonus += 80; } },
-    { id: 'blade_mastery', branch: '刀法', tier: 4, name: '刀势贯通', icon: '贯', cost: 3, requires: ['variation_master', 'technique_edge'], desc: '把五式连锋和变招合成一口气，刀势不再散。', effect: '连锋威力 +8，变招威力 +14%', apply: (p) => { p.basicBonus += 8; p.techniqueDamageBonus += .14; } },
-    { id: 'blade_tempest', branch: '刀法', tier: 5, name: '百战刀魂', icon: '魂', cost: 4, requires: ['blade_mastery'], desc: '久战之后，收刀、换步与回锋都变成本能。', effect: '连锋威力 +12，变招威力/架势 +20%', apply: (p) => { p.basicBonus += 12; p.techniqueDamageBonus += .2; p.techniquePostureBonus += .2; } },
-    { id: 'iron_wall', branch: '守势', tier: 3, name: '铁壁护阵', icon: '壁', cost: 2, requires: ['steady_guard', 'light_step'], desc: '把肩、腰和刀架连成一道稳固的防线。', effect: '防御 +2，架势上限 +18', apply: (p) => { p.defense += 2; p.maxPosture += 18; } },
-    { id: 'perfect_echo', branch: '守势', tier: 4, name: '弹刃回响', icon: '响', cost: 3, requires: ['steady_guard'], desc: '完美架开敌刃后，反击的窗口和刀势都更长。', effect: '完美弹反削架势 +35%，守反窗口 +120', apply: (p) => { p.relicParryPosture += .35; p.guardCounterWindowBonus += 120; } },
-    { id: 'last_stand', branch: '守势', tier: 5, name: '绝境不倒', icon: '屹', cost: 4, requires: ['iron_wall', 'perfect_echo'], desc: '兵力将尽时仍能把阵脚钉在地上。', effect: '兵力上限 +30，低兵力减伤 +10%', apply: (p) => { p.maxHp += 30; p.lowHpDefenseBonus += .1; } },
-    { id: 'shadow_step', branch: '机动', tier: 3, name: '影步回身', icon: '影', cost: 2, requires: ['light_step', 'counter_edge'], desc: '闪身落地时已经找好下一次出刀的角度。', effect: '闪避恢复 +10%，闪反威力 +10%', apply: (p) => { p.dodgeCooldownReduction += .1; p.dodgeCounterBonus += .1; } },
-    { id: 'mountain_stride', branch: '机动', tier: 4, name: '翻山越岭', icon: '越', cost: 3, requires: ['light_step'], desc: '长距离行军与战斗换位都更从容。', effect: '移动速度 +12%，架势上限 +12', apply: (p) => { p.moveSpeedBonus += .12; p.maxPosture += 12; } },
-    { id: 'untouchable', branch: '机动', tier: 5, name: '踏雪无痕', icon: '雪', cost: 4, requires: ['shadow_step'], desc: '连续的侧身与追刀让敌人很难抓住队伍。', effect: '闪反窗口 +180，闪避恢复 +16%', apply: (p) => { p.dodgeCounterWindowBonus += 180; p.dodgeCooldownReduction += .16; } },
-    { id: 'field_medic', branch: '军需', tier: 3, name: '战地救护所', icon: '护', cost: 2, requires: ['field_kit', 'guard_breath'], desc: '把急救和补给整理成一套可持续的战地流程。', effect: '治疗 +10，兵力上限 +12', apply: (p) => { p.healBonus += 10; p.maxHp += 12; } },
-    { id: 'supply_column', branch: '军需', tier: 4, name: '辎重长列', icon: '列', cost: 3, requires: ['field_kit'], desc: '把补给线拉长，让队伍能连续作战。', effect: '补给上限 +30，补给消耗 -2', apply: (p) => { p.maxSupplies += 30; p.supplyCostReduction = Math.min(8, p.supplyCostReduction + 2); } },
-    { id: 'merit_ledger', branch: '军需', tier: 5, name: '军功簿', icon: '簿', cost: 4, requires: ['supply_column'], desc: '每一次缴获都被记在册上，换来更长的军需线。', effect: '军功收益 +12%，军需价格 -8%', apply: (p) => { p.meritGainBonus += .12; p.shopDiscount = Math.min(.3, (p.shopDiscount || 0) + .08); } },
-    { id: 'pathfinder', branch: '探查', tier: 3, name: '山路向导', icon: '向', cost: 2, requires: ['trail_read', 'light_step'], desc: '提前读到山势和旧路，少走许多冤枉路。', effect: '发现范围 +120，暗道感知 +100', apply: (p) => { p.relicMapReveal += 120; p.relicSecretSense += 100; } },
-    { id: 'veteran_cache', branch: '探查', tier: 4, name: '老练搜整', icon: '整', cost: 3, requires: ['chest_luck', 'field_kit'], desc: '看一眼箱扣就知道里面值不值得打开。', effect: '宝箱幸运 +25，地图收益 +20%', apply: (p) => { p.chestLuck += 25; p.relicMapBonus += .2; } },
-    { id: 'hidden_marrow', branch: '探查', tier: 5, name: '暗线通脉', icon: '脉', cost: 4, requires: ['pathfinder', 'veteran_cache'], desc: '把散落在地图边缘的暗线和军资连成一张网。', effect: '发现范围 +180，暗道感知 +160，架势上限 +10', apply: (p) => { p.relicMapReveal += 180; p.relicSecretSense += 160; p.maxPosture += 10; } }
+    { id: 'blade_flow', branch: '刀法', tier: 1, name: '顺势收刀', icon: '流', cost: 1, requires: [], desc: '收刀更快，更容易接上下一刀。', effect: '连招衔接更宽松', apply: (p) => { p.comboWindowBonus += 60; } },
+    { id: 'variation_basic', branch: '刀法', tier: 2, name: '回旋破阵', icon: '旋', cost: 1, requires: ['blade_flow'], desc: '闪避跃起后回身横扫。', effect: '学会回旋破阵；已有此招时，变招威力 +8%', techniqueId: 'whirlwind', apply: (p) => { if (!p.techniques.includes('whirlwind')) p.techniques.push('whirlwind'); else p.techniqueDamageBonus += .08; } },
+    { id: 'variation_advanced', branch: '刀法', tier: 3, name: '破锋进斩', icon: '破', cost: 2, requires: ['variation_basic'], desc: '格挡后跃起重劈敌阵。', effect: '学会破锋进斩；已有此招时，变招威力 +10%', techniqueId: 'breach', apply: (p) => { if (!p.techniques.includes('breach')) p.techniques.push('breach'); else p.techniqueDamageBonus += .1; } },
+    { id: 'variation_master', branch: '刀法', tier: 4, name: '交刃连斩', icon: '交', cost: 2, requires: ['variation_advanced', 'technique_edge'], desc: '格挡接闪避后切入连斩。', effect: '学会交刃连斩；已有此招时，变招削架势 +12%', techniqueId: 'crosscut', apply: (p) => { if (!p.techniques.includes('crosscut')) p.techniques.push('crosscut'); else p.techniquePostureBonus += .12; } },
+    { id: 'technique_edge', branch: '刀法', tier: 3, name: '换步发力', icon: '劲', cost: 1, requires: ['variation_basic'], desc: '换步时把腰腿力量送进刀锋。', effect: '变招威力 +12%', apply: (p) => { p.techniqueDamageBonus += .12; } },
+    { id: 'guard_breath', branch: '守势', tier: 1, name: '沉气守中', icon: '守', cost: 1, requires: [], desc: '稳住重心，面对连击更从容。', effect: '架势上限 +12', apply: (p) => { p.maxPosture += 12; } },
+    { id: 'steady_guard', branch: '守势', tier: 2, name: '稳手护刃', icon: '稳', cost: 1, requires: ['guard_breath', 'dodge_form'], desc: '守反时脚步和刀架更稳。', effect: '防御提升，守反更从容', apply: (p) => { p.defense += 1; p.guardCounterWindowBonus += 60; } },
+    { id: 'dodge_form', branch: '机动', tier: 1, name: '低身换步', icon: '闪', cost: 1, requires: [], desc: '闪身后的脚步恢复更快。', effect: '闪避恢复 +8%', apply: (p) => { p.dodgeCooldownReduction += .08; } },
+    { id: 'light_step', branch: '机动', tier: 2, name: '轻装疾行', icon: '行', cost: 1, requires: ['dodge_form'], desc: '行军与战斗换位更轻快。', effect: '移动速度 +6%', apply: (p) => { p.moveSpeedBonus += .06; } },
+    { id: 'field_kit', branch: '军需', tier: 1, name: '随身整备', icon: '整', cost: 1, requires: [], desc: '整理行囊，随身补给更充足。', effect: '补给上限 +16', apply: (p) => { p.maxSupplies += 16; p.supplies = Math.min(p.supplies, p.maxSupplies); } },
+    { id: 'equipment_harness', branch: '军需', tier: 2, name: '军备挂架', icon: '架', cost: 2, requires: ['field_kit', 'blade_flow'], desc: '多带一件军备。', effect: '军备槽 +1，最多 4 个', apply: (p) => { p.bonusEquipmentSlots += 1; } },
+    { id: 'trail_read', branch: '探查', tier: 1, name: '读路辨迹', icon: '迹', cost: 1, requires: [], desc: '更早发现暗门与角落物资。', effect: '地图发现范围扩大', apply: (p) => { p.relicMapReveal += 80; } },
+    { id: 'chest_luck', branch: '探查', tier: 2, name: '搜箱有方', icon: '箱', cost: 1, requires: ['trail_read'], desc: '更容易从宝箱里找到好东西。', effect: '宝箱稀有奖励提高', apply: (p) => { p.chestLuck += 15; } },
+    { id: 'counter_edge', branch: '刀法', tier: 3, name: '回锋截击', icon: '截', cost: 2, requires: ['blade_flow', 'steady_guard'], desc: '在敌人收招时把刀锋送回去。', effect: '闪反与守反更强、更从容', apply: (p) => { p.dodgeCounterBonus += .12; p.guardCounterBonus += .12; p.dodgeCounterWindowBonus += 80; p.guardCounterWindowBonus += 80; } },
+    { id: 'blade_mastery', branch: '刀法', tier: 4, name: '刀势贯通', icon: '贯', cost: 3, requires: ['variation_master', 'technique_edge'], desc: '连招与变招衔接得更顺。', effect: '连招威力 +8，变招威力 +14%', apply: (p) => { p.basicBonus += 8; p.techniqueDamageBonus += .14; } },
+    { id: 'blade_tempest', branch: '刀法', tier: 5, name: '百战刀魂', icon: '魂', cost: 4, requires: ['blade_mastery'], desc: '刀法化为本能，连招与变招更凶。', effect: '连招威力 +12，变招威力与削架势 +20%', apply: (p) => { p.basicBonus += 12; p.techniqueDamageBonus += .2; p.techniquePostureBonus += .2; } },
+    { id: 'iron_wall', branch: '守势', tier: 3, name: '铁壁护阵', icon: '壁', cost: 2, requires: ['steady_guard', 'light_step'], desc: '把肩、腰和刀架连成稳固防线。', effect: '防御 +2，架势上限 +18', apply: (p) => { p.defense += 2; p.maxPosture += 18; } },
+    { id: 'perfect_echo', branch: '守势', tier: 4, name: '弹刃回响', icon: '响', cost: 3, requires: ['steady_guard'], desc: '完美格挡后反击更从容。', effect: '完美格挡削架势 +35%，守反更从容', apply: (p) => { p.relicParryPosture += .35; p.guardCounterWindowBonus += 120; } },
+    { id: 'last_stand', branch: '守势', tier: 5, name: '绝境不倒', icon: '屹', cost: 4, requires: ['iron_wall', 'perfect_echo'], desc: '兵力将尽时依然站得住。', effect: '兵力上限 +30，低兵力时减伤 10%', apply: (p) => { p.maxHp += 30; p.lowHpDefenseBonus += .1; } },
+    { id: 'shadow_step', branch: '机动', tier: 3, name: '影步回身', icon: '影', cost: 2, requires: ['light_step', 'counter_edge'], desc: '闪开后更快找回出刀角度。', effect: '闪避恢复 +10%，闪反威力 +10%', apply: (p) => { p.dodgeCooldownReduction += .1; p.dodgeCounterBonus += .1; } },
+    { id: 'mountain_stride', branch: '机动', tier: 4, name: '翻山越岭', icon: '越', cost: 3, requires: ['light_step'], desc: '长途跋涉与战斗换位都更稳。', effect: '移动速度 +12%，架势上限 +12', apply: (p) => { p.moveSpeedBonus += .12; p.maxPosture += 12; } },
+    { id: 'untouchable', branch: '机动', tier: 5, name: '踏雪无痕', icon: '雪', cost: 4, requires: ['shadow_step'], desc: '连续闪身，让敌人难以抓住你。', effect: '闪反更从容，闪避恢复 +16%', apply: (p) => { p.dodgeCounterWindowBonus += 180; p.dodgeCooldownReduction += .16; } },
+    { id: 'field_medic', branch: '军需', tier: 3, name: '战地救护所', icon: '护', cost: 2, requires: ['field_kit', 'guard_breath'], desc: '救护与补给更有效率。', effect: '治疗 +10，兵力上限 +12', apply: (p) => { p.healBonus += 10; p.maxHp += 12; } },
+    { id: 'supply_column', branch: '军需', tier: 4, name: '辎重长列', icon: '列', cost: 3, requires: ['field_kit'], desc: '补给线更长，连续作战更从容。', effect: '补给上限 +30，补给消耗 -2', apply: (p) => { p.maxSupplies += 30; p.supplyCostReduction = Math.min(8, p.supplyCostReduction + 2); } },
+    { id: 'merit_ledger', branch: '军需', tier: 5, name: '军功簿', icon: '簿', cost: 4, requires: ['supply_column'], desc: '战功记得更清楚，军需更便宜。', effect: '军功收益 +12%，军需价格 -8%', apply: (p) => { p.meritGainBonus += .12; p.shopDiscount = Math.min(.3, (p.shopDiscount || 0) + .08); } },
+    { id: 'pathfinder', branch: '探查', tier: 3, name: '山路向导', icon: '向', cost: 2, requires: ['trail_read', 'light_step'], desc: '更早看见旧路与暗道。', effect: '发现范围扩大，暗道更容易察觉', apply: (p) => { p.relicMapReveal += 120; p.relicSecretSense += 100; } },
+    { id: 'veteran_cache', branch: '探查', tier: 4, name: '老练搜整', icon: '整', cost: 3, requires: ['chest_luck', 'field_kit'], desc: '更会从旧箱里挑出好东西。', effect: '宝箱稀有奖励提高，地图收益 +20%', apply: (p) => { p.chestLuck += 25; p.relicMapBonus += .2; } },
+    { id: 'hidden_marrow', branch: '探查', tier: 5, name: '暗线通脉', icon: '脉', cost: 4, requires: ['pathfinder', 'veteran_cache'], desc: '把隐秘路线与军资连成一张网。', effect: '地图探索与架势上限提升', apply: (p) => { p.relicMapReveal += 180; p.relicSecretSense += 160; p.maxPosture += 10; } }
   ];
+
+  const TALENT_BRANCH_ORDER = ['刀法', '守势', '机动', '军需', '探查'];
+  const TALENT_BRANCH_META = {
+    '刀法': { key: 'blade', color: '#d05242' },
+    '守势': { key: 'guard', color: '#d6ab58' },
+    '机动': { key: 'motion', color: '#73a9a4' },
+    '军需': { key: 'supply', color: '#a98b5d' },
+    '探查': { key: 'scout', color: '#8eaa77' }
+  };
 
   const NPC_DEFINITIONS = [
     {
@@ -795,17 +804,17 @@
   }
   function buildShopOffers() {
     const p = state.player;
-    const effects = shuffle(state.rng, SHOP_ITEMS.filter((item) => item.kind !== 'equipment' && (p.shopCounts?.[item.id] || 0) < (item.max || 99))).slice(0, 5).map((item) => ({ ...item, kind: 'effect', stock: 1 }));
+    const effects = shuffle(state.rng, SHOP_ITEMS.filter((item) => item.kind !== 'equipment' && (p.shopCounts?.[item.id] || 0) < (item.max || 99))).slice(0, 3).map((item) => ({ ...item, kind: 'effect', stock: 1 }));
     const equipment = shuffle(state.rng, SHOP_ITEMS.filter((item) => item.kind === 'equipment' && !(p.equipmentInventory || []).some((unit) => unit.itemId === item.equipmentId))).slice(0, 2).map((item) => ({ ...item, kind: 'equipment', stock: 1 }));
-    const relics = shuffle(state.rng, RELICS.filter((relic) => !(p.relics || []).includes(relic.id))).slice(0, 4).map((relic) => ({ ...relicShopOffer(relic), stock: 1 }));
-    const consumables = shuffle(state.rng, CONSUMABLES).slice(0, 3).map((item) => ({ ...consumableShopOffer(item), stock: 1 }));
+    const relics = shuffle(state.rng, RELICS.filter((relic) => !(p.relics || []).includes(relic.id))).slice(0, 2).map((relic) => ({ ...relicShopOffer(relic), stock: 1 }));
+    const consumables = shuffle(state.rng, CONSUMABLES).slice(0, 1).map((item) => ({ ...consumableShopOffer(item), stock: 1 }));
     return [...effects, ...equipment, ...relics, ...consumables];
   }
 
   SHOP_ITEMS.push(...EQUIPMENT_ITEMS.map((item) => ({
     id: `equipment_${item.id}`, equipmentId: item.id, kind: 'equipment', name: item.name, icon: item.icon,
     cost: item.cost, shopCost: item.cost, step: 18, max: 1, desc: `${EQUIPMENT_RARITIES[item.rarity].name}军备 · ${item.category}`,
-    detail: `${item.desc} 军备提供数值成长，可随时在军备栏装备或卸下。`, effects: item.effects,
+    detail: `${item.desc} 军备可随时装备或卸下。`, effects: item.effects,
     notes: ['本店只有一件，售完即止。', '购买后收入军备栏，不占用信物位置。'], apply: (p) => acquireEquipment(p, item.id, { source: '军需站', silent: true })
   })));
 
@@ -999,7 +1008,7 @@
       { label:'收好战地绷带', desc:'消耗补给，取得战地绷带。', tag:'信物', cost:{supplies:10}, relicId:'field_tourniquet' }
     ]},
     { id:'relic_signal_hill', title:'山谷里的号声', desc:'风把一个旧号声送过山脊，半截军哨和旗角落在石缝里。', choices:[
-      { label:'收下行军哨', desc:'消耗士气，取得行军哨。', tag:'信物', cost:{morale:10}, relicId:'marshal_whistle' },
+      { label:'循声搜寻', desc:'消耗补给，取得行军哨。', tag:'信物', cost:{supplies:8}, relicId:'marshal_whistle' },
       { label:'收起会师旗角', desc:'消耗军功，取得会师旗角。', tag:'信物', cost:{merit:42}, relicId:'victory_flag' }
     ]},
     { id:'relic_crosscut_lesson', title:'交刃演练', desc:'两名老战士用木刀演示交刃切入，要求队伍在换步时不丢架势。', choices:[
@@ -1009,7 +1018,7 @@
   );
 
     const state = {
-    seed: 0, rng: Math.random, sound: true, volume: 1, musicVolume: .9, sfxVolume: 1.18, startupWindowMode: 'maximized', startFullscreen: false, performanceMode: false, videoFrameLimit: 0, videoVSync: true, resolutionMode: 'auto', gamepadLayout: 'auto', uiScale: 1.2, screen: 'title',
+    seed: 0, rng: Math.random, sound: true, volume: 1, musicVolume: .9, sfxVolume: 1.18, startupWindowMode: 'maximized', startFullscreen: false, performanceMode: false, qualityMode: 'auto', qualityTier: 'balanced', videoFrameLimit: 0, videoVSync: true, resolutionMode: 'auto', gamepadLayout: 'auto', uiScale: 1.2, screen: 'title',
     squadId: null, player: null, difficulty: 'march', runMode: 'roguelike', singlePace: 'normal', act: 0, actStep: 0, actBoss: null, singleMap: null, chapter: 0, battle: 0, battleNumber: 0,
     routeOptions: [], squadOptions: [], currentRoute: null, combat: null, pendingRewards: [], currentEvent: null, usedEvents: [], eventContinue: null, shopItems: [], shopReturn: null, shopSource: null, shopResumeAction: null, lastRandomShopAt: -99,
     historyContinue: null, boss: false, finished: false, training: null, testMode: false, testModeOpen: false, testRestoreInProgress: false, acquisitionOpen: false, npcPanelOpen: false, pauseOpen: false, pauseStartedAt: 0, keyBindings: { ...DEFAULT_KEY_BINDINGS }, gamepadBindings: {}, bindingCapture: null, runElapsedMs: 0, runActiveSince: 0, runArchived: false, shopResumeAction: null, saveManagerOpen: false,
@@ -1020,10 +1029,140 @@
   const MAP_PIXEL_BUDGET = 1.75e6;
   const BATTLE_PIXEL_BUDGET = 1.15e6;
 
-  function budgetDpr(cssWidth, cssHeight, capDpr, budget) {
+  function budgetDpr(cssWidth, cssHeight, capDpr, budget, superSample = 1) {
     const area = Math.max(1, cssWidth * cssHeight);
-    const base = Math.min(window.devicePixelRatio || 1, capDpr);
+    const desired = Math.max(1, (window.devicePixelRatio || 1) * Math.max(1, superSample || 1));
+    const base = Math.min(desired, capDpr);
     return Math.max(.35, Math.min(base, Math.sqrt(budget / area)));
+  }
+
+  const QUALITY_MODE_KEY = 'longMarchQualityModeV1';
+  const QUALITY_LABELS = { high: '高画质', balanced: '均衡', performance: '省电' };
+  const QUALITY_PROFILES = {
+    high: { mapDprCap: 2, battleDprCap: 2, mapBudget: 8e6, battleBudget: 6e6, superSample: 1.15, shadowScale: 1.35, effectScale: 1.25, particleLimit: 300, renderScale: 1 },
+    balanced: { mapDprCap: 1.6, battleDprCap: 1.5, mapBudget: 3.5e6, battleBudget: 2.5e6, superSample: 1, shadowScale: 1, effectScale: 1, particleLimit: 220, renderScale: 1 },
+    performance: { mapDprCap: 1, battleDprCap: 1, mapBudget: 1.25e6, battleBudget: .95e6, superSample: 1, shadowScale: 0, effectScale: .5, particleLimit: 90, renderScale: .82 }
+  };
+  const QUALITY_ORDER = ['performance', 'balanced', 'high'];
+  const qualityRuntime = { deviceTier: 'balanced', tier: 'balanced', initialized: false, lastEvalAt: 0, slowSince: 0, fastSince: 0, lastChangeAt: 0 };
+  let deviceQualityCache = null;
+
+  function detectDeviceQualityTier() {
+    if (deviceQualityCache) return deviceQualityCache;
+    let renderer = '';
+    try {
+      const canvas = document.createElement('canvas');
+      const gl = canvas.getContext('webgl', { failIfMajorPerformanceCaveat: false }) || canvas.getContext('experimental-webgl');
+      if (gl) {
+        const debug = gl.getExtension('WEBGL_debug_renderer_info');
+        renderer = String(gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER) || '').toLowerCase();
+        gl.getExtension('WEBGL_lose_context')?.loseContext();
+      }
+    } catch (_) {}
+    const cores = Number(navigator.hardwareConcurrency) || 4;
+    const memory = Number(navigator.deviceMemory) || (window.matchMedia?.('(pointer: coarse)')?.matches ? 4 : 8);
+    const mobile = !!window.matchMedia?.('(pointer: coarse)')?.matches || /mobile|android|iphone|ipad/i.test(navigator.userAgent || '');
+    const software = /swiftshader|llvmpipe|software|microsoft basic/.test(renderer);
+    const discrete = /nvidia|geforce|radeon|amd|arc|apple m/.test(renderer);
+    let tier = 'balanced';
+    if (software || (mobile && cores <= 4 && memory <= 4)) tier = 'performance';
+    else if ((discrete && cores >= 4 && memory >= 4) || (cores >= 8 && memory >= 8)) tier = 'high';
+    else if (cores < 4 || memory < 4) tier = 'performance';
+    deviceQualityCache = tier;
+    return tier;
+  }
+
+  function currentQualityTier() {
+    if (state.performanceMode) return 'performance';
+    return QUALITY_PROFILES[state.qualityTier] ? state.qualityTier : 'balanced';
+  }
+  function qualityProfile() { return QUALITY_PROFILES[currentQualityTier()] || QUALITY_PROFILES.balanced; }
+  function highVisualQuality() { return currentQualityTier() === 'high'; }
+  function lowVisualQuality() { return currentQualityTier() === 'performance'; }
+  function qualityShadow(amount) { const profile = qualityProfile(); return profile.shadowScale ? amount * profile.shadowScale : 0; }
+
+  function qualityModeLabel(mode = state.qualityMode) {
+    if (mode === 'auto') return `自动 · 当前${QUALITY_LABELS[currentQualityTier()] || '均衡'}`;
+    return QUALITY_LABELS[mode] || '均衡';
+  }
+
+  function refreshQualityUi() {
+    if (!dom.qualitySelect) return;
+    dom.qualitySelect.value = state.qualityMode;
+    if (dom.qualityStatus) {
+      const reason = state.performanceMode ? '已优先保证流畅' : state.qualityMode === 'auto' ? '根据设备状况自动调整' : '手动选择，重启后保留';
+      dom.qualityStatus.textContent = `${qualityModeLabel()} · ${reason}。`;
+    }
+  }
+
+  function applyQualityVisualState(resize = true) {
+    if (!QUALITY_PROFILES[state.qualityTier]) state.qualityTier = qualityRuntime.tier || 'balanced';
+    const tier = currentQualityTier();
+    document.body.dataset.quality = tier;
+    document.body.classList.toggle('quality-high', tier === 'high');
+    document.body.classList.toggle('quality-balanced', tier === 'balanced');
+    document.body.classList.toggle('quality-performance', tier === 'performance');
+    scene.lastRender = 0;
+    battleGradientCache.clear();
+    if (resize) resizeCanvasToDisplay();
+    refreshQualityUi();
+  }
+
+  function applyQualityMode(mode, persist = true) {
+    const valid = ['auto', 'high', 'balanced', 'performance'].includes(mode) ? mode : 'auto';
+    state.qualityMode = valid;
+    qualityRuntime.deviceTier = detectDeviceQualityTier();
+    if (!qualityRuntime.initialized) {
+      qualityRuntime.initialized = true;
+      qualityRuntime.tier = valid === 'auto' ? qualityRuntime.deviceTier : valid;
+      qualityRuntime.lastChangeAt = performance.now();
+    } else if (valid !== 'auto') {
+      qualityRuntime.tier = valid;
+      qualityRuntime.lastChangeAt = performance.now();
+    } else {
+      qualityRuntime.tier = qualityRuntime.deviceTier;
+    }
+    state.qualityTier = qualityRuntime.tier;
+    applyQualityVisualState();
+    if (persist) { try { localStorage.setItem(QUALITY_MODE_KEY, valid); } catch (_) {} persistGameSettings(); }
+  }
+
+  function updateAutoQuality(pacer, now) {
+    if (state.qualityMode !== 'auto' || state.performanceMode) return;
+    if (now - qualityRuntime.lastEvalAt < 1200) return;
+    qualityRuntime.lastEvalAt = now;
+    const costs = pacer.recentCosts.slice(-18);
+    if (costs.length < 10) return;
+    const sorted = [...costs].sort((a, b) => a - b);
+    const cost80 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * .8))];
+    const gapSorted = [...pacer.recentGaps.slice(-18)].sort((a, b) => a - b);
+    const gap90 = gapSorted.length ? gapSorted[Math.min(gapSorted.length - 1, Math.floor(gapSorted.length * .9))] : 0;
+    const refresh = displayRefreshMs();
+    const requestedInterval = state.videoFrameLimit > 0 ? frameLimitInterval(state.videoFrameLimit) : refresh;
+    const slowLimit = Math.min(18, Math.max(7.5, requestedInterval * .9));
+    const fastLimit = Math.min(5, Math.max(2.2, refresh * .28));
+    const current = QUALITY_ORDER.indexOf(qualityRuntime.tier);
+    const deviceMax = QUALITY_ORDER.indexOf(qualityRuntime.deviceTier);
+    const frameSlow = state.videoVSync && !state.videoFrameLimit && gap90 > refresh * 1.45;
+    if (cost80 > slowLimit || frameSlow) {
+      if (!qualityRuntime.slowSince) qualityRuntime.slowSince = now;
+      qualityRuntime.fastSince = 0;
+      if (now - qualityRuntime.slowSince > 2200 && now - qualityRuntime.lastChangeAt > 1500 && current > 0) {
+        qualityRuntime.tier = QUALITY_ORDER[current - 1];
+        qualityRuntime.lastChangeAt = now; qualityRuntime.slowSince = 0;
+        state.qualityTier = qualityRuntime.tier; applyQualityVisualState();
+      }
+    } else if (cost80 < fastLimit) {
+      if (!qualityRuntime.fastSince) qualityRuntime.fastSince = now;
+      qualityRuntime.slowSince = 0;
+      if (now - qualityRuntime.fastSince > 8000 && now - qualityRuntime.lastChangeAt > 8000 && current < deviceMax) {
+        qualityRuntime.tier = QUALITY_ORDER[current + 1];
+        qualityRuntime.lastChangeAt = now; qualityRuntime.fastSince = 0;
+        state.qualityTier = qualityRuntime.tier; applyQualityVisualState();
+      }
+    } else {
+      qualityRuntime.slowSince = 0; qualityRuntime.fastSince = 0;
+    }
   }
 
   // 关闭垂直同步且选“不限制”时给一个上限：画面超过这个数只会被合成器丢掉，
@@ -1198,6 +1337,7 @@
     pacer.lastDrawStartedAt = startedAt;
     pacer.recentGaps.push(clamp(gap, 1, 250));
     pacer.recentCosts.push(clamp(finishedAt - startedAt, .1, 250));
+    updateAutoQuality(pacer, finishedAt);
     if (pacer.recentGaps.length > 24) pacer.recentGaps.shift();
     if (pacer.recentCosts.length > 24) pacer.recentCosts.shift();
     if (pacer.recentGaps.length < 12) return;
@@ -1244,7 +1384,7 @@
   const dom = {
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
-    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
+    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), qualitySelect: $('quality-mode'), qualityStatus: $('quality-status'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
     modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapTestExit: $('single-map-test-exit'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), clueCodexBtn: $('clue-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
@@ -1344,7 +1484,7 @@
           ? `山河寻路 · ${SINGLE_REGIONS[state.singleMap?.regionIndex || 0]?.name || '未知区域'}`
           : state.boss ? '终章 · 最后封锁线' : CHAPTERS[state.chapter] ? `${CHAPTERS[state.chapter].act} · ${CHAPTERS[state.chapter].name}` : '等待出发';
     if (dom.metaChapter) dom.metaChapter.textContent = chapter;
-    if (dom.metaSeed) dom.metaSeed.textContent = `行军种子 ${state.seed || '—'}`;
+    if (dom.metaSeed) dom.metaSeed.textContent = `行军代号 ${state.seed || '—'}`;
     if (dom.metaMerit) dom.metaMerit.textContent = String(Math.round(state.player?.merit || 0));
     dom.meritHud?.classList.toggle('hidden', !state.player);
     dom.restartBtn.classList.toggle('hidden', !state.player || state.screen === 'title' || !!state.training?.active || state.testMode);
@@ -1357,7 +1497,7 @@
   let tutorialStep = 0;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.31.1';
+  const GAME_VERSION = '0.32.0';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -1709,7 +1849,7 @@
     if (state.screen === 'event') return state.currentEvent?.title || '行军事件';
     if (state.screen === 'reward') return '战利品选择';
     if (state.screen === 'shop') return '军需站';
-    if (state.screen === 'history') return '历史节点';
+    if (state.screen === 'history') return '历史记录';
     if (state.screen === 'boss') return '首领战前';
     return '行军途中';
   }
@@ -1792,7 +1932,7 @@
     const ok = saveCurrentRun(phase);
     if (!ok) {
       openPauseMenu();
-      showToast('本次进度未能写入存档，请检查浏览器存储权限。');
+      showToast('保存失败，请检查可用存储空间。');
       return;
     }
     playSound('save');
@@ -1956,7 +2096,7 @@
 
   function openSaveManager() {
     if (state.testMode) {
-      showToast('测试行军不会写入正式存档；请先结束测试。');
+      showToast('测试中无法操作正式存档，请先结束测试。');
       return;
     }
     state.saveManagerOpen = true;
@@ -2145,7 +2285,7 @@
       return `<details class="history-entry" ${index === 0 ? 'open' : ''}>
         <summary><span class="history-result ${record.victory ? 'victory' : 'defeat'}">${record.victory ? '胜利会师' : '中途失利'}</span>
         <strong>${record.squadName || '红军队伍'} · Lv.${record.level || 1}</strong>
-        <em>${record.slotName || '行军存档'} · ${modeText} · 行军种子 ${record.seed} · 游戏版本 v${record.gameVersion || '更早版本'} · ${new Date(record.date).toLocaleString('zh-CN', { hour12: false })}</em></summary>
+        <em>${record.slotName || '行军存档'} · ${modeText} · 行军代号 ${record.seed} · 游戏版本 v${record.gameVersion || '更早版本'} · ${new Date(record.date).toLocaleString('zh-CN', { hour12: false })}</em></summary>
         <div class="history-stat-grid"><span>征战 <b>${record.victories || 0}</b></span><span>死亡 <b>${record.deaths ?? 0}</b></span><span>完美格挡 <b>${record.perfectParries || 0}</b></span><span>反击得手 <b>${record.counters || 0}</b></span><span>处决 <b>${record.executions || 0}</b></span><span>军需所得 <b>${record.shopPurchases || 0}</b></span><span>行军用时 <b>${formatRunDuration(record.elapsedMs)}</b></span></div>
         <div class="history-final-panel"><span>抵达时的队伍</span><code>兵力 ${panel.hp}/${panel.maxHp} · 攻势 ${panel.atk} · 防御 ${panel.defense} · 架势 ${panel.posture}/${panel.maxPosture} · 士气 ${panel.morale} · 补给 ${panel.supplies} · 军功 ${panel.merit}</code></div>
         <p class="history-upgrades"><strong>沿途所得</strong>${upgrades}</p>
@@ -2194,11 +2334,11 @@
 
   const CODEX_TAB_META = {
     enemies: { title: '敌情图鉴', lead: '交过手的敌将会留下姓名、习性与招式；没见过的仍是谜。' },
-    equipment: { title: '军备图鉴', lead: '查看全部军备的类别、稀有度与完整效果；本局持有的军备会高亮。' },
-    relics: { title: '信物图鉴', lead: '查看信物效果、标签和联动；本局取得的信物会高亮。' },
-    techniques: { title: '战法图鉴', lead: '查看全部刀法变招的输入方式、用途与节奏；本局学会的变招会高亮。' },
-    clues: { title: '线索集', lead: '沿途的旧纸、刻记与口述会拼成一条完整的长征叙事；已获得的段落会亮起。' },
-    achievements: { title: '行军成就', lead: '每项成就都写在路途上；完成条件与当前状态会清楚标出。' }
+    equipment: { title: '军备图鉴', lead: '查看类别、稀有度与效果；已有的军备会高亮。' },
+    relics: { title: '信物图鉴', lead: '查看效果与联动；已有的信物会高亮。' },
+    techniques: { title: '战法图鉴', lead: '查看出招方式与节奏；已学会的变招会高亮。' },
+    clues: { title: '线索集', lead: '沿途线索会拼出完整故事；已找到的段落会亮起。' },
+    achievements: { title: '行军成就', lead: '每完成一项，都在征途上留下记录。' }
   };
 
   function codexEntriesForTab(tab) {
@@ -3462,7 +3602,7 @@
     relic.apply(player);
     player.relics.push(relic.id);
     const synergies = syncRelicSynergies(player);
-    if (!options.silent && player === state.player) queueAcquisition({ type: 'relic', kicker: options.kicker || '获得星火信物', name: relic.name, icon: relic.icon, meta: `${relic.rarity} · ${relic.tags?.join(' / ') || '信物'}`, desc: relic.desc, effects: [relic.effect], note: synergies.length ? `触发联动：${synergies.map((item) => item.name).join('、')}` : (options.source || '信物会写入行囊，可在顶栏查看详细效果。') });
+    if (!options.silent && player === state.player) queueAcquisition({ type: 'relic', kicker: options.kicker || '获得星火信物', name: relic.name, icon: relic.icon, meta: `${relic.rarity} · ${relic.tags?.join(' / ') || '信物'}`, desc: relic.desc, effects: [relic.effect], note: synergies.length ? `触发联动：${synergies.map((item) => item.name).join('、')}` : (options.source || '信物已收入行囊，可在顶栏查看详细效果。') });
     if (player === state.player) { renderTopRelics(); updateMetaBars(); }
     return { relic, duplicate: false, synergies };
   }
@@ -3535,8 +3675,8 @@
     p.merit -= info.merit;
     unit.level = info.nextLevel;
     if (equipped) applyEquipmentStats(info.item, 1, unit.level);
-    p.hp = Math.min(p.hp, p.maxHp); p.posture = Math.min(p.posture, p.maxPosture);
-    queueAcquisition({ type: 'upgrade', kicker: '军备强化', name: `${info.item.name} · Lv.${unit.level}`, icon: info.item.icon, meta: `${EQUIPMENT_RARITIES[info.item.rarity].name} · ${info.item.category}`, desc: '材料已经重新打进刀身与装具，军备效果得到提升。', effects: info.item.effects.map((effect) => `${effect.label} ${effect.value} × ${unit.level}`), note: equipped ? '当前装备效果已即时更新。' : '装备后即可获得强化后的数值。' });
+    p.hp = Math.min(p.hp, p.maxHp);
+    queueAcquisition({ type: 'upgrade', kicker: '军备强化', name: `${info.item.name} · Lv.${unit.level}`, icon: info.item.icon, meta: `${EQUIPMENT_RARITIES[info.item.rarity].name} · ${info.item.category}`, desc: '材料已经重新打进刀身与装具，军备效果得到提升。', effects: info.item.effects.map((effect) => `${effect.label} ${effect.value} × ${unit.level}`), note: equipped ? '装备效果已更新。' : '装备后生效。' });
     playSound('level');
     updateMetaBars(); renderEquipmentPanel(); saveCurrentRun(state.screen);
     return true;
@@ -3697,8 +3837,62 @@
     if (!node) return TALENT_VARIANTS[0];
     return TALENT_VARIANTS[hashSeed(`${state.seed || 1}:${node.id}:talent-variant`) % TALENT_VARIANTS.length];
   }
-  function talentNodesForSeed() {
-    return [...TALENT_TREE].sort((a, b) => a.tier - b.tier || (hashSeed(`${state.seed || 1}:${a.id}:order`) % 997) - (hashSeed(`${state.seed || 1}:${b.id}:order`) % 997));
+  function talentMissingPrerequisites(node, player = state.player) {
+    return (node?.requires || []).filter((id) => !(player?.talents || []).includes(id));
+  }
+  function talentNodeState(node, player = state.player) {
+    const learned = (player?.talents || []).includes(node.id);
+    const missing = talentMissingPrerequisites(node, player);
+    const can = !learned && missing.length === 0 && talentPoints(player) >= node.cost;
+    return { learned, missing, can };
+  }
+  function talentGraphHtml(player) {
+    const tierBuckets = new Map();
+    TALENT_TREE.forEach((node) => {
+      if (!tierBuckets.has(node.tier)) tierBuckets.set(node.tier, []);
+      tierBuckets.get(node.tier).push(node);
+    });
+    tierBuckets.forEach((nodes) => nodes.sort((a, b) => TALENT_BRANCH_ORDER.indexOf(a.branch) - TALENT_BRANCH_ORDER.indexOf(b.branch)));
+    const positions = new Map();
+    const maxTier = Math.max(...TALENT_TREE.map((node) => node.tier));
+    [...tierBuckets.keys()].sort((a, b) => a - b).forEach((tier) => {
+      const nodes = tierBuckets.get(tier);
+      nodes.forEach((node, index) => {
+        const slotWidth = 88 / nodes.length;
+        positions.set(node.id, {
+          x: 6 + slotWidth * (index + .5),
+          y: (tier - .5) / maxTier * 100,
+          width: Math.max(8, Math.min(16, slotWidth - 1.5))
+        });
+      });
+    });
+    const byId = new Map(TALENT_TREE.map((node) => [node.id, node]));
+    const edges = [];
+    TALENT_TREE.forEach((node) => {
+      (node.requires || []).forEach((requiredId) => {
+        const from = byId.get(requiredId), fromPoint = positions.get(requiredId), toPoint = positions.get(node.id);
+        if (!from || !fromPoint || !toPoint) return;
+        const fromLearned = (player.talents || []).includes(from.id);
+        const toLearned = (player.talents || []).includes(node.id);
+        const stateClass = fromLearned && toLearned ? 'learned' : fromLearned ? 'open' : 'locked';
+        const bend = Math.max(5, (toPoint.y - fromPoint.y) * .46);
+        const d = `M ${fromPoint.x.toFixed(2)} ${fromPoint.y.toFixed(2)} C ${fromPoint.x.toFixed(2)} ${(fromPoint.y + bend).toFixed(2)}, ${toPoint.x.toFixed(2)} ${(toPoint.y - bend).toFixed(2)}, ${toPoint.x.toFixed(2)} ${toPoint.y.toFixed(2)}`;
+        edges.push(`<path class="talent-connector ${stateClass}" d="${d}" data-from="${from.id}" data-to="${node.id}" />`);
+      });
+    });
+    const legend = TALENT_BRANCH_ORDER.map((branch) => {
+      const meta = TALENT_BRANCH_META[branch];
+      return `<span class="talent-branch-key branch-${meta.key}" style="--branch-color:${meta.color}">${branch}</span>`;
+    }).join('');
+    const nodes = TALENT_TREE.map((node) => {
+      const point = positions.get(node.id);
+      const meta = TALENT_BRANCH_META[node.branch] || { key: 'other', color: '#b9a17d' };
+      const nodeState = talentNodeState(node, player);
+      const stateClass = nodeState.learned ? 'learned' : nodeState.can ? 'available' : nodeState.missing.length ? 'locked' : 'cost-locked';
+      const shortState = nodeState.learned ? '已点亮' : nodeState.can ? '可学习' : nodeState.missing.length ? '前置未通' : `还差 ${Math.max(0, node.cost - talentPoints(player))} 点`;
+      return `<button type="button" data-talent-id="${node.id}" class="talent-node branch-${meta.key} ${stateClass} ${selectedTalentId === node.id ? 'selected' : ''}" style="--talent-x:${point.x.toFixed(2)}%;--talent-y:${point.y.toFixed(2)}%;--talent-w:${point.width.toFixed(2)}%;--branch-color:${meta.color}" aria-label="${node.name}，${shortState}，${node.effect}" title="${node.effect}"><strong>${iconGlyph(node.icon)} ${node.name}</strong><em>${node.cost} 点 · ${shortState}</em></button>`;
+    }).join('');
+    return `<div class="talent-branch-legend">${legend}<small>点亮前置后即可自由学习</small></div><div class="talent-graph" role="group" aria-label="行军天赋图"><svg class="talent-connectors" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${edges.join('')}</svg>${nodes}</div>`;
   }
   function talentPoints(player = state.player) { return player ? Math.max(0, (player.level || 1) - (player.talentSpent || 0)) : 0; }
   function talentCanUnlock(node, player = state.player) {
@@ -3708,10 +3902,11 @@
     const node = TALENT_TREE.find((entry) => entry.id === nodeId), p = state.player;
     if (!node || !p) return false;
     if ((p.talents || []).includes(node.id)) { showToast('这项天赋已经学会。'); return false; }
-    if (!talentCanUnlock(node, p)) { showToast(talentPoints(p) < node.cost ? '天赋点不足，升级后才能继续。' : '前置天赋还没有点亮。'); return false; }
+    if (!talentCanUnlock(node, p)) { showToast(talentMissingPrerequisites(node, p).length ? '先点亮前置天赋。' : '天赋点不足，升级后再来。'); return false; }
     const variant = talentVariantFor(node);
+    const alreadyHadTechnique = !!(node.techniqueId && p.techniques.includes(node.techniqueId));
     p.talents = p.talents || []; p.talents.push(node.id); p.talentSpent = (p.talentSpent || 0) + node.cost; node.apply(p); variant.apply(p);
-    queueAcquisition({ type: 'talent', kicker: '点亮天赋', name: `${node.name} · ${variant.name}`, icon: node.icon, meta: `${node.branch} · 消耗 ${node.cost} 点`, desc: node.desc, effects: [node.effect, `本局变体：${variant.effect}`], note: node.techniqueId && p.techniques.includes(node.techniqueId) ? '对应变招已加入可用招式。' : '天赋效果已即时生效。' });
+    queueAcquisition({ type: 'talent', kicker: '点亮天赋', name: `${node.name} · ${variant.name}`, icon: node.icon, meta: `${node.branch} · ${node.cost} 点`, desc: node.desc, effects: [node.effect, `沿途领悟：${variant.effect}`], note: node.techniqueId ? (alreadyHadTechnique ? '已有此招，效果已增强。' : '新变招已可施展。') : '效果已生效。' });
     updateMetaBars(); renderGrowthPanel(); return true;
   }
   function relicArtSvg(id) {
@@ -3810,11 +4005,25 @@
     dom.growthCombos.innerHTML = `<h3 class="growth-section-title">基础招式与连招</h3><div class="growth-combo-grid">${comboGuides.map((combo) => `<article class="growth-combo-card"><b>${iconGlyph(combo.icon)} ${combo.name}</b><span>${combo.input}</span><p>${combo.desc}</p></article>`).join('')}</div>`;
     const learned = (p.techniques || []).map((id) => PLAYER_TECHNIQUES[id]).filter(Boolean);
     dom.growthTechniques.innerHTML = `<h3 class="growth-section-title">已学变招 <small>${learned.length} / ${Object.keys(PLAYER_TECHNIQUES).length}</small></h3>${learned.length ? `<div class="growth-technique-list">${learned.map((technique) => `<article class="growth-technique-card"><b>${technique.name}</b><span>${technique.input}</span><p>${technique.desc}</p></article>`).join('')}</div>` : '<div class="buff-empty">还没有习得额外变招，继续战斗与探索可以获得。</div>'}`;
-    const orderedNodes = talentNodesForSeed();
-    dom.talentTree.innerHTML = `<div class="talent-interwoven-head"><span>本局天赋脉络</span><small>前置会跨越刀法、守势、机动、军需与探查；每个种子会改变节点顺序和一项细枝效果。</small></div><div class="talent-branch talent-branch-interwoven">${orderedNodes.map((node) => { const learnedNode = p.talents.includes(node.id); const can = talentCanUnlock(node, p); const variant = talentVariantFor(node); return `<button type="button" data-talent-id="${node.id}" class="talent-node ${learnedNode ? 'learned' : can ? '' : 'locked'} ${selectedTalentId === node.id ? 'selected' : ''}"><strong>${node.icon} ${node.name}</strong><small>${node.effect}</small><em>${node.branch} · ${node.tier} 层 · ${learnedNode ? '已点亮' : `${node.cost} 点`} · ${variant.name}</em></button>`; }).join('')}</div>`;
-    if (!selectedTalentId) selectedTalentId = TALENT_TREE[0]?.id || null;
+    dom.talentTree.innerHTML = talentGraphHtml(p);
+    if (!selectedTalentId || !TALENT_TREE.some((node) => node.id === selectedTalentId)) {
+      selectedTalentId = TALENT_TREE.find((node) => talentNodeState(node, p).can)?.id || TALENT_TREE[0]?.id || null;
+    }
     const node = TALENT_TREE.find((entry) => entry.id === selectedTalentId);
-    if (node) { const learnedNode = p.talents.includes(node.id), can = talentCanUnlock(node, p), variant = talentVariantFor(node); dom.talentDetail.innerHTML = `<strong>${node.icon} ${node.name}</strong> · ${node.branch} ${node.tier} 层<p class="talent-description">${node.desc}</p><div class="talent-effect-highlight"><span>天赋效果</span><strong>${node.effect}</strong><em>本局变体 · ${variant.name}：${variant.effect}</em></div><small>${learnedNode ? '已点亮' : can ? `消耗 ${node.cost} 点` : node.requires.some((id) => !p.talents.includes(id)) ? '需要前置天赋' : `需要 ${node.cost} 点`}</small>`; dom.talentConfirm.disabled = learnedNode || !can; dom.talentConfirm.textContent = learnedNode ? '已学会' : '学习天赋'; } else { dom.talentDetail.textContent = '选择一项天赋。'; dom.talentConfirm.disabled = true; }
+    if (node) {
+      const nodeState = talentNodeState(node, p);
+      const variant = talentVariantFor(node);
+      const missingNames = nodeState.missing.map((id) => TALENT_TREE.find((entry) => entry.id === id)?.name).filter(Boolean).join('、');
+      const prerequisiteNames = (node.requires || []).map((id) => TALENT_TREE.find((entry) => entry.id === id)?.name).filter(Boolean).join('、') || '无';
+      const actionStatus = nodeState.learned ? '已点亮' : nodeState.can ? `消耗 ${node.cost} 点` : nodeState.missing.length ? `先点亮：${missingNames}` : `还差 ${Math.max(0, node.cost - talentPoints(p))} 点`;
+      dom.talentDetail.innerHTML = `<div class="talent-detail-head"><strong>${iconGlyph(node.icon)} ${node.name}</strong><span>${node.branch}</span></div><p class="talent-description">${node.desc}</p><div class="talent-effect-highlight"><span>天赋效果</span><strong>${node.effect}</strong><em>沿途领悟 · ${variant.name}：${variant.effect}</em></div><div class="talent-prerequisite-line"><span>前置</span><strong>${prerequisiteNames}</strong></div><small>${actionStatus}</small>`;
+      dom.talentConfirm.disabled = nodeState.learned || !nodeState.can;
+      dom.talentConfirm.textContent = nodeState.learned ? '已点亮' : nodeState.can ? `学习天赋 · ${node.cost} 点` : nodeState.missing.length ? '前置未通' : '天赋点不足';
+    } else {
+      dom.talentDetail.textContent = '选择一项天赋。';
+      dom.talentConfirm.disabled = true;
+      dom.talentConfirm.textContent = '学习天赋';
+    }
   }
   function openGrowthPanel() { if (!state.player) return; renderGrowthPanel(); dom.growthOverlay?.classList.remove('hidden'); setTimeout(() => { const activeTalent = dom.talentTree?.querySelector('.talent-node.selected') || dom.talentTree?.querySelector('[data-talent-id]'); if (activeGamepad && activeTalent) focusGamepadElement(activeTalent); else dom.talentConfirm?.focus({ preventScroll: true }); }, 0); }
   function closeGrowthPanel() { dom.growthOverlay?.classList.add('hidden'); }
@@ -4021,13 +4230,13 @@
     const p = state.player, map = state.singleMap;
     if (!p || !map || !room) return;
     p.hp = p.maxHp;
-    p.posture = 0;
     p.postureBroken = false;
     p.postureBreakUntil = 0;
     p.hitstunUntil = 0;
     p.respawnId = room.id;
     map.respawnId = room.id;
     map.respawnLit = true;
+    map.enemyAggroGraceUntil = performance.now() + 1200;
     updateMetaBars();
   }
   function renderBonfirePanel() {
@@ -4252,13 +4461,34 @@
   function nodeHasEnemy(node) {
     return ['battle', 'elite', 'boss'].includes(node?.type) && node.enemy;
   }
-  function ensureSingleMapEnemyState(room) {
+  function ensureSingleMapEnemyState(room, map = state.singleMap) {
     if (!nodeHasEnemy(room)) return null;
     const enemy = room.enemy;
     if (!Number.isFinite(enemy.mapX) || !Number.isFinite(enemy.mapY)) {
-      const offset = enemy.boss ? 0 : enemy.elite ? 6 : room.local % 2 ? 18 : -18;
-      enemy.mapX = room.x + offset;
-      enemy.mapY = room.y + (room.local % 3) * 3;
+      let spawn = null;
+      if (!enemy.boss && !enemy.elite && map) {
+        const landings = (map.transitions || []).flatMap((transition) => {
+          if (transition.aId === room.id && transition.aLayer === room.layer) return [{ x: transition.aX, y: transition.aY }];
+          if (transition.bId === room.id && transition.bLayer === room.layer) return [{ x: transition.bX, y: transition.bY }];
+          return [];
+        });
+        if (landings.length) {
+          const radius = Math.max(58, room.r - 22);
+          let bestScore = -Infinity;
+          for (let index = 0; index < 24; index++) {
+            const angle = index * Math.PI * 2 / 24 + (hashSeed(`${room.id}:spawn`) % 17) * .01;
+            const candidate = { x: room.x + Math.cos(angle) * radius, y: room.y + Math.sin(angle) * radius };
+            const score = Math.min(...landings.map((point) => Math.hypot(candidate.x - point.x, candidate.y - point.y)));
+            if (score > bestScore) { bestScore = score; spawn = candidate; }
+          }
+        }
+      }
+      if (!spawn) {
+        const offset = enemy.boss ? 0 : enemy.elite ? 6 : room.local % 2 ? 18 : -18;
+        spawn = { x: room.x + offset, y: room.y + (room.local % 3) * 3 };
+      }
+      enemy.mapX = spawn.x;
+      enemy.mapY = spawn.y;
     }
     if (!Number.isFinite(enemy.mapHomeX)) enemy.mapHomeX = enemy.mapX;
     if (!Number.isFinite(enemy.mapHomeY)) enemy.mapHomeY = enemy.mapY;
@@ -4270,7 +4500,7 @@
   }
 
   function singleMapEnemyPosition(room) {
-    const enemy = ensureSingleMapEnemyState(room);
+    const enemy = ensureSingleMapEnemyState(room, state.singleMap);
     return enemy ? { x: enemy.mapX, y: enemy.mapY } : { x: room.x, y: room.y + 18 };
   }
   function mapPickupDetectRadius(pickup, player) {
@@ -4298,8 +4528,11 @@
     });
     const vaultPlan = vaultCandidates.find((candidate) => candidate.clearance >= 0) || vaultCandidates.sort((a, b) => b.clearance - a.clearance)[0];
     const chestPoint = vaultPlan.chestPoint, points = vaultPlan.points, doorPoint = vaultPlan.doorPoint;
+    const masterDoorIndex = Math.max(3, Math.min(points.length - 3, points.findIndex((point) => point === doorPoint)));
+    const masterDoorBefore = points[masterDoorIndex - 1] || points[0], masterDoorAfter = points[masterDoorIndex + 1] || points[points.length - 1];
+    const masterDoorAngle = Math.atan2(masterDoorAfter.y - masterDoorBefore.y, masterDoorAfter.x - masterDoorBefore.x);
     map.paths.push({ id: 'vault-path-master', region: 2, layer: anchor.layer, from: anchor.id, to: 'chest-master', points, width: 72, gate: false, secret: true, open: true, hidden: true, revealed: false, doorId: 'door-master' });
-    map.doors.push({ id: 'door-master', region: 2, layer: anchor.layer, x: doorPoint.x, y: doorPoint.y, keyId: 'master_key', open: false, pathId: 'vault-path-master', revealed: false, hidden: true, master: true });
+    map.doors.push({ id: 'door-master', region: 2, layer: anchor.layer, x: doorPoint.x, y: doorPoint.y, angle: masterDoorAngle, spanWidth: 72, keyId: 'master_key', open: false, pathId: 'vault-path-master', revealed: false, hidden: true, master: true });
     map.chests.push({ id: 'chest-master', region: 2, layer: anchor.layer, x: chestPoint.x, y: chestPoint.y, tier: 4, opened: false, revealed: false, doorId: 'door-master', pathId: 'vault-path-master', hidden: true, masterVault: true });
     if (map.bounds) { map.bounds.minX = Math.min(map.bounds.minX, chestPoint.x - 190); map.bounds.maxX = Math.max(map.bounds.maxX, chestPoint.x + 190); map.bounds.minY = Math.min(map.bounds.minY, chestPoint.y - 170); map.bounds.maxY = Math.max(map.bounds.maxY, chestPoint.y + 170); }
     map.hiddenMapUnlocked = !!map.hiddenMapUnlocked;
@@ -4390,22 +4623,26 @@
         const a = node(region, aIndex), b = node(region, bIndex);
         const angle = (index / Math.max(1, transitionEdges.length)) * Math.PI * 2 + .6;
         const reachesRegionExit = !!regionExit && (a.id === regionExit.id || b.id === regionExit.id);
-        transitions.push({ id: `transition-${region}-${index}`, region, kind, aId: a.id, bId: b.id, aLayer: a.layer, bLayer: b.layer, aX: a.x + Math.cos(angle) * 58, aY: a.y + Math.sin(angle) * 42, bX: b.x + Math.cos(angle + Math.PI) * 58, bY: b.y + Math.sin(angle + Math.PI) * 42, discovered: false, hiddenArea: false, blockedByRoomId: reachesRegionExit && mainElite?.type === 'elite' ? mainElite.id : null, blockedLabel: reachesRegionExit && mainElite?.type === 'elite' ? '精英封锁' : null });
+        transitions.push({ id: `transition-${region}-${index}`, region, kind, aId: a.id, bId: b.id, aLayer: a.layer, bLayer: b.layer, aX: a.x + Math.cos(angle) * 72, aY: a.y + Math.sin(angle) * 50, bX: b.x + Math.cos(angle + Math.PI) * 72, bY: b.y + Math.sin(angle + Math.PI) * 50, discovered: false, hiddenArea: false, blockedByRoomId: reachesRegionExit && mainElite?.type === 'elite' ? mainElite.id : null, blockedLabel: reachesRegionExit && mainElite?.type === 'elite' ? '精英封锁' : null });
       });
 
       const secretCandidates = nodes.filter((entry) => entry.region === region && !entry.hiddenArea && !['entry', 'exit', 'boss', 'cache'].includes(entry.type));
       const secretSource = choice(state.rng, secretCandidates), hiddenEntry = node(region, hiddenStart), hiddenExit = node(region, hiddenEnd);
-      const secretBend = (state.rng() - .5) * 170;
-      const otherRooms = nodes.filter((entry) => entry.region === region && entry.layer === secretSource.layer && entry.id !== secretSource.id);
-      const gateCandidates = shuffle(state.rng, Array.from({ length: 16 }, (_, index) => { const angle = (index / 16) * Math.PI * 2 + state.rng() * .12, distance = 245 + state.rng() * 80; return { x: secretSource.x + Math.cos(angle) * distance, y: secretSource.y + Math.sin(angle) * distance }; }));
-      const gate = gateCandidates.find((candidate) => organicPathPoints(secretSource, candidate, secretBend).slice(3, -3).every((point) => otherRooms.every((room) => Math.hypot(point.x - room.x, point.y - room.y) > room.r + 42))) || gateCandidates[0];
+      const secretBend = (state.rng() - .5) * 140;
       const secretPathId = `secret-path-${region}`, entryTransitionId = `hidden-entry-${region}`, returnTransitionId = `hidden-return-${region}`;
-      paths.push({ id: secretPathId, region, layer: secretSource.layer, from: secretSource.id, to: `secret-gate-${region}`, points: organicPathPoints(secretSource, gate, secretBend), width: 68, gate: false, secret: true, open: false, hiddenArea: false });
+      const secretApproach = { x: hiddenEntry.x, y: hiddenEntry.y - 8 };
+      const secretPoints = organicPathPoints(secretSource, secretApproach, secretBend);
+      const doorIndex = Math.max(4, Math.min(secretPoints.length - 5, Math.floor((secretPoints.length - 1) * .5)));
+      const doorPoint = secretPoints[doorIndex];
+      const doorBefore = secretPoints[Math.max(0, doorIndex - 1)], doorAfter = secretPoints[Math.min(secretPoints.length - 1, doorIndex + 1)];
+      const doorAngle = Math.atan2(doorAfter.y - doorBefore.y, doorAfter.x - doorBefore.x);
+      const secretEnd = secretPoints[secretPoints.length - 1];
+      paths.push({ id: secretPathId, region, layer: secretSource.layer, from: secretSource.id, to: `hidden-path-end-${region}`, points: secretPoints, width: 72, gate: false, secret: true, open: false, hiddenArea: false, doorId: `hidden-door-${region}` });
       interactions.push({ id: `secret-${region}`, region, layer: secretSource.layer, nodeId: secretSource.id, kind: ['secret_wall', 'winch', 'ice_lock'][region % 3], x: secretSource.x + 66, y: secretSource.y + 42, solved: false, targetPathId: secretPathId, targetTransitionId: entryTransitionId });
-      transitions.push({ id: entryTransitionId, region, kind: 'underground_drop', aId: secretSource.id, bId: hiddenEntry.id, aLayer: secretSource.layer, bLayer: hiddenEntry.layer, aX: gate.x, aY: gate.y, bX: hiddenEntry.x, bY: hiddenEntry.y - 54, discovered: false, requiresHiddenArea: true, hiddenArea: true });
+      transitions.push({ id: entryTransitionId, region, kind: 'underground_drop', aId: secretSource.id, bId: hiddenEntry.id, aLayer: secretSource.layer, bLayer: hiddenEntry.layer, aX: secretEnd.x, aY: secretEnd.y, bX: hiddenEntry.x, bY: hiddenEntry.y - 54, discovered: false, requiresHiddenArea: true, hiddenArea: true });
       const returnTarget = node(region, 8);
       transitions.push({ id: returnTransitionId, region, kind: 'shaft_up', aId: hiddenExit.id, bId: returnTarget.id, aLayer: hiddenExit.layer, bLayer: returnTarget.layer, aX: hiddenExit.x + 52, aY: hiddenExit.y - 12, bX: returnTarget.x - 52, bY: returnTarget.y + 12, discovered: false, requiresHiddenArea: true, hiddenArea: true, reverseRequiresDiscovery: true });
-      doors.push({ id: `hidden-door-${region}`, region, layer: secretSource.layer, x: gate.x, y: gate.y - 38, keyId: REGION_KEY_IDS[region], open: false, pathId: secretPathId, revealed: false, hidden: true, secretGate: true, hiddenArea: false });
+      doors.push({ id: `hidden-door-${region}`, region, layer: secretSource.layer, x: doorPoint.x, y: doorPoint.y, angle: doorAngle, spanWidth: 72, keyId: REGION_KEY_IDS[region], open: false, pathId: secretPathId, revealed: false, hidden: true, secretGate: true, hiddenArea: false, transitionId: entryTransitionId });
 
       const relayCandidates = shuffle(state.rng, nodes.filter((entry) => entry.region === region && !entry.hiddenArea && !['entry', 'exit', 'boss', 'camp'].includes(entry.type))).slice(0, 3);
       relayCandidates.forEach((relayNode, relayIndex) => interactions.push({ id: `relay-${region}-${relayIndex}`, region, layer: relayNode.layer, nodeId: relayNode.id, kind: 'relay', relayIndex, x: relayNode.x - 52 + relayIndex * 28, y: relayNode.y - 48, solved: false, targetPathId: null }));      const trapPaths = shuffle(state.rng, paths.filter((path) => path.region === region && !path.hiddenArea && !path.secret));
@@ -4450,9 +4687,13 @@
       const vaultBase = choice(state.rng, visibleHosts.filter((entry) => entry.layer <= 2)), vaultAngle = state.rng() * Math.PI * 2, vaultRadius = 260 + state.rng() * 85;
       const vaultX = vaultBase.x + Math.cos(vaultAngle) * vaultRadius, vaultY = vaultBase.y + Math.sin(vaultAngle) * vaultRadius;
       const doorId = `door-${region}`, chestId = `chest-${region}`, pathId = `vault-path-${region}`;
-      const vaultPoints = organicPathPoints(vaultBase, { x: vaultX, y: vaultY }, (state.rng() - .5) * 180), doorPoint = vaultPoints[Math.floor(vaultPoints.length * .5)];
+      const vaultPoints = organicPathPoints(vaultBase, { x: vaultX, y: vaultY }, (state.rng() - .5) * 180);
+      const vaultDoorIndex = Math.max(3, Math.min(vaultPoints.length - 3, Math.floor(vaultPoints.length * .52)));
+      const doorPoint = vaultPoints[vaultDoorIndex];
+      const vaultDoorBefore = vaultPoints[vaultDoorIndex - 1], vaultDoorAfter = vaultPoints[vaultDoorIndex + 1];
+      const vaultDoorAngle = Math.atan2(vaultDoorAfter.y - vaultDoorBefore.y, vaultDoorAfter.x - vaultDoorBefore.x);
       paths.push({ id: pathId, region, layer: vaultBase.layer, from: vaultBase.id, to: chestId, points: vaultPoints, width: 78, gate: false, secret: true, open: true, hiddenArea: false, doorId });
-      doors.push({ id: doorId, region, layer: vaultBase.layer, x: doorPoint.x, y: doorPoint.y, keyId: REGION_KEY_IDS[region], open: false, pathId, revealed: false, hiddenArea: false });
+      doors.push({ id: doorId, region, layer: vaultBase.layer, x: doorPoint.x, y: doorPoint.y, angle: vaultDoorAngle, spanWidth: 78, keyId: REGION_KEY_IDS[region], open: false, pathId, revealed: false, hiddenArea: false });
       chests.push({ id: chestId, region, layer: vaultBase.layer, x: vaultX, y: vaultY, tier: region + 1, opened: false, revealed: false, doorId, pathId, hiddenArea: false });
 
       const cacheChest = nodes.find((entry) => entry.region === region && entry.local === hiddenCacheIndex);
@@ -4485,12 +4726,12 @@
 
     const first = nodes[0];
     const finalBossPlan = SINGLE_MAP_BOSS_PLANS[Math.min(finalRegion, SINGLE_MAP_BOSS_PLANS.length - 1)];
-    const map = { version: 8, pace, quick, longRun, regionCount, finalRegion, hiddenThemes: hiddenTemplates.map((template) => ({ id: template.id, title: template.title, accent: template.accent })), rooms: nodes, nodes, paths, transitions, pickups, interactions, doors, chests, npcs, traps, chestsOpened: [], bounds: { minX: 0, maxX: 0, minY: 0, maxY: 0 }, puzzleSolved, hiddenAreas, currentId: first.id, regionIndex: 0, cleared: [first.id], visited: [first.id], collected: 0, lastSavedRoom: first.id, charts: Array.from({ length: regionCount }, (_, index) => index === 0), nearbyAction: null, triggering: false, player: { x: first.x, y: first.y, layer: 0, r: 17, facing: 'right', moving: false, sprinting: false, walkPhase: 0, sprintBurstUntil: 0, vx: 0, vy: 0, wallSlideSign: 0 }, bossType: finalBossPlan.typeId, bossTitle: finalBossPlan.title, bossScale: finalBossPlan.scale, bosses: nodes.filter((node) => node.type === 'boss').map((node) => ({ id: node.id, region: node.region, title: node.bossTitle, typeId: node.enemy.typeId })), respawnId: first.id, respawnLit: false, hiddenMapUnlocked: false };
+    const map = { version: 9, pace, quick, longRun, regionCount, finalRegion, hiddenThemes: hiddenTemplates.map((template) => ({ id: template.id, title: template.title, accent: template.accent })), rooms: nodes, nodes, paths, transitions, pickups, interactions, doors, chests, npcs, traps, chestsOpened: [], bounds: { minX: 0, maxX: 0, minY: 0, maxY: 0 }, puzzleSolved, hiddenAreas, currentId: first.id, regionIndex: 0, cleared: [first.id], visited: [first.id], collected: 0, lastSavedRoom: first.id, charts: Array.from({ length: regionCount }, (_, index) => index === 0), nearbyAction: null, triggering: false, player: { x: first.x, y: first.y, layer: 0, r: 17, pathId: null, facing: 'right', moving: false, sprinting: false, walkPhase: 0, sprintBurstUntil: 0, vx: 0, vy: 0, wallSlideSign: 0 }, bossType: finalBossPlan.typeId, bossTitle: finalBossPlan.title, bossScale: finalBossPlan.scale, bosses: nodes.filter((node) => node.type === 'boss').map((node) => ({ id: node.id, region: node.region, title: node.bossTitle, typeId: node.enemy.typeId })), respawnId: first.id, respawnLit: false, hiddenMapUnlocked: false };
     appendMasterVault(map);
     const allPoints = map.nodes.concat(map.paths.flatMap((path) => path.points));
     map.bounds = { minX: Math.min(...allPoints.map((point) => point.x)) - 210, maxX: Math.max(...allPoints.map((point) => point.x)) + 210, minY: Math.min(...allPoints.map((point) => point.y)) - 190, maxY: Math.max(...allPoints.map((point) => point.y)) + 190 };
     if (!separateSingleMapInteractionPoints(map)) {
-      if (separationAttempt < 12) return generateSingleMap(pace, separationAttempt + 1);
+      if (separationAttempt < 32) return generateSingleMap(pace, separationAttempt + 1);
       throw new Error(`无法生成互不重叠的山河图交互点 ${JSON.stringify(map.interactionSeparationFailure || {})}`);
     }
     return map;
@@ -4581,6 +4822,33 @@
     return samples;
   }
 
+  function singleMapDoorPathSamples(map, region, layer, pathId, minimumTail = 80) {
+    const path = (map.paths || []).find((entry) => entry.id === pathId && entry.region === region && entry.layer === layer);
+    if (!path?.points?.length) return [];
+    const segmentLengths = [];
+    let totalLength = 0;
+    for (let index = 1; index < path.points.length; index++) {
+      const length = Math.hypot(path.points[index].x - path.points[index - 1].x, path.points[index].y - path.points[index - 1].y);
+      segmentLengths.push(length);
+      totalLength += length;
+    }
+    if (totalLength < minimumTail * 2) return [];
+    const samples = [];
+    let traveled = 0;
+    for (let index = 1; index < path.points.length; index++) {
+      const a = path.points[index - 1], b = path.points[index], length = segmentLengths[index - 1];
+      const steps = Math.max(1, Math.ceil(length / 14));
+      for (let step = index === 1 ? 0 : 1; step <= steps; step++) {
+        const arc = traveled + length * step / steps;
+        if (arc < minimumTail || totalLength - arc < minimumTail) continue;
+        const t = step / steps;
+        samples.push({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+      }
+      traveled += length;
+    }
+    return samples;
+  }
+
   function singleMapPathAllowedForPoint(path, point) {
     if (!path || path.region !== point.region || path.layer !== point.layer) return false;
     if (point.pathId && path.id === point.pathId) return true;
@@ -4645,8 +4913,12 @@
         });
       };
       const strictPathId = point.pathId || '';
-      appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId));
-      appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId, true));
+      if (point.kind === 'door' && strictPathId) {
+        appendSamples(singleMapDoorPathSamples(map, point.region, point.layer, strictPathId));
+      } else {
+        appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId));
+        appendSamples(singleMapPathSamples(map, point.region, point.layer, strictPathId, true));
+      }
       const bounds = map.bounds || {};
       const clampX = (x) => Number.isFinite(bounds.minX) && Number.isFinite(bounds.maxX) ? clamp(x, bounds.minX + 40, bounds.maxX - 40) : x;
       const clampY = (y) => Number.isFinite(bounds.minY) && Number.isFinite(bounds.maxY) ? clamp(y, bounds.minY + 40, bounds.maxY - 40) : y;
@@ -4666,6 +4938,7 @@
       place(point, target);
     }
     if (!singleMapPlacementIsValid(map)) return false;
+    (map.doors || []).forEach((door) => refreshSingleMapDoorGeometry(map, door));
     delete map.interactionSeparationFailure;
     map.interactionSeparationVersion = SINGLE_MAP_INTERACTION_SEPARATION_VERSION;
     return map;
@@ -4687,15 +4960,95 @@
     const layer = map?.player?.layer ?? 0;
     return map?.rooms?.find((room) => room.layer === layer && Math.hypot(x - room.x, y - room.y) <= room.r) || null;
   }
-  function singleMapPointWalkable(map, x, y, r = 0) {
-    const layer = map?.player?.layer ?? 0;
-    if ((map.doors || []).some((door) => door.layer === layer && !door.open && Math.hypot(x - door.x, y - door.y) < 34 + r)) return false;
-    if (map.rooms.some((room) => room.layer === layer && (!room.hiddenArea || map.hiddenAreas?.[room.region]) && Math.hypot(x - room.x, y - room.y) <= room.r - r)) return true;
-    return map.paths.some((path) => {
-      if (path.layer !== layer || (path.secret && !path.open) || (path.hidden && !path.revealed) || (path.hiddenArea && !map.hiddenAreas?.[path.region]) || singleMapBlockedBy(map, path)) return false;
-      for (let i = 1; i < path.points.length; i++) if (mapSegmentDistance(x, y, path.points[i - 1], path.points[i]) <= path.width / 2 - r) return true;
-      return false;
+
+  function singleMapPathUsable(map, path) {
+    return !!path && !(path.secret && !path.open) && !(path.hidden && !path.revealed) && !(path.hiddenArea && !map.hiddenAreas?.[path.region]) && !singleMapBlockedBy(map, path);
+  }
+
+  function singleMapPathContains(path, x, y, r = 0) {
+    for (let i = 1; i < path.points.length; i++) if (mapSegmentDistance(x, y, path.points[i - 1], path.points[i]) <= path.width / 2 - r) return true;
+    return false;
+  }
+
+  function singleMapWalkableSurfacesAt(map, x, y, r = 0, layer = map?.player?.layer ?? 0) {
+    const surfaces = [];
+    (map.rooms || []).forEach((room) => {
+      if (room.layer === layer && (!room.hiddenArea || map.hiddenAreas?.[room.region]) && Math.hypot(x - room.x, y - room.y) <= room.r - r) surfaces.push({ type: 'room', id: room.id });
     });
+    (map.paths || []).forEach((path) => {
+      if (path.layer === layer && singleMapPathUsable(map, path) && singleMapPathContains(path, x, y, r)) surfaces.push({ type: 'path', id: path.id });
+    });
+    return surfaces;
+  }
+
+  function singleMapSurfacesConnected(map, a, b) {
+    if (!a || !b) return false;
+    if (a.type === b.type && a.id === b.id) return true;
+    if (a.type === 'room' && b.type === 'path') { const path = map.paths.find((entry) => entry.id === b.id); return !!path && (path.from === a.id || path.to === a.id); }
+    if (a.type === 'path' && b.type === 'room') { const path = map.paths.find((entry) => entry.id === a.id); return !!path && (path.from === b.id || path.to === b.id); }
+    if (a.type === 'path' && b.type === 'path') {
+      const pa = map.paths.find((entry) => entry.id === a.id), pb = map.paths.find((entry) => entry.id === b.id);
+      return !!pa && !!pb && [pa.from, pa.to].some((id) => id && (id === pb.from || id === pb.to));
+    }
+    return false;
+  }
+
+  function singleMapMovementSurfacesConnect(map, fromX, fromY, toX, toY, r = 0, layer = map?.player?.layer ?? 0, preferredPathId = null) {
+    if (![fromX, fromY, toX, toY].every(Number.isFinite)) return true;
+    const fromAll = singleMapWalkableSurfacesAt(map, fromX, fromY, r, layer);
+    const to = singleMapWalkableSurfacesAt(map, toX, toY, r, layer);
+    if (!fromAll.length || !to.length) return false;
+    const preferred = preferredPathId ? fromAll.filter((surface) => surface.type === 'path' && surface.id === preferredPathId) : [];
+    const from = preferred.length ? preferred : fromAll;
+    return from.some((a) => to.some((b) => singleMapSurfacesConnected(map, a, b)));
+  }
+
+  function updateSingleMapPathMembership(map, x, y, r = map?.player?.r || 17) {
+    const player = map?.player;
+    if (!player) return null;
+    const pathIds = singleMapWalkableSurfacesAt(map, x, y, r, player.layer).filter((surface) => surface.type === 'path').map((surface) => surface.id);
+    if (!player.pathId || !pathIds.includes(player.pathId)) player.pathId = pathIds[0] || null;
+    return player.pathId;
+  }
+
+  function refreshSingleMapDoorGeometry(map, door) {
+    if (!door) return null;
+    const path = (map.paths || []).find((entry) => entry.id === door.pathId);
+    if (!path?.points?.length) return null;
+    let best = null;
+    for (let i = 1; i < path.points.length; i++) {
+      const a = path.points[i - 1], b = path.points[i], distance = mapSegmentDistance(door.x, door.y, a, b);
+      if (!best || distance < best.distance) best = { distance, angle: Math.atan2(b.y - a.y, b.x - a.x), spanWidth: path.width };
+    }
+    if (!best) return null;
+    door.angle = best.angle;
+    door.spanWidth = best.spanWidth;
+    return best;
+  }
+  function singleMapDoorGeometry(map, door) {
+    if (!door) return null;
+    if (Number.isFinite(door.angle) && Number.isFinite(door.spanWidth) && door.spanWidth > 0) return { angle: door.angle, spanWidth: door.spanWidth };
+    return refreshSingleMapDoorGeometry(map, door);
+  }
+
+  function singleMapDoorBlocks(map, door, x, y, r = 0) {
+    if (!door || door.open || door.layer !== (map?.player?.layer ?? 0)) return false;
+    const geometry = singleMapDoorGeometry(map, door);
+    if (!geometry) return Math.hypot(x - door.x, y - door.y) < 34 + r;
+    const c = Math.cos(geometry.angle), s = Math.sin(geometry.angle);
+    const dx = x - door.x, dy = y - door.y;
+    const along = dx * c + dy * s;
+    const across = -dx * s + dy * c;
+    return Math.abs(along) <= 10 + r && Math.abs(across) <= geometry.spanWidth / 2 + Math.min(10, r * .3);
+  }
+
+  function singleMapPointWalkable(map, x, y, r = 0, fromX = null, fromY = null, preferredPathId = null) {
+    const layer = map?.player?.layer ?? 0;
+    if ((map.doors || []).some((door) => singleMapDoorBlocks(map, door, x, y, r))) return false;
+    const target = singleMapWalkableSurfacesAt(map, x, y, r, layer);
+    if (!target.length) return false;
+    if (!Number.isFinite(fromX) || !Number.isFinite(fromY)) return true;
+    return singleMapMovementSurfacesConnect(map, fromX, fromY, x, y, r, layer, preferredPathId);
   }
   function mapActionFor(map) {
     if (!map?.player) return null;
@@ -4797,8 +5150,8 @@
     else { dom.singleMapActionHint.textContent = `${sprintHint} · 靠近目标后按 ${interactKey} 互动`; dom.singleMapActionHint.classList.remove('active'); }
   }
   function renderSingleMap() {
-    if (!state.singleMap || state.singleMap.version < 5 || state.singleMap.version > 8) state.singleMap = generateSingleMap(state.singlePace);
-    else if (state.singleMap.version < 8) { state.singleMap = migrateSingleMapV7(state.singleMap); saveCurrentRun('map'); }
+    if (!state.singleMap || state.singleMap.version < 5 || state.singleMap.version > 9) state.singleMap = generateSingleMap(state.singlePace);
+    else if (state.singleMap.version < 9) { state.singleMap = migrateSingleMapV7(state.singleMap); saveCurrentRun('map'); }
     const map = state.singleMap;
     if (!Array.isArray(map.pickups)) map.pickups = [];
     if (!Array.isArray(map.interactions)) map.interactions = [];
@@ -4925,17 +5278,17 @@
     if (!map || !trap || !trap.armed) return;
     trap.armed = false; trap.triggered = true;
     const damage = Math.max(1, Math.round(p.maxHp * (trap.kind === 'spikepit' ? .20 : trap.kind === 'rockfall' ? .18 : .14)));
-    const postureLoss = Math.round((p.maxPosture || 100) * .08);
+    const supplyLoss = Math.min(p.supplies || 0, 2 + Math.ceil((p.maxSupplies || 1) * .025));
     p.hp = Math.max(1, p.hp - damage);
-    p.posture = Math.min(p.maxPosture || 100, (p.posture || 0) + postureLoss);
+    p.supplies = Math.max(0, (p.supplies || 0) - supplyLoss);
     state.stats.trapsSprung = (state.stats.trapsSprung || 0) + 1;
     map.trapFlashUntil = performance.now() + 620;
     const mapBoard = dom.singleMapBoard;
     if (mapBoard) { mapBoard.classList.remove('trap-hit'); void mapBoard.offsetWidth; mapBoard.classList.add('trap-hit'); }
     setTimeout(() => mapBoard?.classList.remove('trap-hit'), 640);
     const info = TRAP_INFO[trap.kind] || { name: '行军机关' };
-    showToast(`${info.name}触发！兵力 -${damage} · 架势 +${postureLoss}`);
-    queueAcquisition({ type: 'trap-hit', kicker: '机关触发 · 行军受损', name: info.name, icon: info.glyph || '!', meta: '机关已触发 · 需要立刻整队', desc: '脚下的机关突然弹起，队伍被迫停下收拾伤口。', effects: [`兵力 -${damage}`, `架势 +${postureLoss}`], note: '离开机关覆盖范围后，从侧面靠近可以拆除未触发的机关。' });
+    showToast(`${info.name}触发！兵力 -${damage}${supplyLoss ? ` · 补给 -${supplyLoss}` : ''}`);
+    queueAcquisition({ type: 'trap-hit', kicker: '机关触发 · 行军受损', name: info.name, icon: info.glyph || '!', meta: '机关已触发 · 需要立刻整队', desc: '脚下的机关突然弹起，队伍被迫停下收拾伤口。', effects: [`兵力 -${damage}`, ...(supplyLoss ? [`补给 -${supplyLoss}`] : [])], note: '离开机关覆盖范围后，从侧面靠近可以拆除未触发的机关。' });
     playSound('boom');
     updateMetaBars(); saveCurrentRun('map');
   }
@@ -4964,7 +5317,7 @@
         showToast('三处信号接通：隐藏入口已显形，军功 +12。');
         if (newlyUnlocked) queueAcquisition({ type: 'map', kicker: '线索机关 · 隐藏入口', name: '地下暗渠入口', icon: '⚿', meta: `${SINGLE_REGIONS[item.region].name} · 额外小地图`, desc: '三处旧信号点同时亮起，山壁后的暗渠入口显露出来。里面的道路、物资和敌人与主路不同。', effects: ['隐藏入口已标在地图上', '暗渠区域已点亮', '开启额外探索路线'], note: '沿入口进入后可以探索独立的小地图。' });
       } else {
-        showToast(`信号点已接通 ${solvedCount} / ${relays.length}，还需要完成全部节点。`);
+        showToast(`信号点已接通 ${solvedCount} / ${relays.length}，还需要接通其余信号点。`);
       }
       saveCurrentRun('map');
       return;
@@ -4985,7 +5338,8 @@
     door.revealed = true;
     const doorPath = (state.singleMap.paths || []).find((entry) => entry.id === door.pathId);
     if (doorPath) { doorPath.open = true; doorPath.revealed = true; }
-    (state.singleMap.transitions || []).filter((entry) => entry.aX === door.x && entry.aY === door.y).forEach((entry) => { entry.discovered = true; });
+    const linkedTransition = (state.singleMap.transitions || []).find((entry) => entry.id === door.transitionId) || (state.singleMap.transitions || []).find((entry) => Math.hypot(entry.aX - door.x, entry.aY - door.y) < 3);
+    if (linkedTransition) linkedTransition.discovered = true;
     showToast(door.secretGate ? `使用${key.name}打开了通往地下暗渠的旧闸门。` : `使用${key.name}打开了暗门。`);
     playSound('guard');
     saveCurrentRun('map');
@@ -5041,8 +5395,8 @@
     const map = state.singleMap;
     if (!map || map.triggering || !room || map.cleared.includes(room.id)) return;
     map.triggering = true;
-    if (room.type === 'bonfire') { if (!room.lit) { room.lit = true; state.player.bonfiresLit = (state.player.bonfiresLit || 0) + 1; restoreAtBonfire(room, '点亮星火营火'); checkAchievements(); queueAcquisition({ type: 'bonfire', kicker: '点亮星火营火', name: room.name.split(' · ')[0], icon: '✦', meta: `${SINGLE_REGIONS[room.region].name} · ${SINGLE_LAYER_NAMES[room.layer]}`, desc: '星火已经点亮，队伍在这里休整，并记住了归返的位置。', effects: ['兵力完全恢复', '架势完全恢复', '设为复活点'], note: '再次来到这里，可以传送到其他已点亮的营火。' }); } else openBonfirePanel(room); map.triggering = false; renderSingleMap(); return; }
-    if (room.type === 'camp') { state.player.hp = Math.min(state.player.maxHp, state.player.hp + Math.round(state.player.maxHp * .24)); state.player.morale = Math.min(100, state.player.morale + 10); markSingleRoomCleared(room.id); map.triggering = false; showToast('废弃营地：队伍恢复了部分兵力与士气。'); return; }
+    if (room.type === 'bonfire') { if (!room.lit) { room.lit = true; state.player.bonfiresLit = (state.player.bonfiresLit || 0) + 1; restoreAtBonfire(room, '点亮星火营火'); checkAchievements(); queueAcquisition({ type: 'bonfire', kicker: '点亮星火营火', name: room.name.split(' · ')[0], icon: '✦', meta: `${SINGLE_REGIONS[room.region].name} · ${SINGLE_LAYER_NAMES[room.layer]}`, desc: '星火已经点亮，队伍在这里休整，并记住了归返的位置。', effects: ['兵力完全恢复', '设为复活点'], note: '再次来到这里，可以传送到其他已点亮的营火。' }); } else openBonfirePanel(room); map.triggering = false; renderSingleMap(); return; }
+    if (room.type === 'camp') { state.player.hp = Math.min(state.player.maxHp, state.player.hp + Math.round(state.player.maxHp * .24)); markSingleRoomCleared(room.id); map.triggering = false; showToast('废弃营地：队伍恢复了部分兵力。'); return; }
     if (room.type === 'cache') { const chest = (map.chests || []).find((entry) => entry.id === room.chestId); if (chest && !chest.opened) openMapChest(chest); else showToast('这里的军资已经被搜走。'); markSingleRoomCleared(room.id); map.triggering = false; renderSingleMap(); return; }
     if (room.type === 'event') { showChapterEvent(() => { markSingleRoomCleared(room.id); map.triggering = false; renderSingleMap(); }); return; }
     if (nodeHasEnemy(room)) {
@@ -5085,12 +5439,17 @@
       const target = singleMapRoom(map, action.side === 'a' ? transition.bId : transition.aId);
       if (!target) return;
       transition.discovered = true;
-      map.player.x = target.x;
-      map.player.y = target.y;
       map.player.layer = target.layer;
+      const landing = action.side === 'a' ? { x: transition.bX, y: transition.bY } : { x: transition.aX, y: transition.aY };
+      const safeLanding = Number.isFinite(landing.x) && Number.isFinite(landing.y) && singleMapPointWalkable(map, landing.x, landing.y, map.player.r || 17) ? landing : { x: target.x, y: target.y };
+      map.player.x = safeLanding.x;
+      map.player.y = safeLanding.y;
       map.player.vx = 0;
       map.player.vy = 0;
       map.player.wallSlideSign = 0;
+      map.player.pathId = null;
+      updateSingleMapPathMembership(map, map.player.x, map.player.y, map.player.r || 17);
+      map.enemyAggroGraceUntil = performance.now() + 1400;
       map.currentId = target.id;
       map.regionIndex = target.region;
       if (!map.visited.includes(target.id)) map.visited.push(target.id);
@@ -5113,7 +5472,7 @@
   function singleMapMovementClear(map, x, y, radius) {
     const bounds = map.bounds;
     if (!bounds || x < bounds.minX + radius || x > bounds.maxX - radius || y < bounds.minY + radius || y > bounds.maxY - radius) return false;
-    return singleMapPointWalkable(map, x, y, radius);
+    return singleMapPointWalkable(map, x, y, radius, map.player.x, map.player.y, map.player.pathId);
   }
 
   function resolveSingleMapMovement(map, moveX, moveY) {
@@ -5160,12 +5519,12 @@
     for (const room of map.rooms || []) {
       if (!nodeHasEnemy(room) || map.cleared.includes(room.id) || room.layer !== player.layer) continue;
       if (room.hiddenArea && !map.hiddenAreas?.[room.region]) continue;
-      const enemy = ensureSingleMapEnemyState(room);
+      const enemy = ensureSingleMapEnemyState(room, map);
       if (!enemy) continue;
       const dx = player.x - enemy.mapX;
       const dy = player.y - enemy.mapY;
       const distance = Math.hypot(dx, dy);
-      const canAggro = !enemy.elite && !enemy.boss;
+      const canAggro = !enemy.elite && !enemy.boss && now >= (map.enemyAggroGraceUntil || 0);
       if (canAggro) {
         if (!enemy.mapAggro && distance <= 158) {
           enemy.mapAggro = true;
@@ -5180,9 +5539,9 @@
         const step = Math.min(distance, 58 * Math.max(0, dt));
         let nx = enemy.mapX + (distance > .001 ? dx / distance : 0) * step;
         let ny = enemy.mapY + (distance > .001 ? dy / distance : 0) * step;
-        if (!singleMapPointWalkable(map, nx, ny, 13)) {
-          if (singleMapPointWalkable(map, nx, enemy.mapY, 13)) ny = enemy.mapY;
-          else if (singleMapPointWalkable(map, enemy.mapX, ny, 13)) nx = enemy.mapX;
+        if (!singleMapPointWalkable(map, nx, ny, 13, enemy.mapX, enemy.mapY)) {
+          if (singleMapPointWalkable(map, nx, enemy.mapY, 13, enemy.mapX, enemy.mapY)) ny = enemy.mapY;
+          else if (singleMapPointWalkable(map, enemy.mapX, ny, 13, enemy.mapX, enemy.mapY)) nx = enemy.mapX;
           else { nx = enemy.mapX; ny = enemy.mapY; }
         }
         enemy.mapMoving = Math.hypot(nx - enemy.mapX, ny - enemy.mapY) > .1;
@@ -5231,6 +5590,7 @@
     const oldX = p.x, oldY = p.y;
     const movement = resolveSingleMapMovement(map, p.vx * dt, p.vy * dt);
     p.x = movement.x; p.y = movement.y;
+    updateSingleMapPathMembership(map, p.x, p.y, singleMapMovementRadius(map));
     const moved = Math.hypot(p.x - oldX, p.y - oldY);
     if (moved > .02 && dt > 0) {
       p.vx = movement.dx / dt;
@@ -5266,7 +5626,7 @@
       map.nearbyAction = mapActionFor(map);
       updateSingleMapActionHint(map);
       renderSingleMapTasks(map);
-      singleMapUiRefreshAt = now + (state.performanceMode ? 140 : 80);
+      singleMapUiRefreshAt = now + (lowVisualQuality() ? 140 : highVisualQuality() ? 60 : 80);
     }
   }
   function traceMapClearing(ctx, room) {
@@ -5386,7 +5746,7 @@
     }
     mapCache.regionCenters.forEach((region) => {
       if (region.x + 760 < viewMinX || region.x - 760 > viewMaxX || region.y + 520 < viewMinY || region.y - 520 > viewMaxY) return;
-      if (!state.performanceMode) {
+      if (!lowVisualQuality()) {
         if (!region.gradient) {
           region.gradient = ctx.createRadialGradient(region.x, region.y, 40, region.x, region.y, 720);
           region.gradient.addColorStop(0, region.palette.ground);
@@ -5397,7 +5757,7 @@
       ctx.fillStyle = 'rgba(236,218,178,.3)'; ctx.font = 'bold 18px "Noto Serif SC", serif'; ctx.textAlign = 'center';
       ctx.fillText(SINGLE_REGIONS[region.region].name, region.x, region.y - 365);
     });
-    if (!state.performanceMode) map.hiddenAreas?.forEach((unlocked, index) => { if (!unlocked) return; const rooms = map.rooms.filter((room) => room.region === index && room.hiddenArea); if (!rooms.length) return; const x = rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y = rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length; let gradient = mapCache.areaGradients.get(rooms[0]); if (!gradient) { gradient = ctx.createRadialGradient(x, y, 40, x, y, 620); gradient.addColorStop(0, SINGLE_MAP_PALETTES[3].ground); gradient.addColorStop(.6, 'rgba(32,20,27,.42)'); gradient.addColorStop(1, 'rgba(11,9,7,0)'); mapCache.areaGradients.set(rooms[0], gradient); } ctx.fillStyle = gradient; ctx.fillRect(x - 680, y - 470, 1360, 940); });
+    if (!lowVisualQuality()) map.hiddenAreas?.forEach((unlocked, index) => { if (!unlocked) return; const rooms = map.rooms.filter((room) => room.region === index && room.hiddenArea); if (!rooms.length) return; const x = rooms.reduce((sum, room) => sum + room.x, 0) / rooms.length, y = rooms.reduce((sum, room) => sum + room.y, 0) / rooms.length; let gradient = mapCache.areaGradients.get(rooms[0]); if (!gradient) { gradient = ctx.createRadialGradient(x, y, 40, x, y, 620); gradient.addColorStop(0, SINGLE_MAP_PALETTES[3].ground); gradient.addColorStop(.6, 'rgba(32,20,27,.42)'); gradient.addColorStop(1, 'rgba(11,9,7,0)'); mapCache.areaGradients.set(rooms[0], gradient); } ctx.fillStyle = gradient; ctx.fillRect(x - 680, y - 470, 1360, 940); });
     map.paths.forEach((path) => {
       if ((path.secret && !path.open) || (path.hidden && !path.revealed) || (path.hiddenArea && !map.hiddenAreas?.[path.region])) return;
       let bbox = mapCache.pathBBox.get(path);
@@ -5418,7 +5778,7 @@
       ctx.save(); ctx.globalAlpha = currentLayer ? 1 : .16; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
       ctx.beginPath(); path.points.forEach((point, index) => { if (index === 0) ctx.moveTo(point.x, point.y); else ctx.lineTo(point.x, point.y); });
       ctx.strokeStyle = '#080706'; ctx.lineWidth = path.width + 18; ctx.stroke();
-      if (!state.performanceMode) {
+      if (!lowVisualQuality()) {
         ctx.save(); ctx.globalAlpha = .28; ctx.strokeStyle = palette.edge; ctx.lineWidth = path.width + 8; ctx.stroke(); ctx.restore();
       }
       ctx.strokeStyle = palette.path; ctx.lineWidth = path.width; ctx.stroke();
@@ -5448,9 +5808,10 @@
     const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
     if (!singleMapContextCache) singleMapContextCache = canvas.getContext('2d', { alpha: false, desynchronized: true });
     const ctx = singleMapContextCache, width = canvas.clientWidth || 960, height = canvas.clientHeight || 540;
-    const perfScale = state.performanceMode ? (mapFramePacer.targetFps <= 10 ? .55 : mapFramePacer.targetFps <= 15 ? .6 : mapFramePacer.targetFps <= 20 ? .7 : .8) : 1;
-    // 普通模式按高分屏像素预算封顶；性能模式固定以 1 倍 DPR 为基准再降档。
-    const baseDpr = budgetDpr(width, height, state.performanceMode ? 1 : 1.5, MAP_PIXEL_BUDGET);
+    const quality = qualityProfile();
+    const perfScale = state.performanceMode ? (mapFramePacer.targetFps <= 10 ? .55 : mapFramePacer.targetFps <= 15 ? .6 : mapFramePacer.targetFps <= 20 ? .7 : .8) : quality.renderScale;
+    // 普通模式按当前画质档位的像素预算封顶；高画质在高 DPI 屏幕上保留更多原生像素。
+    const baseDpr = budgetDpr(width, height, quality.mapDprCap, quality.mapBudget, quality.superSample);
     const dpr = Math.max(.45, baseDpr * perfScale);
     if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) { canvas.width = Math.round(width * dpr); canvas.height = Math.round(height * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, width, height); ctx.fillStyle = '#0b0907'; ctx.fillRect(0, 0, width, height);
@@ -5467,7 +5828,7 @@
       // 避免普通模式每帧重新铺设整张道路，也避免大地图离屏缓存占用成倍显存。
       const viewport = mapCache.viewport;
       const stateSignature = [
-        state.performanceMode ? 1 : 0, map.player.layer, map.charts.map((value) => value ? 1 : 0).join(''),
+        currentQualityTier(), map.player.layer, map.charts.map((value) => value ? 1 : 0).join(''),
         map.hiddenAreas?.map((value) => value ? 1 : 0).join('') || '',
         map.puzzleSolved?.map((value) => value ? 1 : 0).join('') || '',
         map.cleared?.length || 0, map.visited?.length || 0,
@@ -5532,7 +5893,7 @@
       const info = SINGLE_PICKUP_INFO[pickup.kind], pulse = .5 + .5 * Math.sin(now * .006 + pickup.x);
       ctx.save(); ctx.translate(pickup.x, pickup.y); ctx.rotate(Math.PI / 4);
       ctx.fillStyle = pickup.kind === 'chart' ? `rgba(122,208,168,${.35 + pulse * .34})` : pickup.kind === 'relic' ? `rgba(226,121,86,${.4 + pulse * .3})` : `rgba(237,191,102,${.35 + pulse * .34})`;
-      ctx.shadowColor = pickup.kind === 'chart' ? 'rgba(104,219,173,.7)' : pickup.kind === 'relic' ? 'rgba(255,121,79,.8)' : 'rgba(255,210,110,.7)'; ctx.shadowBlur = state.performanceMode ? 0 : 14; ctx.fillRect(-7, -7, 14, 14); ctx.restore();
+      ctx.shadowColor = pickup.kind === 'chart' ? 'rgba(104,219,173,.7)' : pickup.kind === 'relic' ? 'rgba(255,121,79,.8)' : 'rgba(255,210,110,.7)'; ctx.shadowBlur = qualityShadow(14); ctx.fillRect(-7, -7, 14, 14); ctx.restore();
       ctx.fillStyle = '#fff1bd'; ctx.font = 'bold 11px serif'; ctx.textAlign = 'center'; ctx.fillText(info.glyph, pickup.x, pickup.y + 4);
     });
     (map.interactions || []).forEach((item) => {
@@ -5557,10 +5918,23 @@
       const distance = Math.hypot(map.player.x - door.x, map.player.y - door.y);
       if (!map.charts[door.region] && distance > 280) return;
       ctx.save(); ctx.translate(door.x, door.y);
+      const geometry = singleMapDoorGeometry(map, door);
+      if (geometry) {
+        ctx.save(); ctx.rotate(geometry.angle);
+        ctx.strokeStyle = door.open ? 'rgba(126,178,139,.62)' : '#d4a14e';
+        ctx.lineWidth = 4; ctx.lineCap = 'round';
+        ctx.beginPath();
+        if (door.open) { ctx.moveTo(0, -geometry.spanWidth * .5); ctx.lineTo(0, -geometry.spanWidth * .16); ctx.moveTo(0, geometry.spanWidth * .16); ctx.lineTo(0, geometry.spanWidth * .5); }
+        else { ctx.moveTo(0, -geometry.spanWidth * .52); ctx.lineTo(0, geometry.spanWidth * .52); }
+        ctx.stroke();
+        ctx.fillStyle = door.open ? '#8fb79a' : '#f0c46d';
+        [[0, -geometry.spanWidth * .52], [0, geometry.spanWidth * .52]].forEach(([x, y]) => { ctx.beginPath(); ctx.arc(x, y, 4, 0, Math.PI * 2); ctx.fill(); });
+        ctx.restore();
+      }
       ctx.strokeStyle = door.open ? 'rgba(126,178,139,.72)' : '#d4a14e'; ctx.lineWidth = 3; ctx.lineCap = 'round';
       if (door.open) { ctx.beginPath(); ctx.moveTo(-18, 14); ctx.lineTo(-18, -15); ctx.lineTo(1, -15); ctx.stroke(); }
       else { ctx.beginPath(); ctx.moveTo(-18, 16); ctx.lineTo(-18, -16); ctx.lineTo(18, -16); ctx.lineTo(18, 16); ctx.stroke(); ctx.fillStyle = '#ffe1a0'; ctx.font = 'bold 15px serif'; ctx.textAlign = 'center'; ctx.fillText('锁', 0, 5); }
-      if (distance < 260) { ctx.fillStyle = door.open ? '#a8c9ad' : '#e7c077'; ctx.font = 'bold 11px "Noto Serif SC", serif'; ctx.fillText(door.open ? '已打开' : KEYS[door.keyId]?.name || '门锁', 0, 34); }
+      if (distance < 260) { ctx.fillStyle = door.open ? '#a8c9ad' : '#e7c077'; ctx.font = 'bold 11px "Noto Serif SC", serif'; ctx.textAlign='center'; ctx.fillText(door.open ? '已打开' : KEYS[door.keyId]?.name || '门锁', 0, 34); }
       ctx.restore();
     });
     (map.chests || []).forEach((chest) => {
@@ -5835,7 +6209,7 @@
     if (dom.routeShopHint) dom.routeShopHint.textContent = `当前第 ${state.act + 1} 幕 · 第 ${state.actStep + 1} / ${ROGUELIKE_STEPS.length} 段`;
     if (dom.routeBossForecast) {
       dom.routeBossForecast.classList.remove('hidden');
-      dom.routeBossForecast.innerHTML = `<div class="route-boss-mark">首</div><div><span>本幕首领 · 将在最终节点迎战</span><strong>${boss.title}</strong><p>${boss.trait} · ${boss.counter}</p></div>`;
+      dom.routeBossForecast.innerHTML = `<div class="route-boss-mark">首</div><div><span>本幕首领 · 最终一战</span><strong>${boss.title}</strong><p>${boss.trait} · ${boss.counter}</p></div>`;
     }
     if (!preserveOptions || !state.routeOptions.length) state.routeOptions = buildRoguelikeRouteOptions();
     selectedRouteIndex = state.routeOptions.length ? 0 : -1;
@@ -5888,7 +6262,6 @@
     if (route.kind === 'camp') {
       const camp = route.camp || {};
       if (camp.healPct) effects.push({ label: '兵力恢复', value: `${Math.round(camp.healPct * 100)}%`, tone: 'gain' });
-      if (camp.morale) effects.push({ label: '士气', value: `+${camp.morale}`, tone: 'gain' });
       if (camp.supplies) effects.push({ label: '补给', value: `+${camp.supplies}`, tone: 'gain' });
       if (camp.xp) effects.push({ label: '历练', value: `+${camp.xp}`, tone: 'gain' });
       if (camp.merit) effects.push({ label: '军功', value: `+${camp.merit}`, tone: 'gain' });
@@ -5999,7 +6372,7 @@
     let techniqueUnlocked = null;
     if (cost.hp) player.hp = Math.max(1, player.hp - cost.hp);
     if (cost.supplies) player.supplies = Math.max(0, player.supplies - cost.supplies);
-    if (cost.morale) player.morale = Math.max(0, player.morale - cost.morale);
+    if (cost.morale && state.screen === 'battle' && state.combat) player.morale = Math.max(0, player.morale - cost.morale);
     if (cost.merit) player.merit = Math.max(0, (player.merit || 0) - cost.merit);
     if (choice?.materialId) player.materials = { ...(player.materials || {}), [choice.materialId]: (player.materials?.[choice.materialId] || 0) + (choice.materialAmount || 1) };
     if (choice?.consumableId) player.consumables = { ...(player.consumables || {}), [choice.consumableId]: (player.consumables?.[choice.consumableId] || 0) + (choice.consumableAmount || 1) };
@@ -6342,11 +6715,9 @@
       const effectText = item.effects.map((effect) => `${effect.label} ${effect.value}`).join(' · ');
       const kindLabel = item.kind === 'relic' ? '信物' : item.kind === 'consumable' ? '小道具' : item.kind === 'equipment' ? '军备' : '战法效果';
       const destination = item.kind === 'relic' ? '永久收入信物栏' : item.kind === 'consumable' ? '收入战备栏，在战斗中按小道具键使用' : item.kind === 'equipment' ? '收入军备栏，可自由装备' : '立即生效';
-      return `<article class="choice-card shop-item kind-${item.kind || 'effect'} ${available ? '' : 'sold-out'} ${index === selectedShopIndex ? 'selected' : ''}" data-shop-item="${index}" role="button" tabindex="0" aria-pressed="${index === selectedShopIndex}">
-        <span class="upgrade-rank">${kindLabel} · ${available ? '限购 1 件' : '已售罄'}</span>
-        <div class="choice-icon">${item.icon}</div>
-        <h3>${item.name}</h3>
-        ${cardKeyOutcomeHtml({ label: item.kind === 'relic' ? '获得信物' : item.kind === 'consumable' ? '获得小道具' : '获得效果', name: effectText || item.name, effect: destination })}
+      return `<article class="choice-card shop-item kind-${item.kind || 'effect'} ${available ? '' : 'sold-out'} ${index === selectedShopIndex ? 'selected' : ''}" data-shop-item="${index}" role="button" tabindex="0" aria-pressed="${index === selectedShopIndex}" title="${destination}">
+        <div class="shop-item-head"><span class="choice-icon">${item.icon}</span><div><span class="upgrade-rank">${kindLabel} · ${available ? '限购 1 件' : '已售罄'}</span><h3>${item.name}</h3></div></div>
+        <p class="shop-effect">${effectText || item.name}</p>
         <div class="shop-price">
           <span>${available ? `军功 ${cost}` : '已售罄'}</span>
           <button class="shop-buy" type="button" data-shop-buy="${index}" ${!available || !affordable ? 'disabled' : ''}>${available ? (affordable ? '买下' : '军功不足') : '已售罄'}</button>
@@ -6530,8 +6901,6 @@
         p.atk += firstActClear ? 4 : 2;
         p.defense += firstActClear ? 2 : 1;
         p.maxPosture += firstActClear ? 24 : 16;
-        p.posture = 0;
-        p.morale = Math.min(100, p.morale + (firstActClear ? 18 : 12));
         p.supplies = Math.min(p.maxSupplies, p.supplies + 20);
         p.merit = (p.merit || 0) + 35;
         const nextTechnique = PLAYER_TECHNIQUE_ORDER.find((id) => !(p.techniques || []).includes(id));
@@ -6610,7 +6979,7 @@
       <div><span>行军难度</span><strong>${state.runMode === 'single' && state.singlePace === 'normal' ? difficultyLabel() : '快速模式'}</strong></div>
       <div><span>行军用时</span><strong>${formatRunDuration(state.runElapsedMs)}</strong></div>
       <div><span>余下军功</span><strong>${Math.round(state.player.merit || 0)}</strong></div>
-      <div><span>行军种子</span><strong>${state.seed}</strong></div>`;
+      <div><span>行军代号</span><strong>${state.seed}</strong></div>`;
     dom.endingSourcePanel.innerHTML = sourceListHtml(victory ? ['dswHuining', 'cpcMarch', 'museum90', 'qstheory90'] : ['cpcSpirit', 'museum90']);
     dom.endingSourcePanel.classList.add('hidden');
     setMeta();
@@ -6683,7 +7052,7 @@
   }
 
   function testScreenLabel() {
-    return ({ title: '主界面', mode: '玩法选择', squad: '队伍选择', route: '行军路线', map: '俯视探索', event: '行军事件', reward: '战利品', shop: '军需站', battle: '战斗', boss: '首领战', history: '战史节点', ending: '结算' })[state.screen] || state.screen;
+    return ({ title: '主界面', mode: '玩法选择', squad: '队伍选择', route: '行军路线', map: '俯视探索', event: '行军事件', reward: '战利品', shop: '军需站', battle: '战斗', boss: '首领战', history: '历史记录', ending: '结算' })[state.screen] || state.screen;
   }
 
   function renderTestMode() {
@@ -6695,7 +7064,7 @@
       ? `${activeEnemy.name} · ${Math.max(0, Math.ceil(activeEnemy.hp))} 兵力 · ${health.remaining} 管`
       : (testRunActive ? '当前无战斗' : '尚未建立测试行军');
     dom.testModeStatus.innerHTML = `
-      <span>测试状态<strong>${testRunActive ? '运行中 · 不记录' : state.testModeOpen ? '待开始' : '未开始'}</strong></span>
+      <span>测试状态<strong>${testRunActive ? '运行中 · 不影响正式进度' : state.testModeOpen ? '待开始' : '未开始'}</strong></span>
       <span>当前界面<strong>${testScreenLabel()}</strong></span>
       <span>变招<strong>${p ? `${(p.techniques || []).length} / ${Object.keys(PLAYER_TECHNIQUES).length}` : '—'}</strong></span>
       <span>信物<strong>${p ? `${p.relics?.length || 0} 件` : '—'}</strong></span>
@@ -6969,7 +7338,7 @@
     } else {
       setScreen('title');
       updateContinueButton();
-      showToast('测试已结束，没有写入正式存档或战史。');
+      showToast('测试已结束，正式行军保持原样。');
     }
   }
 
@@ -7104,14 +7473,14 @@
     if (wrap) fitCanvasWrapToStage(wrap);
     const rect = dom.canvas.getBoundingClientRect();
     if (rect.width < 2 || rect.height < 2) return;
-    const widthCap = state.performanceMode ? 1280 : 3840;
+    const quality = qualityProfile();
+    const widthCap = state.performanceMode ? 1280 : (quality === QUALITY_PROFILES.high ? 3840 : quality === QUALITY_PROFILES.balanced ? 2560 : 1920);
     const fixedWidth = state.resolutionMode === 'auto' ? 0 : Number(state.resolutionMode);
     const fittedCssWidth = Math.min(rect.width, rect.height * 16 / 9);
     const fittedCssHeight = fittedCssWidth * 9 / 16;
-    // 像素预算优于 DPR 上限：保障高分屏观感的同时，不让核显承担数百万像素的每帧填充。
-    const budgetedDpr = budgetDpr(fittedCssWidth, fittedCssHeight, state.performanceMode ? 1 : 1.5, BATTLE_PIXEL_BUDGET);
-    // 性能模式在像素预算基础上继续按稳定帧档位降内部尺寸；CSS 显示尺寸不变。
-    const renderScale = state.performanceMode ? (battleFramePacer.targetFps <= 10 ? .55 : battleFramePacer.targetFps <= 15 ? .6 : battleFramePacer.targetFps <= 20 ? .7 : .8) : 1;
+    // 像素预算优先保障当前画质档位的清晰度，再受 DPR 上限和稳定帧档位约束。
+    const budgetedDpr = budgetDpr(fittedCssWidth, fittedCssHeight, quality.battleDprCap, quality.battleBudget, quality.superSample);
+    const renderScale = state.performanceMode ? (battleFramePacer.targetFps <= 10 ? .55 : battleFramePacer.targetFps <= 15 ? .6 : battleFramePacer.targetFps <= 20 ? .7 : .8) : quality.renderScale;
     const baseWidth = fixedWidth ? fixedWidth : fittedCssWidth * budgetedDpr;
     const targetWidth = clamp(Math.round(baseWidth * renderScale), 320, widthCap);
     const targetHeight = Math.round(targetWidth * 9 / 16);
@@ -7140,7 +7509,8 @@
       startupWindowMode: state.startupWindowMode,
       startFullscreen: !!state.startFullscreen,
       videoFrameLimit: Number(state.videoFrameLimit) || 0,
-      videoVSync: !!state.videoVSync
+      videoVSync: !!state.videoVSync,
+      qualityMode: state.qualityMode
     };
     writeStorageJson(GAME_SETTINGS_KEY, payload);
     try {
@@ -7156,10 +7526,11 @@
 
   function syncSettingsUi() {
     if (dom.performanceToggle) {
-      dom.performanceToggle.textContent = `性能模式：${state.performanceMode ? '开' : '关'}`;
+      dom.performanceToggle.textContent = `帧率稳定优先：${state.performanceMode ? '开' : '关'}`;
       dom.performanceToggle.setAttribute('aria-pressed', String(state.performanceMode));
       dom.performanceToggle.classList.toggle('active', state.performanceMode);
     }
+    refreshQualityUi();
     if (dom.resolutionSelect) {
       dom.resolutionSelect.value = state.resolutionMode;
     }
@@ -7282,7 +7653,7 @@
     try { if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); } catch (_) {}
     try { window.close(); } catch (_) {}
     setTimeout(() => {
-      if (document.visibilityState !== 'hidden') showToast('浏览器未允许自动关闭，请按 Alt+F4 或关闭游戏窗口。', 4500);
+      if (document.visibilityState !== 'hidden') showToast('请使用窗口关闭按钮退出游戏。', 4500);
     }, 260);
   }
 
@@ -7316,11 +7687,12 @@
     state.performanceMode = !!enabled;
     document.body.classList.toggle('performance-mode', state.performanceMode);
     if (dom.performanceToggle) {
-      dom.performanceToggle.textContent = `性能模式：${state.performanceMode ? '开' : '关'}`;
+      dom.performanceToggle.textContent = `帧率稳定优先：${state.performanceMode ? '开' : '关'}`;
       dom.performanceToggle.setAttribute('aria-pressed', String(state.performanceMode));
       dom.performanceToggle.classList.toggle('active', state.performanceMode);
     }
     scene.lastRender = 0;
+    applyQualityVisualState(false);
     resetStableFramePacing();
     resetVideoFramePacing();
     resizeCanvasToDisplay();
@@ -7846,7 +8218,7 @@
   function syncGamepadUi(pad) {
     const hadPad = !!activeGamepad;
     activeGamepad = pad || null;
-    const label = pad ? '手柄已连接 · 左摇杆或十字键选择，A 确认，B 返回' : (navigator.getGamepads ? '尚未找到手柄。连接后按一下手柄按键。' : '这个浏览器暂时无法使用手柄。');
+    const label = pad ? '手柄已连接 · 左摇杆或十字键选择，A 确认，B 返回' : (navigator.getGamepads ? '尚未找到手柄。连接后按一下手柄按键。' : '当前无法使用手柄。');
     if (label !== gamepadLastLabel) {
       gamepadLastLabel = label;
       if (dom.gamepadStatus) dom.gamepadStatus.textContent = label;
@@ -9198,9 +9570,10 @@
   }
 
   function spawnParticles(x, y, color, count = 16) {
-    const detailFactor = !state.performanceMode ? 1 : minimalPerformanceDetail() ? .1 : ultraLowPerformanceDetail() ? .18 : lowPerformanceDetail() ? .28 : .45;
+    const quality = qualityProfile();
+    const detailFactor = quality.effectScale;
     count = Math.max(1, Math.ceil(count * detailFactor));
-    const particleLimit = !state.performanceMode ? 240 : minimalPerformanceDetail() ? 16 : ultraLowPerformanceDetail() ? 36 : lowPerformanceDetail() ? 60 : 90;
+    const particleLimit = quality.particleLimit;
     if (scene.particles.length >= particleLimit) return;
     count = Math.min(count, particleLimit - scene.particles.length);
     for (let i = 0; i < count; i++) {
@@ -11471,17 +11844,18 @@ function breakPlayerPosture() {
       p.deaths = (p.deaths || 0) + 1;
       state.stats.deaths = (state.stats.deaths || 0) + 1;
       const target = singleMapRoom(map, map.respawnId) || map.rooms[0];
-      map.player.x = target.x; map.player.y = target.y; map.player.layer = target.layer;
+      map.player.x = target.x; map.player.y = target.y; map.player.layer = target.layer; map.player.pathId = null;
       map.currentId = target.id; map.regionIndex = target.region;
       if (!map.visited.includes(target.id)) map.visited.push(target.id);
-      p.hp = p.maxHp; p.posture = 0; p.postureBroken = false; p.postureBreakUntil = 0; p.hitstunUntil = 0; p.respawnId = target.id;
+      p.hp = p.maxHp; p.postureBroken = false; p.postureBreakUntil = 0; p.hitstunUntil = 0; p.respawnId = target.id;
       map.triggering = false;
       map.nearbyAction = null;
+      map.enemyAggroGraceUntil = performance.now() + 1400;
       state.combat = null; state.boss = false; state.currentRoute = null;
       parrySession = null; shotSession = null; scene.duel = null; scene.shotAim = null; scene.mikiri = null; scene.execution = null; scene.playerAttack = null; scene.lunge = 0;
       dom.parryOverlay?.classList.add('hidden'); dom.canvas?.classList.add('hidden');
       updateMetaBars(); setScreen('map'); renderSingleMap(); saveCurrentRun('map');
-      queueAcquisition({ type: 'respawn', kicker: '星火未熄 · 重新集结', name: '从营火归来', icon: '✦', meta: `剩余 ${p.lives} 条命 · 已归返 ${target.name.split(' · ')[0]}`, desc: '队伍在最后点亮的星火旁重新集结。战场上的敌人仍守在原处。', effects: ['兵力完全恢复', '架势完全恢复', `本局死亡 ${p.deaths} 次`], note: '再次接敌前，可以先整备军备或沿营火转移。' });
+      queueAcquisition({ type: 'respawn', kicker: '星火未熄 · 重新集结', name: '从营火归来', icon: '✦', meta: `剩余 ${p.lives} 条命 · 已归返 ${target.name.split(' · ')[0]}`, desc: '队伍在最后点亮的星火旁重新集结。战场上的敌人仍守在原处。', effects: ['兵力完全恢复', '下一场战斗开始时重置架势', `本局死亡 ${p.deaths} 次`], note: '再次接敌前，可以先整备军备或沿营火转移。' });
       playSound('mikiri');
       return;
     }
@@ -11678,7 +12052,7 @@ function breakPlayerPosture() {
     ctx.beginPath(); ctx.arc(starX, starY, starRadius * 2.6, 0, Math.PI * 2); ctx.fill();
     ctx.globalAlpha = terrain === 'jiajin' ? .62 : .76;
     ctx.shadowColor = 'rgba(255,224,145,.72)';
-    ctx.shadowBlur = 22;
+    ctx.shadowBlur = qualityShadow(22);
     traceFivePointStar(ctx, starX, starY, starRadius);
     ctx.fillStyle = terrain === 'jiajin' ? '#d8c89e' : '#e8c477';
     ctx.fill();
@@ -11886,7 +12260,7 @@ function breakPlayerPosture() {
     };
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    if (state.performanceMode) {
+    if (lowVisualQuality()) {
       ctx.strokeStyle = color;
       ctx.lineWidth = width + 2;
       traceLimb();
@@ -11898,7 +12272,7 @@ function breakPlayerPosture() {
     ctx.strokeStyle = color;
     ctx.lineWidth = width;
     traceLimb();
-    if (width >= 6 && !state.performanceMode) {
+    if (width >= 6 && !lowVisualQuality()) {
       ctx.strokeStyle = 'rgba(232,188,126,.22)';
       ctx.lineWidth = Math.max(1.4, width * .2);
       ctx.save();
@@ -11920,7 +12294,7 @@ function breakPlayerPosture() {
     ctx.lineJoin = 'round';
     if (bright > .1) {
       ctx.shadowColor = 'rgba(255,211,126,.9)';
-      ctx.shadowBlur = state.performanceMode ? 0 : 16 * bright;
+      ctx.shadowBlur = qualityShadow(16);
     }
     if (kind === 'spear') {
       ctx.strokeStyle = '#5a3822';
@@ -12381,7 +12755,7 @@ function breakPlayerPosture() {
 
     drawBentLimb(ctx, [[-7, 6], rearKnee, rearFoot], '#2e1e18', 10);
     drawBentLimb(ctx, [[7, 6], leadKnee, leadFoot], '#33221a', 10);
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.fillStyle = '#5a3a27';
       ctx.beginPath(); ctx.arc(rearKnee[0], rearKnee[1], 5.2, 0, Math.PI * 2); ctx.arc(leadKnee[0], leadKnee[1], 5.2, 0, Math.PI * 2); ctx.fill();
     }
@@ -12398,7 +12772,7 @@ function breakPlayerPosture() {
     ctx.moveTo(-10, 4);
     ctx.bezierCurveTo(-20 - sashDrive * 8, 2 + sashWave, -30 - sashDrive * 15, 9 - sashWave, -42 - sashDrive * 20, 20 + sashWave);
     ctx.stroke();
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.strokeStyle = 'rgba(255,224,154,.34)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
@@ -12415,7 +12789,7 @@ function breakPlayerPosture() {
     drawBentLimb(ctx, [[-11, -14], offElbow, offHand], '#2e1e18', actionPhase === 'guard' ? 9 : 8);
     const elbow = [(11 + hand[0]) / 2 + elbowBias[0], (-14 + hand[1]) / 2 + elbowBias[1]];
     drawBentLimb(ctx, [[11, -14], elbow, hand], '#33221a', actionPhase === 'active' ? 10.5 : 8.5);
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.fillStyle = '#a77852';
       ctx.beginPath(); ctx.arc(offHand[0], offHand[1], 3.7, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#5a3a27'; ctx.beginPath(); ctx.arc(elbow[0], elbow[1], 4.8, 0, Math.PI * 2); ctx.fill();
@@ -12430,7 +12804,7 @@ function breakPlayerPosture() {
     ctx.fillRect(-6 + headOffset[0], -51 + headOffset[1], 14, 5);
     ctx.strokeStyle = squadColor; ctx.lineWidth = 4;
     ctx.beginPath(); ctx.moveTo(-13, -23); ctx.quadraticCurveTo(-2, -16, 15, -24); ctx.stroke();
-    if (state.performanceMode) { ctx.fillStyle = '#e8c477'; ctx.fillRect(-11 + headOffset[0], -31 + headOffset[1], 5, 5); }
+    if (lowVisualQuality()) { ctx.fillStyle = '#e8c477'; ctx.fillRect(-11 + headOffset[0], -31 + headOffset[1], 5, 5); }
     else { ctx.fillStyle = '#e8c477'; ctx.font = canvasFont(14, 'serif', 'bold'); ctx.fillText('★', -10 + headOffset[0], -28 + headOffset[1]); }
     ctx.restore();
   }
@@ -12673,7 +13047,7 @@ function breakPlayerPosture() {
       ctx.globalAlpha = blinking ? .82 : enemy.action === 'dash' || enemy.action === 'backstep' || enemy.action === 'advanceWindup' ? .52 : .24;
       ctx.strokeStyle = blinking ? '#ffb078' : enemy.status.broken ? '#ffe0a0' : '#d9b978';
       ctx.shadowColor = blinking ? '#ff6f4f' : 'transparent';
-      ctx.shadowBlur = blinking && !state.performanceMode ? 16 : 0;
+      ctx.shadowBlur = blinking ? qualityShadow(16) : 0;
       ctx.lineWidth = blinking ? 3 : 2;
       const direction = (state.combat?.playerX ?? 360) < enemy.x ? 1 : -1;
       const trailCount = blinking ? 9 : 5;
@@ -12855,7 +13229,7 @@ function breakPlayerPosture() {
     }
     if (enemy.status.broken) {
       const pulse = .5 + .5 * Math.sin(performance.now() * .02);
-      if (state.performanceMode) {
+      if (lowVisualQuality()) {
         ctx.fillStyle = `rgba(255,218,132,${.12 + pulse * .07})`;
       } else {
         const gold = ctx.createRadialGradient(0, -36, 8, 0, -36, 96);
@@ -12869,7 +13243,7 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.arc(0, -38, 54 + pulse * 7, 0, Math.PI * 2); ctx.stroke();
     } else if (enemy.action === 'breathe') {
       const pulse = .5 + .5 * Math.sin(performance.now() * .014);
-      if (state.performanceMode) {
+      if (lowVisualQuality()) {
         ctx.fillStyle = `rgba(190,211,151,${.1 + pulse * .06})`;
       } else {
         const breath = ctx.createRadialGradient(0, -32, 7, 0, -32, 88);
@@ -12887,7 +13261,7 @@ function breakPlayerPosture() {
     }
     if (duel && !duel.resolved) {
       const dangerPulse = .5 + .5 * Math.sin(performance.now() * .022);
-      if (state.performanceMode) {
+      if (lowVisualQuality()) {
         ctx.fillStyle = `rgba(220,54,44,${.08 + dangerPulse * .05})`;
       } else {
         const danger = ctx.createRadialGradient(0, -28, 8, 0, -28, 86);
@@ -12899,7 +13273,7 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.arc(0, -28, 86, 0, Math.PI * 2); ctx.fill();
     }
     if (isBoss && enemy.phase2) {
-      if (state.performanceMode) {
+      if (lowVisualQuality()) {
         ctx.fillStyle = 'rgba(232,62,48,.12)';
       } else {
         const aura = ctx.createRadialGradient(0, -35, 12, 0, -35, 118);
@@ -12933,7 +13307,7 @@ function breakPlayerPosture() {
     ctx.moveTo(10, 3);
     ctx.bezierCurveTo(23, 1 + enemyCloth, 34, 9 - enemyCloth, 48, 21 + enemyCloth);
     ctx.stroke();
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.strokeStyle = 'rgba(238,194,114,.26)';
       ctx.lineWidth = 1.5;
       ctx.stroke();
@@ -12948,7 +13322,7 @@ function breakPlayerPosture() {
     } else {
       drawBentLimb(ctx, [[-8, 8], enemyRearKnee, enemyRearFoot], enemy.color, isBoss ? 13 : eliteStyle === 'shield' ? 12 : 10);
       drawBentLimb(ctx, [[8, 8], enemyLeadKnee, enemyLeadFoot], enemy.color, isBoss ? 13 : eliteStyle === 'shield' ? 12 : 10);
-      if (!state.performanceMode) {
+      if (!lowVisualQuality()) {
         ctx.fillStyle = 'rgba(25,13,8,.9)';
         ctx.beginPath(); ctx.arc(enemyRearKnee[0], enemyRearKnee[1], 5.8, 0, Math.PI * 2); ctx.arc(enemyLeadKnee[0], enemyLeadKnee[1], 5.8, 0, Math.PI * 2); ctx.fill();
       }
@@ -12988,7 +13362,7 @@ function breakPlayerPosture() {
     drawBentLimb(ctx, [[-11, -13], enemyOffElbow, enemyOffHand], enemy.color, isBoss ? 11 : eliteStyle === 'shield' ? 11 : 8.5, 'rgba(8,5,4,.9)');
     const elbow = [(-10 + hand[0]) / 2 + enemyElbowBias[0], (-14 + hand[1]) / 2 + enemyElbowBias[1]];
     drawBentLimb(ctx, [[-10, -14], elbow, hand], enemy.color, isBoss ? 12 : 9.5, 'rgba(8,5,4,.95)');
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.fillStyle = '#a77c58';
       ctx.beginPath(); ctx.arc(enemyOffHand[0], enemyOffHand[1], isBoss ? 4.5 : 3.8, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = 'rgba(35,20,13,.95)';
@@ -13014,7 +13388,7 @@ function breakPlayerPosture() {
       drawWeapon(ctx, [-14, -4], [-92, 29], 'dagger', Math.max(.25, glint * .75));
     }
 
-    if (!state.performanceMode) {
+    if (!lowVisualQuality()) {
       ctx.save();
       ctx.scale(enemyFacing, 1);
       drawEnemyEmblem(ctx, enemy, isBoss ? 11 : 8, 'rgba(239,227,200,.72)');
@@ -13028,7 +13402,7 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.arc(tip[0], tip[1], 3.5 + glint * 3, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = 'rgba(255,228,150,.85)';
       ctx.lineWidth = 1.3;
-      const glintRays = state.performanceMode ? 3 : 6;
+      const glintRays = lowVisualQuality() ? 3 : 6;
       for (let i = 0; i < glintRays; i++) {
         const angle = i / glintRays * Math.PI * 2;
         ctx.beginPath();
@@ -13130,7 +13504,7 @@ function breakPlayerPosture() {
       ctx.globalAlpha = .35 + pulse * .5;
       ctx.strokeStyle = duel.comboStep === 2 ? '#ff8c6c' : '#f0cf87';
       ctx.shadowColor = ctx.strokeStyle;
-      ctx.shadowBlur = state.performanceMode ? 0 : 12;
+      ctx.shadowBlur = qualityShadow(12);
       for (let i = 0; i < 7; i++) {
         const yy = pos.y - 78 + i * 17;
         const length = 54 + i * 11;
@@ -13157,7 +13531,7 @@ function breakPlayerPosture() {
       ctx.lineCap = 'round';
       ctx.strokeStyle = duel.comboStep >= 3 ? '#ffad78' : '#f8dc94';
       ctx.shadowColor = duel.comboStep >= 3 ? '#ff623e' : '#e9b95f';
-      ctx.shadowBlur = state.performanceMode ? 0 : 18;
+      ctx.shadowBlur = qualityShadow(18);
       for (let layer = 0; layer < 3; layer++) {
         const radius = 106 - layer * 18;
         const start = -2.1 + layer * .16;
@@ -13182,7 +13556,7 @@ function breakPlayerPosture() {
       ctx.globalAlpha = .5 + slashPulse * .45;
       ctx.lineCap = 'round';
       ctx.shadowColor = '#ff704f';
-      ctx.shadowBlur = state.performanceMode ? 0 : 20;
+      ctx.shadowBlur = qualityShadow(20);
       for (let i = 0; i < 4; i++) {
         ctx.strokeStyle = i % 2 ? '#ffb27b' : '#fff0bc';
         ctx.lineWidth = 5 - i * .7;
@@ -13199,7 +13573,7 @@ function breakPlayerPosture() {
       ctx.lineCap = 'round';
       ctx.strokeStyle = second ? '#ff8d69' : '#f8df9b';
       ctx.shadowColor = second ? '#ff5a38' : '#e8bd68';
-      ctx.shadowBlur = state.performanceMode ? 0 : 16;
+      ctx.shadowBlur = qualityShadow(16);
       for (let i = 0; i < 3; i++) {
         const bend = 18 + i * 18;
         ctx.lineWidth = 6 - i;
@@ -13229,7 +13603,7 @@ function breakPlayerPosture() {
       ctx.globalAlpha = 1;
       ctx.fillStyle = glow;
       ctx.shadowColor = glow;
-      ctx.shadowBlur = state.performanceMode ? 0 : 12;
+      ctx.shadowBlur = qualityShadow(12);
       ctx.fillText(label, x, pos.y - 153);
       ctx.restore();
     }
@@ -13557,7 +13931,7 @@ function breakPlayerPosture() {
     ctx.lineDashOffset = -now * .035;
     ctx.strokeStyle = aim.parried ? '#ffe6a7' : `rgba(255,74,53,${.55 + pulse * .35})`;
     ctx.shadowColor = aim.parried ? '#ffe2a0' : '#ff3d2f';
-    ctx.shadowBlur = state.performanceMode ? 0 : 12;
+    ctx.shadowBlur = qualityShadow(12);
     ctx.lineWidth = 1.8 + progress * 1.8;
     ctx.beginPath(); ctx.moveTo(startX, startY); ctx.lineTo(aim.aimX, endY); ctx.stroke();
     ctx.setLineDash([]);
@@ -13575,7 +13949,7 @@ function breakPlayerPosture() {
     ctx.fillText('枪线 · 横移脱离', aim.aimX, endY - radius - 14);
     if (aim.cueUntil > now) {
       const cue = clamp((aim.cueUntil - now) / 170, 0, 1);
-      if (state.performanceMode) {
+      if (lowVisualQuality()) {
         ctx.fillStyle = `rgba(255,235,166,${cue * .28})`;
       } else {
         const flash = ctx.createRadialGradient(startX, startY, 2, startX, startY, 38 + (1 - cue) * 18);
@@ -13600,7 +13974,7 @@ function breakPlayerPosture() {
       ctx.rotate(-.24);
       ctx.globalAlpha = ratio;
       ctx.shadowColor = 'rgba(255,240,184,.95)';
-      ctx.shadowBlur = state.performanceMode ? 0 : 18 * clash.power;
+      ctx.shadowBlur = qualityShadow(18);
       ctx.strokeStyle = '#fff8dc';
       ctx.lineWidth = 7 * clash.power;
       ctx.lineCap = 'round';
@@ -13610,7 +13984,7 @@ function breakPlayerPosture() {
       ctx.beginPath(); ctx.moveTo(-54, 39); ctx.quadraticCurveTo(8, 8, 76, -1); ctx.stroke();
       ctx.strokeStyle = 'rgba(255,88,61,.9)';
       ctx.lineWidth = 2;
-      const shardCount = state.performanceMode ? (minimalPerformanceDetail() ? 2 : lowPerformanceDetail() ? 4 : 8) : 18;
+      const shardCount = lowVisualQuality() ? (minimalPerformanceDetail() ? 2 : lowPerformanceDetail() ? 4 : 8) : 18;
       for (let i = 0; i < shardCount; i++) {
         const angle = i / shardCount * Math.PI * 2 + .17;
         const inner = burst * .28;
@@ -13641,7 +14015,7 @@ function breakPlayerPosture() {
       ctx.save();
       ctx.globalAlpha = .95;
       ctx.shadowColor = shot.color;
-      ctx.shadowBlur = state.performanceMode ? 0 : shot.hostile ? 20 : 14;
+      ctx.shadowBlur = qualityShadow(shot.hostile ? 20 : 14);
       ctx.strokeStyle = shot.color;
       ctx.lineWidth = shot.width;
       ctx.beginPath();
@@ -13661,7 +14035,7 @@ function breakPlayerPosture() {
       ctx.globalAlpha = alpha;
       ctx.lineCap = 'round';
       ctx.shadowColor = 'rgba(255,224,140,.8)';
-      ctx.shadowBlur = state.performanceMode ? 0 : 10;
+      ctx.shadowBlur = qualityShadow(10);
       ctx.strokeStyle = '#fff3c4';
       ctx.lineWidth = 5;
       ctx.beginPath(); ctx.moveTo(-r * .78, 5); ctx.quadraticCurveTo(-r * .08, -14, r * .8, -7); ctx.stroke();
@@ -13762,7 +14136,7 @@ function breakPlayerPosture() {
     const palette = state.combat.boss
       ? { skyTop: '#100b0b', skyBottom: '#4b1718', far: '#2a1212', near: '#150b0b', ground: '#080505', sun: '#e13c32', fog: 'rgba(190,58,44,.14)' }
       : chapter.palette;
-    const shake = state.performanceMode ? Math.min(8, scene.shake * .65) : scene.shake;
+    const shake = lowVisualQuality() ? Math.min(8, scene.shake * .65) : scene.shake;
     const duel = scene.duel;
     const playerX = state.combat.playerRenderX;
     const focusSession = parrySession?.active && parrySession.timeWarp
@@ -13847,7 +14221,7 @@ function breakPlayerPosture() {
       ctx.globalCompositeOperation = 'screen';
       ctx.strokeStyle = `rgba(255,241,181,${scene.perfectFlash * .92})`;
       ctx.shadowColor = '#ffe6a0';
-      ctx.shadowBlur = state.performanceMode ? 0 : 26;
+      ctx.shadowBlur = qualityShadow(26);
       ctx.lineWidth = 10 + scene.perfectFlash * 14;
       ctx.strokeRect(8, 8, 944, 524);
       ctx.lineWidth = 2.4;
@@ -14091,6 +14465,7 @@ function breakPlayerPosture() {
     let savedStartFullscreen = false;
     let savedVideoFrameLimit = 0;
     let savedVideoVSync = true;
+    let savedQualityMode = 'auto';
     const supportedVideoFrameLimits = new Set([0, 30, 45, 60, 75, 90, 120, 144]);
     try {
       savedPerformanceMode = localStorage.getItem(PERFORMANCE_KEY) === '1';
@@ -14135,6 +14510,8 @@ function breakPlayerPosture() {
       if (supportedVideoFrameLimits.has(storedLimit)) savedVideoFrameLimit = storedLimit;
     }
     if (typeof storedGameSettings.videoVSync === 'boolean') savedVideoVSync = storedGameSettings.videoVSync;
+    const storedQualityMode = storedGameSettings.qualityMode || localStorage.getItem(QUALITY_MODE_KEY);
+    if (['auto', 'high', 'balanced', 'performance'].includes(storedQualityMode)) savedQualityMode = storedQualityMode;
     state.volume = savedVolume;
     state.musicVolume = savedMusicVolume;
     state.sfxVolume = savedSfxVolume;
@@ -14142,6 +14519,8 @@ function breakPlayerPosture() {
     state.startFullscreen = savedStartFullscreen;
     state.videoFrameLimit = savedVideoFrameLimit;
     state.videoVSync = savedVideoVSync;
+    state.qualityMode = savedQualityMode;
+    applyQualityMode(savedQualityMode, false);
     state.resolutionMode = savedResolution;
     state.sound = savedSound;
     persistGameSettings();
@@ -14195,6 +14574,11 @@ function breakPlayerPosture() {
       persistGameSettings();
       showToast(state.startFullscreen ? '下次启动将直接进入全屏。' : '下次启动将按窗口大小打开。');
     });
+    dom.qualitySelect?.addEventListener('change', () => {
+      applyQualityMode(dom.qualitySelect.value, true);
+      persistGameSettings();
+      showToast(`画面品质：${qualityModeLabel()}`);
+    });
     dom.normalFrameLimitSelect?.addEventListener('change', () => {
       const value = Number(dom.normalFrameLimitSelect.value);
       state.videoFrameLimit = supportedVideoFrameLimits.has(value) ? value : 0;
@@ -14209,7 +14593,7 @@ function breakPlayerPosture() {
       resetVideoFramePacing();
       syncSettingsUi();
       persistGameSettings();
-      showToast(state.videoVSync ? '垂直同步已开启：跟随屏幕刷新。' : '垂直同步已关闭：优先高频提交，实际帧率仍受浏览器和显卡限制。');
+      showToast(state.videoVSync ? '垂直同步已开启。' : '垂直同步已关闭，实际流畅度取决于设备。');
     });
     dom.resolutionSelect.addEventListener('change', () => {
       applyResolutionMode(dom.resolutionSelect.value, true);
@@ -14259,7 +14643,7 @@ function breakPlayerPosture() {
     syncFullscreenUi();
     dom.performanceToggle.addEventListener('click', () => {
       applyPerformanceMode(!state.performanceMode, true);
-      showToast(state.performanceMode ? '性能模式已开启：稳定优先，帧率会自动调整。' : '完整画面已恢复。');
+      showToast(state.performanceMode ? '帧率稳定优先已开启。' : '帧率稳定优先已关闭。');
     });
     dom.selectionConfirm.addEventListener('click', () => {
       if (state.screen === 'squad' && selectedSquadId) chooseSquad(selectedSquadId);
@@ -14646,7 +15030,7 @@ function breakPlayerPosture() {
 
   [RELICS, CONSUMABLES, MATERIALS, EQUIPMENT_ITEMS, SHOP_ITEMS, UPGRADES, ROUTE_TYPES, EVENTS, SQUADS, CHAPTERS, GAME_MODES, DIFFICULTY_LEVELS, SINGLE_ROOM_INFO, SINGLE_PICKUP_INFO, SINGLE_INTERACTION_INFO, TRAP_INFO, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_VARIANTS, NPC_DEFINITIONS, TALENT_TREE, PLAYER_TECHNIQUES].forEach((entries) => normalizeIconObjects(entries));
 
-  window.__longMarch = { state, GAME_VERSION, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, triggerMapTrap, buildEventChoices, talentVariantFor, ensureSingleMapEnemyState, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  window.__longMarch = { state, GAME_VERSION, applyQualityMode, qualityProfile, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, triggerMapTrap, buildEventChoices, talentVariantFor, talentCanUnlock, talentMissingPrerequisites, talentNodeState, unlockTalent, ensureSingleMapEnemyState, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
   window.__longMarch.pressGuardInput = pressGuardInput;
   window.__longMarch.releaseGuardInput = releaseGuardInput;
   window.__longMarch.performJump = performJump;
@@ -14654,6 +15038,7 @@ function breakPlayerPosture() {
   window.__longMarch.getFramePacingDebug = () => ({
     tier: document.body.dataset.renderTier || '', active: state.screen === 'battle' ? 'battle' : 'map',
     video: { frameLimit: Number(state.videoFrameLimit) || 0, vsync: !!state.videoVSync, nextMap: normalFrameLimitState.map, nextBattle: normalFrameLimitState.battle, refreshMs: +displayRefreshMs().toFixed(2), effectiveFps: Number(state.videoFrameLimit) > 0 ? Math.round(1000 / frameLimitInterval(Number(state.videoFrameLimit))) : 0 },
+    quality: { mode: state.qualityMode, tier: currentQualityTier(), deviceTier: qualityRuntime.deviceTier, profile: { ...qualityProfile() }, canvas: { width: dom.canvas?.width || 0, height: dom.canvas?.height || 0 }, mapCanvas: { width: dom.singleMapCanvas?.width || 0, height: dom.singleMapCanvas?.height || 0 } },
     map: { targetFps: mapFramePacer.targetFps, refreshMs: +mapFramePacer.refreshMs.toFixed(2), pressure: mapFramePacer.pressure, gaps: [...mapFramePacer.recentGaps], costs: [...mapFramePacer.recentCosts] },
     battle: { targetFps: battleFramePacer.targetFps, refreshMs: +battleFramePacer.refreshMs.toFixed(2), pressure: battleFramePacer.pressure, gaps: [...battleFramePacer.recentGaps], costs: [...battleFramePacer.recentCosts] }
   });
@@ -14663,6 +15048,10 @@ function breakPlayerPosture() {
   window.__longMarch.SINGLE_MAP_POINT_GAP = SINGLE_MAP_POINT_GAP;
   window.__longMarch.validateSingleMapPlacement = singleMapPlacementIsValid;
   window.__longMarch.singleMapPointOnWalkableSurface = singleMapPointOnWalkableSurface;
+  window.__longMarch.singleMapWalkableSurfacesAt = singleMapWalkableSurfacesAt;
+  window.__longMarch.singleMapMovementSurfacesConnect = singleMapMovementSurfacesConnect;
+  window.__longMarch.singleMapDoorGeometry = singleMapDoorGeometry;
+  window.__longMarch.singleMapDoorBlocks = singleMapDoorBlocks;
   window.__longMarch.resolveSingleMapMovement = resolveSingleMapMovement;
   window.__longMarch.updateSingleMap = updateSingleMap;
   document.addEventListener('DOMContentLoaded', init);

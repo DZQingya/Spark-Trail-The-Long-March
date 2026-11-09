@@ -4,7 +4,7 @@
 
 A real-time action roguelike inspired by the Long March, built with JavaScript and Canvas.
 
-Current version: **v0.31.1**
+Current version: **v0.32.0**
 
 Platform: **Windows 10/11**
 
@@ -19,6 +19,8 @@ Status: **Playable course-practice prototype**
 ## Highlights
 
 - Real-time sword combat with perfect parries, blade clashes, dodges, Mikiri-style counters, jumping, shooting, posture breaks, and executions.
+- Automatic visual quality that adapts to device capability, with high, balanced, and power-saving presets.
+- Free-form talent graph with prerequisite links, plus a one-page compact shop that avoids wheel scrolling.
 - Elites and bosses with distinct movesets, feints, repositioning, delayed attacks, fast combos, and phase transitions.
 - Two main play structures:
   - **Three-Act Expedition**: classic roguelike progression, events, elites, and one boss per act.

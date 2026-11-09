@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>长征·星火征途</title>
   <link rel="icon" href="app-icon.ico">
-  <link rel="stylesheet" href="style.css?v=0.31.1">
+  <link rel="stylesheet" href="style.css?v=0.32.0">
 </head>
 <body data-screen="title">
   <div id="app">
@@ -13,7 +13,7 @@
       <div class="topbar-left">
         <div class="brand">
           <span class="brand-star">★</span>
-          <div><strong>长征 · 星火征途</strong><small>v0.31.1</small></div>
+          <div><strong>长征 · 星火征途</strong><small>v0.32.0</small></div>
         </div>
         <div id="merit-hud" class="merit-hud hidden" aria-label="当前军功">
           <div class="merit-main"><span class="merit-star">★</span><span class="merit-label">军功</span><strong id="meta-merit">0</strong></div>
@@ -37,7 +37,7 @@
           </button>
         </div>
       </div>
-      <div class="top-meta" aria-label="系统功能">
+      <div class="top-meta" aria-label="游戏功能">
         <span id="meta-chapter" class="top-context-meta" aria-hidden="true"></span>
         <span id="meta-seed" class="top-context-meta" aria-hidden="true"></span>
         <span id="gamepad-indicator" class="gamepad-indicator hidden">手柄已连接</span>
@@ -45,7 +45,7 @@
         <button id="test-mode-toggle" class="icon-btn test-mode-toggle" type="button" aria-haspopup="dialog" aria-controls="test-mode-overlay">测试</button>
         <button id="save-manager-toggle" class="icon-btn save-manager-toggle" type="button" aria-haspopup="dialog" aria-controls="save-manager-overlay">存档</button>
         <button id="settings-toggle" class="icon-btn settings-toggle" type="button" aria-haspopup="dialog" aria-controls="settings-overlay">设置</button>
-        <button id="restart-btn" class="icon-btn hidden" type="button" title="放弃本局并将本局记入战史">放弃本局</button>
+        <button id="restart-btn" class="icon-btn hidden" type="button" title="放弃本局">放弃本局</button>
       </div>
     </header>
 
@@ -59,7 +59,7 @@
           <h1>长征<span>·</span>星火征途</h1>
           <p class="title-theme">跨越万水千山 · 走向胜利会师</p>
           <div class="seed-row">
-            <label for="seed-input">种子</label>
+            <label for="seed-input">行军代号</label>
             <input id="seed-input" type="text" maxlength="18" placeholder="随机">
           </div>
           <p id="active-save-label" class="active-save-label">当前存档 · 行军一</p>
@@ -374,14 +374,14 @@
           <p id="shop-desc">每件限购 1 次。</p>
         </div>
         <div class="shop-balance">现有军功 <strong id="shop-merit">0</strong><span>每件限购 1 次</span></div>
-        <div id="shop-items" class="card-grid two"></div>
+        <div id="shop-items" class="card-grid shop-grid"></div>
         <div class="shop-actions"><button id="shop-continue" class="brush-btn primary" type="button">返回路线</button></div>
       </section>
 
       <section id="screen-history" class="screen content-screen history-screen">
         <div class="history-card">
           <div class="history-redline"></div>
-          <p class="eyebrow">历史节点 · 已核验</p>
+          <p class="eyebrow">历史记录 · 已核验</p>
           <h2 id="history-title">遵义会议</h2>
           <div class="history-meta"><span id="history-date"></span><span id="history-place"></span></div>
           <div class="history-body">
@@ -454,13 +454,22 @@
           <button id="settings-close" class="settings-close" type="button" aria-label="关闭设置">×</button>
         </div>
         <div class="settings-rows">
-          <div class="settings-section-head"><div><strong>视频设置</strong><span>普通模式下控制帧率与画面刷新；性能模式开启时使用自动稳定档位。</span></div></div>
+          <div class="settings-section-head"><div><strong>视频设置</strong><span>调整画面的流畅度与清晰度。</span></div></div>
           <div class="settings-row">
-            <div><strong>性能模式</strong><span>自动稳定帧率；机器吃力时逐级降低细节与目标帧率，优先减少忽快忽慢。</span></div>
-            <button id="performance-toggle" class="settings-switch" type="button" aria-pressed="false">性能模式：关</button>
+            <div><strong>画面品质</strong><span id="quality-status">自动：根据设备状况调整清晰度和细节。</span></div>
+            <select id="quality-mode" class="settings-select">
+              <option value="auto">自动（推荐）</option>
+              <option value="high">高画质</option>
+              <option value="balanced">均衡</option>
+              <option value="performance">省电</option>
+            </select>
           </div>
           <div class="settings-row">
-            <div><strong>普通模式帧率</strong><span>仅在性能模式关闭时生效；垂直同步开启时不会超过显示器刷新率。</span></div>
+            <div><strong>帧率稳定优先</strong><span>设备吃力时优先保持流畅，画面细节会适当减少。</span></div>
+            <button id="performance-toggle" class="settings-switch" type="button" aria-pressed="false">帧率稳定优先：关</button>
+          </div>
+          <div class="settings-row">
+            <div><strong>普通模式帧率</strong><span>限制普通模式的画面帧数。</span></div>
             <select id="normal-frame-limit" class="settings-select">
               <option value="0">不限制</option>
               <option value="30">30 帧</option>
@@ -473,7 +482,7 @@
             </select>
           </div>
           <div class="settings-row">
-            <div><strong>垂直同步</strong><span>开启时跟随屏幕刷新；关闭后改用高频渲染提交。浏览器和系统合成器仍可能限制实际帧率。</span></div>
+            <div><strong>垂直同步</strong><span>减少画面撕裂；实际流畅度仍取决于设备。</span></div>
             <button id="vsync-toggle" class="settings-switch" type="button" aria-pressed="true">垂直同步：开</button>
           </div>
           <div class="settings-row">
@@ -495,7 +504,7 @@
             <button id="fullscreen-toggle" class="settings-switch" type="button" aria-pressed="false">全屏</button>
           </div>
           <div class="settings-row">
-            <div><strong>渲染清晰度</strong><span>控制画面内部分辨率；自动会贴合当前屏幕。</span></div>
+            <div><strong>画面清晰度</strong><span>调整画面细节；自动适合当前屏幕。</span></div>
             <select id="resolution-select" class="settings-select">
               <option value="auto">自动</option>
               <option value="960">960 × 540</option>
@@ -605,7 +614,7 @@
           <article class="tutorial-slide" data-tutorial-slide="4">
             <h3>5 · 上阵后这样打</h3>
             <p>先用 <b data-binding-label="moveUp">W</b><b data-binding-label="moveLeft">A</b><b data-binding-label="moveDown">S</b><b data-binding-label="moveRight">D</b> 或左摇杆控制距离，观察敌人抬手和武器方向。普通起手可以抢攻打断；金光绝技先格挡、闪避或识破，再趁敌将收势追刀。</p>
-            <p>沿途得到的战法和补给会一直陪队伍走到会师，也会积下军功。事件可能以资源换取<b>星火信物</b>、新的变招或军功；两件相关信物还可能触发额外联动。军需队每次只带四样货，每样仅有一件。</p>
+            <p>沿途得到的战法和补给会一直陪队伍走到会师，也会积下军功。事件可能以资源换取<b>星火信物</b>、新的变招或军功；两件相关信物还可能触发额外联动。军需站限量供应，每件只有一份。</p>
             <div class="tutorial-tip">战前演练可以只选一个科目，也可以从头完整操练；每项完成三次即可收手。</div>
           </article>
         </div>
@@ -687,16 +696,16 @@
     <div id="test-mode-overlay" class="training-menu-overlay test-mode-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="test-mode-title">
       <div class="training-menu-panel test-mode-panel">
         <button id="test-mode-close" class="tutorial-close" type="button" aria-label="关闭测试模式">×</button>
-        <p class="eyebrow">流程验证 · 战斗验证 · 构筑验证</p>
+        <p class="eyebrow">流程测试 · 战斗测试 · 构筑测试</p>
         <h2 id="test-mode-title">行军测试台</h2>
-        <p class="training-menu-lead">测试期间正式行军暂时封存，结束测试会恢复原进度；测试数值、失败与战史都不会写回正式对局。</p>
+        <p class="training-menu-lead">测试不会影响正式行军；结束测试后会回到原来的进度。</p>
         <div id="test-mode-status" class="test-mode-status"></div>
         <section class="test-mode-section">
           <h3>流程测试</h3>
           <div class="test-mode-actions">
             <button id="test-start-run" class="small-btn" type="button">新建测试行军</button>
             <button id="test-skip-battle" class="small-btn" type="button">跳过当前战斗</button>
-            <button id="test-skip-node" class="small-btn" type="button">跳过当前流程</button>
+            <button id="test-skip-node" class="small-btn" type="button">跳过当前步骤</button>
             <button id="test-grant-resources" class="small-btn" type="button">补充资源</button>
             <button id="test-single-map" class="small-btn" type="button">进入单幕地图</button>
             <button id="test-exit" class="small-btn danger" type="button">结束测试</button>
@@ -736,11 +745,11 @@
         <p class="eyebrow">队伍成长 · 刀法与天赋</p>
         <h2 id="growth-title">行军技能树</h2>
         <p id="growth-summary" class="training-menu-lead"></p>
-        <div id="growth-combos" class="growth-combos"></div>
-        <div id="growth-techniques" class="growth-techniques"></div>
         <div id="talent-tree" class="talent-tree"></div>
         <div id="talent-detail" class="talent-detail"></div>
         <button id="talent-confirm" class="brush-btn primary" type="button">学习天赋</button>
+        <div id="growth-combos" class="growth-combos"></div>
+        <div id="growth-techniques" class="growth-techniques"></div>
         <p class="training-input-hint">左摇杆 / 十字键选择 · A 确认 · B 返回</p>
       </div>
     </div>
@@ -748,7 +757,7 @@
     <div id="equipment-overlay" class="training-menu-overlay equipment-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="equipment-title">
       <div class="training-menu-panel equipment-panel">
         <button id="equipment-close" class="tutorial-close" type="button" aria-label="关闭军备">×</button>
-        <p class="eyebrow">军备系统 · 数值与强度</p>
+        <p class="eyebrow">军备 · 持续成长</p>
         <h2 id="equipment-title">军备搭配</h2>
         <p id="equipment-summary" class="training-menu-lead"></p>
         <div id="equipment-slots" class="equipment-slots"></div>
@@ -853,6 +862,6 @@
     <div id="level-toast" class="level-toast hidden">等级提升</div>
     <pre id="runtime-error" class="runtime-error hidden"></pre>
   </div>
-  <script src="game.js?v=0.31.1"></script>
+  <script src="game.js?v=0.32.0"></script>
 </body>
 </html>
