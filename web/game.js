@@ -1582,7 +1582,7 @@
   let historyReaderReturnToManual = false;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.32.1';
+  const GAME_VERSION = '0.32.2';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -5939,23 +5939,25 @@
     const pulse = .5 + .5 * Math.sin(now * .004 + x * .01 + y * .01);
     ctx.save();
     ctx.translate(x, y);
-    ctx.strokeStyle = blocked ? 'rgba(226,91,71,.5)' : active ? 'rgba(255,224,150,.9)' : 'rgba(169,196,201,.56)';
-    ctx.lineWidth = active ? 2.4 : 1.8;
-    ctx.setLineDash(active ? [] : [3, 5]);
-    ctx.beginPath(); ctx.arc(0, 0, SINGLE_MAP_TRANSITION_INTERACT_RADIUS, 0, Math.PI * 2); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = blocked ? 'rgba(92,28,23,.82)' : active ? 'rgba(89,65,29,.9)' : 'rgba(27,48,51,.82)';
-    ctx.beginPath(); ctx.arc(0, 0, active ? 28 : 24, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = blocked ? '#ef806d' : active ? `rgba(255,226,151,${.7 + pulse * .3})` : 'rgba(178,211,214,.8)';
-    ctx.lineWidth = active ? 3.2 : 2.2;
-    ctx.beginPath(); ctx.arc(0, 0, active ? 31 + pulse * 2 : 27, 0, Math.PI * 2); ctx.stroke();
+    if (active && !blocked) {
+      ctx.strokeStyle = `rgba(255,224,150,${.62 + pulse * .25})`;
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 5]);
+      ctx.beginPath(); ctx.arc(0, 0, 35 + pulse * 2, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    ctx.fillStyle = blocked ? 'rgba(92,28,23,.84)' : active ? 'rgba(89,65,29,.92)' : 'rgba(27,48,51,.84)';
+    ctx.beginPath(); ctx.arc(0, 0, active ? 20 : 18, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = blocked ? '#ef806d' : active ? '#ffe096' : 'rgba(178,211,214,.82)';
+    ctx.lineWidth = active ? 2.8 : 2;
+    ctx.beginPath(); ctx.arc(0, 0, active ? 23 : 21, 0, Math.PI * 2); ctx.stroke();
     ctx.fillStyle = blocked ? '#ffd0c6' : active ? '#fff0bd' : '#dcebea';
-    ctx.font = `bold ${active ? 13 : 11}px "Noto Serif SC", serif`;
+    ctx.font = `bold ${active ? 12 : 10}px "Noto Serif SC", serif`;
     ctx.textAlign = 'center';
     ctx.fillText(blocked ? '封锁' : label, 0, 4);
     ctx.fillStyle = blocked ? '#f0a592' : active ? '#ffe2a0' : '#b7cdcb';
-    ctx.font = 'bold 11px "Noto Serif SC", serif';
-    ctx.fillText(blocked ? '先破强敌' : '站入圈内互动', 0, 47);
+    ctx.font = 'bold 10px "Noto Serif SC", serif';
+    ctx.fillText(blocked ? '先破强敌' : active ? '可互动' : '靠近互动', 0, 34);
     ctx.restore();
   }
   function drawSingleMap(now) {
@@ -6140,7 +6142,6 @@
     else if (map.nearbyAction?.kind === 'door') { const door = map.doors.find((item) => item.id === map.nearbyAction.id); if (door) { targetPoint = door; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'chest') { const chest = map.chests.find((item) => item.id === map.nearbyAction.id); if (chest) { targetPoint = chest; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'npc') { const npc = map.npcs.find((item) => item.id === map.nearbyAction.id); if (npc) { targetPoint = npc; targetRadius = 38; } }
-    else if (map.nearbyAction?.kind === 'transition' || map.nearbyAction?.kind === 'blocked') { const transition = map.transitions.find((item) => item.id === map.nearbyAction.id); if (transition) { targetPoint = map.nearbyAction.side === 'b' ? { x: transition.bX, y: transition.bY } : { x: transition.aX, y: transition.aY }; targetRadius = 42; } }
     if (targetPoint) { ctx.save(); ctx.strokeStyle = map.nearbyAction?.kind === 'node' && targetPoint.type === 'boss' ? 'rgba(244,91,65,.9)' : 'rgba(244,209,124,.88)'; ctx.lineWidth = 3; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, targetRadius, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
     ctx.restore();
     ctx.fillStyle = '#e6cf9c'; ctx.font = 'bold 14px "Noto Serif SC", serif'; ctx.textAlign = 'left'; ctx.fillText(SINGLE_REGIONS[map.regionIndex].name, 18, 26);
