@@ -191,6 +191,89 @@
     }
   ];
 
+  const LONG_MARCH_READER = [
+    {
+      id: 'overview', period: '1934—1936', kicker: '总览', title: '跨越山河的战略转移', place: '中国中西部多省',
+      summary: '1934年至1936年，中国工农红军多支部队进行战略转移。本馆以中央红军长征主线为阅读线索，同时交代其他主力部队的会合。',
+      paragraphs: [
+        '第五次反“围剿”失利后，中央红军和中央机关被迫撤离中央革命根据地，开始战略转移。此后两年，红军在敌军追堵、复杂地形和物资困难中不断调整路线。',
+        '长征不是一条预先画好的直线。不同部队、不同时段的行动共同构成长征历史，阅读时需要区分时间、地点和部队。'
+      ],
+      facts: ['1934年10月开始战略转移', '1936年10月红军三大主力会师'],
+      sources: ['cpcMarch', 'cpcSpirit', 'museum90']
+    },
+    {
+      id: 'zunyi', period: '1935年1月', kicker: '转折', title: '遵义会议', place: '贵州遵义',
+      summary: '中共中央召开政治局扩大会议，集中解决当时具有决定意义的军事和组织问题。',
+      paragraphs: [
+        '1935年1月15日至17日，中共中央在遵义召开政治局扩大会议，增选毛泽东为中央政治局常委。',
+        '会议在极端危急的历史关头挽救党、挽救红军、挽救中国革命，是党的历史上一个生死攸关的转折点。'
+      ],
+      facts: ['会议时间：1935年1月15日至17日', '会议开始形成新的中央领导核心'],
+      sources: ['dswZunyi', 'cpcMarch']
+    },
+    {
+      id: 'chishui', period: '1935年1月至3月', kicker: '机动', title: '四渡赤水', place: '川黔滇交界赤水河流域',
+      summary: '中央红军在重兵围追堵截中四次渡过赤水河，以灵活机动争取战略主动。',
+      paragraphs: [
+        '中央红军在川黔滇边界来回穿插，调动敌军部署，随后南渡乌江、进入云南。四渡赤水不是简单的往返，而是在敌情不断变化中寻找新的行动空间。',
+        '这一段历史突出情报、速度和路线判断的重要，也体现了从实际出发、灵活机动的军事指挥。'
+      ],
+      facts: ['四次渡过赤水河', '随后继续向金沙江方向行动'],
+      sources: ['dswChishui', 'cpcMarch']
+    },
+    {
+      id: 'jinsha', period: '1935年5月', kicker: '渡江', title: '巧渡金沙江', place: '云南皎平渡等金沙江渡口',
+      summary: '中央红军夺取皎平渡等渡口，在有限船只和紧迫时间中分批渡过金沙江。',
+      paragraphs: [
+        '金沙江水急，渡口和船只都很有限。红军一边组织渡江，一边维持秩序、寻找可用船只，并与追兵争抢时间。',
+        '渡过金沙江后，中央红军跳出了敌军围追堵截的紧逼态势，为继续北上创造了条件。'
+      ],
+      facts: ['分批渡江', '组织秩序与群众支持缺一不可'],
+      sources: ['cpcMarch', 'dswChishui']
+    },
+    {
+      id: 'dadu', period: '1935年5月', kicker: '险关', title: '强渡大渡河与飞夺泸定桥', place: '四川安顺场、泸定桥',
+      summary: '先头部队在安顺场强渡大渡河；由于渡河工具不足，红四团沿河北上急行军并夺取泸定桥。',
+      paragraphs: [
+        '强渡大渡河与飞夺泸定桥是相关但不同的行动。安顺场打开了渡河通道，但现有船只不足以让全军迅速过河。',
+        '红四团沿大渡河北上争夺泸定桥，为中央红军打开北上通道。这里的胜负取决于速度、协同和突击决心。'
+      ],
+      facts: ['安顺场强渡与泸定桥战斗不可混为同一场战斗', '目标是尽快打开北上通道'],
+      sources: ['cpcMarch', 'dswZunyi']
+    },
+    {
+      id: 'jiajin', period: '1935年6月', kicker: '雪山', title: '翻越夹金山', place: '四川宝兴县夹金山',
+      summary: '中央红军翻越海拔4000多米的夹金山，严寒、缺氧和补给困难造成严重考验。',
+      paragraphs: [
+        '夹金山海拔高、天气变化快。装备单薄、粮食不足和空气稀薄，让行军本身成为一场持续消耗。',
+        '队伍依靠互相搀扶、纪律和组织坚持前进。翻越雪山不是一次短暂冲刺，而是对体力、意志和集体协作的长期考验。'
+      ],
+      facts: ['海拔4000多米', '严寒、缺氧和补给困难同时出现'],
+      sources: ['cpcMarch', 'cpcSpirit']
+    },
+    {
+      id: 'grassland', period: '1935年8月', kicker: '草地', title: '穿越松潘草地', place: '四川松潘草地',
+      summary: '中央红军穿越沼泽遍布、荒无人烟、补给困难的松潘草地。',
+      paragraphs: [
+        '草地表面看似连成一片，脚下却可能是深陷的沼泽。缺粮、疾病、御寒和宿营困难连续消耗队伍力量。',
+        '这一段行军考验的不只是勇气，还包括路线判断、组织互助和纪律。很多牺牲并不发生在正面战场，而发生在漫长而沉默的行军途中。'
+      ],
+      facts: ['沼泽、缺粮、疾病和夜寒交织', '重点是组织、互助和坚持北上'],
+      sources: ['cpcMarch', 'cpcSpirit']
+    },
+    {
+      id: 'huining', period: '1936年10月', kicker: '会师', title: '会宁与将台堡会师', place: '甘肃会宁、宁夏将台堡与兴隆镇',
+      summary: '红军三大主力胜利会师，长征胜利结束。',
+      paragraphs: [
+        '1936年10月9日，红四方面军指挥部到达会宁，与红一方面军会合；10月22日至23日，红二方面军在将台堡、兴隆镇与红一方面军会师。',
+        '会宁与将台堡、兴隆镇的会合共同构成三大主力胜利会师的历史过程。长征的结束，也为中国革命保存了宝贵力量。'
+      ],
+      facts: ['1936年10月9日：会宁会合', '1936年10月22日至23日：将台堡、兴隆镇会师', '红军三大主力胜利会师'],
+      sources: ['dswHuining', 'cpcMarch', 'cpcSpirit']
+    }
+  ];
+
   const GAME_MODES = [
     {
       id: 'roguelike', mode: 'roguelike', pace: 'normal', icon: '火', name: '三幕远征', badge: '经典肉鸽',
@@ -1384,7 +1467,7 @@
   const dom = {
     app: $('app'), screens: [...document.querySelectorAll('.screen')],
     metaChapter: $('meta-chapter'), metaSeed: $('meta-seed'), metaMerit: $('meta-merit'), meritHud: $('merit-hud'), relicHud: $('relic-hud'), gameplayAccess: document.querySelector('.gameplay-access'), globalPlayerHud: $('global-player-hud'), globalPlayerHpText: $('global-player-hp-text'), globalPlayerHpBar: $('global-player-hp-bar'), growthToggle: $('growth-toggle'), growthEntryMeta: $('growth-entry-meta'), equipmentToggle: $('equipment-toggle'), equipmentEntryMeta: $('equipment-entry-meta'), relicDetailOverlay: $('relic-detail-overlay'), relicDetailName: $('relic-detail-name'), relicDetailBody: $('relic-detail-body'), relicDetailClose: $('relic-detail-close'), relicDetailDone: $('relic-detail-done'), growthOverlay: $('growth-overlay'), growthClose: $('growth-close'), growthSummary: $('growth-summary'), growthCombos: $('growth-combos'), growthTechniques: $('growth-techniques'), talentTree: $('talent-tree'), talentDetail: $('talent-detail'), talentConfirm: $('talent-confirm'), equipmentOverlay: $('equipment-overlay'), equipmentClose: $('equipment-close'), equipmentSummary: $('equipment-summary'), equipmentSlots: $('equipment-slots'), equipmentInventory: $('equipment-inventory'), equipmentDetail: $('equipment-detail'), equipmentEquip: $('equipment-equip'), equipmentUpgrade: $('equipment-upgrade'), equipmentDone: $('equipment-done'), npcOverlay: $('npc-overlay'), npcClose: $('npc-close'), npcKicker: $('npc-kicker'), npcTitle: $('npc-title'), npcDialogue: $('npc-dialogue'), npcStatus: $('npc-status'), npcOptions: $('npc-options'), bonfireOverlay: $('bonfire-overlay'), bonfireClose: $('bonfire-close'), bonfireList: $('bonfire-list'), bonfireInputHint: $('bonfire-input-hint'), acquisitionOverlay: $('acquisition-overlay'), acquisitionKicker: $('acquisition-kicker'), acquisitionIcon: $('acquisition-icon'), acquisitionTitle: $('acquisition-title'), acquisitionMeta: $('acquisition-meta'), acquisitionDesc: $('acquisition-desc'), acquisitionEffects: $('acquisition-effects'), acquisitionNote: $('acquisition-note'), acquisitionConfirm: $('acquisition-confirm'), buffDetailBtn: $('buff-detail-btn'), buffDetailOverlay: $('buff-detail-overlay'), buffDetailBody: $('buff-detail-body'), routeBossForecast: $('route-boss-forecast'), buffDetailClose: $('buff-detail-close'), buffDetailDone: $('buff-detail-done'), gamepadIndicator: $('gamepad-indicator'),
-    manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), qualitySelect: $('quality-mode'), qualityStatus: $('quality-status'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
+    historyReaderBtn: $('manual-history-btn'), historyReaderOverlay: $('history-reader-overlay'), historyReaderClose: $('history-reader-close'), historyReaderToc: $('history-reader-toc'), historyReaderArticle: $('history-reader-article'), historyReaderProgress: $('history-reader-progress'), historyReaderDone: $('history-reader-done'), manualMenuOverlay: $('manual-menu-overlay'), manualMenuClose: $('manual-menu-close'), manualGuideBtn: $('manual-guide-btn'), manualPracticeBtn: $('manual-practice-btn'), tutorialBtn: $('tutorial-btn'), testModeToggle: $('test-mode-toggle'), testModeOverlay: $('test-mode-overlay'), testModeClose: $('test-mode-close'), testModeStatus: $('test-mode-status'), testStartRun: $('test-start-run'), testSkipBattle: $('test-skip-battle'), testSkipNode: $('test-skip-node'), testGrantResources: $('test-grant-resources'), testSingleMap: $('test-single-map'), testExit: $('test-exit'), testComboButtons: $('test-combo-buttons'), testRelicList: $('test-relic-list'), testEquipmentList: $('test-equipment-list'), testEnemyList: $('test-enemy-list'), saveManagerToggle: $('save-manager-toggle'), saveManagerBtn: $('save-manager-btn'), saveManagerOverlay: $('save-manager-overlay'), pauseToggle: $('pause-toggle'), pauseOverlay: $('pause-overlay'), pauseSummary: $('pause-summary'), pauseHp: $('pause-hp'), pauseProgressLabel: $('pause-progress-label'), pauseResume: $('pause-resume'), pauseSaveExit: $('pause-save-exit'), pauseAbandonRun: $('pause-abandon-run'), saveSlotList: $('save-slot-list'), saveManagerClose: $('save-manager-close'), saveManagerDone: $('save-manager-done'), saveSlotNew: $('save-slot-new'), openSaveFolder: $('open-save-folder'), saveFolderPath: $('save-folder-path'), activeSaveLabel: $('active-save-label'), settingsToggle: $('settings-toggle'), exitGameBtn: $('exit-game-btn'), settingsOverlay: $('settings-overlay'), settingsClose: $('settings-close'), settingsDone: $('settings-done'), soundToggle: $('sound-toggle'), performanceToggle: $('performance-toggle'), qualitySelect: $('quality-mode'), qualityStatus: $('quality-status'), normalFrameLimitSelect: $('normal-frame-limit'), vsyncToggle: $('vsync-toggle'), fullscreenToggle: $('fullscreen-toggle'), startFullscreenToggle: $('start-fullscreen-toggle'), volumeSlider: $('volume-slider'), volumeValue: $('volume-value'), musicVolumeSlider: $('music-volume-slider'), musicVolumeValue: $('music-volume-value'), sfxVolumeSlider: $('sfx-volume-slider'), sfxVolumeValue: $('sfx-volume-value'), startupWindowSelect: $('startup-window-select'), resolutionSelect: $('resolution-select'), gamepadLayout: $('gamepad-layout'), gamepadStatus: $('gamepad-status'), gamepadRefresh: $('gamepad-refresh'), settingsGamepadHint: $('settings-gamepad-hint'), settingsSelectPopover: $('settings-select-popover'), bindingList: $('key-binding-list'), bindingReset: $('binding-reset'), quickItemHud: $('quick-item-hud'), quickItemKey: $('quick-item-key'), quickItemName: $('quick-item-name'), quickItemCount: $('quick-item-count'), gamepadControlStrip: $('gamepad-control-strip'), restartBtn: $('restart-btn'),
     modeCards: $('mode-cards'), difficultyOptions: $('difficulty-options'), difficultyBack: $('difficulty-back'), singleMapBoard: $('single-map-board'), singleMapCanvas: $('single-map-canvas'), singleMapControlsHint: $('single-map-controls-hint'), singleMapTitle: $('single-map-title'), singleMapEyebrow: $('single-map-eyebrow'), singleMapRegionCount: $('single-map-region-count'), singleMapChartCount: $('single-map-chart-count'), singleMapLayerName: $('single-map-layer-name'), singleMapActionHint: $('single-map-action-hint'), singleMapTaskPanel: $('single-map-task-panel'), singleMapTaskCount: $('single-map-task-count'), singleMapTaskList: $('single-map-task-list'), singleMapCollectCount: $('single-map-collect-count'), singleMapProgressCount: $('single-map-progress-count'), singleMapRoomRegion: $('single-map-room-region'), singleMapRoomName: $('single-map-room-name'), singleMapRoomDesc: $('single-map-room-desc'), singleMapTestExit: $('single-map-test-exit'), seedInput: $('seed-input'), startBtn: $('start-btn'), continueRunBtn: $('continue-run-btn'), runHistoryBtn: $('run-history-btn'), runHistoryTitle: $('run-history-title'), runHistoryOverlay: $('run-history-overlay'), runHistoryList: $('run-history-list'), runHistoryClose: $('run-history-close'), runHistoryDone: $('run-history-done'), enemyCodexBtn: $('enemy-codex-btn'), clueCodexBtn: $('clue-codex-btn'), enemyCodexOverlay: $('enemy-codex-overlay'), enemyCodexTitle: $('enemy-codex-title'), enemyCodexGrid: $('enemy-codex-grid'), enemyCodexProgress: $('enemy-codex-progress'), enemyCodexLead: $('enemy-codex-lead'), enemyCodexLeadText: $('enemy-codex-lead-text'), codexCategoryRow: $('codex-category-row'), codexDetail: $('codex-detail'), enemyCodexClose: $('enemy-codex-close'), enemyCodexDone: $('enemy-codex-done'), tutorialOverlay: $('tutorial-overlay'), tutorialClose: $('tutorial-close'), tutorialPrev: $('tutorial-prev'), tutorialNext: $('tutorial-next'), tutorialSkip: $('tutorial-skip'), tutorialSlides: [...document.querySelectorAll('[data-tutorial-slide]')], tutorialDots: [...document.querySelectorAll('#tutorial-dots i')],
     squadCards: $('squad-cards'),
     routeEyebrow: $('route-eyebrow'), routeTitle: $('route-title'), routeDesc: $('route-desc'),
@@ -1495,9 +1578,11 @@
   }
 
   let tutorialStep = 0;
+  let selectedHistoryReaderIndex = 0;
+  let historyReaderReturnToManual = false;
   let abandonPromptFromPause = false;
   let continueToPracticalAfterGuide = false;
-  const GAME_VERSION = '0.32.0';
+  const GAME_VERSION = '0.32.1';
   const LEGACY_TUTORIAL_KEY = 'longMarchTutorialSeenV1';
   const LEGACY_PRACTICAL_TUTORIAL_KEY = 'longMarchPracticalTutorialAutoV1';
   const LEGACY_RUN_SAVE_KEY = 'longMarchCurrentRunV2';
@@ -1839,7 +1924,7 @@
   }
 
   function blockingGameplayModalOpen() {
-    return !!document.querySelector('#acquisition-overlay:not(.hidden), #npc-overlay:not(.hidden), #relic-detail-overlay:not(.hidden), #growth-overlay:not(.hidden), #equipment-overlay:not(.hidden), #bonfire-overlay:not(.hidden), #save-manager-overlay:not(.hidden), #settings-overlay:not(.hidden), #buff-detail-overlay:not(.hidden), #restart-confirm-overlay:not(.hidden)');
+    return !!document.querySelector('#acquisition-overlay:not(.hidden), #npc-overlay:not(.hidden), #relic-detail-overlay:not(.hidden), #growth-overlay:not(.hidden), #equipment-overlay:not(.hidden), #bonfire-overlay:not(.hidden), #save-manager-overlay:not(.hidden), #settings-overlay:not(.hidden), #buff-detail-overlay:not(.hidden), #restart-confirm-overlay:not(.hidden), #history-reader-overlay:not(.hidden)');
   }
 
   function pauseLocationLabel() {
@@ -2577,6 +2662,44 @@
     dom.tutorialNext.textContent = tutorialStep === dom.tutorialSlides.length - 1 ? '开始行军' : '下一步';
   }
 
+  function renderHistoryReader() {
+    if (!dom.historyReaderToc || !dom.historyReaderArticle) return;
+    selectedHistoryReaderIndex = clamp(selectedHistoryReaderIndex, 0, LONG_MARCH_READER.length - 1);
+    const article = LONG_MARCH_READER[selectedHistoryReaderIndex];
+    dom.historyReaderToc.innerHTML = LONG_MARCH_READER.map((entry, index) => `<button class="history-reader-toc-btn ${index === selectedHistoryReaderIndex ? 'active' : ''}" type="button" data-history-reader-index="${index}" aria-pressed="${index === selectedHistoryReaderIndex}"><span>${entry.period}</span><strong>${entry.kicker} · ${entry.title}</strong></button>`).join('');
+    dom.historyReaderArticle.innerHTML = `<header class="history-reader-article-head"><div class="history-reader-meta"><span>${article.period}</span><span>${article.place}</span></div><h3>${article.title}</h3><p>${article.summary}</p></header><div class="history-reader-body">${article.paragraphs.map((paragraph) => `<p>${paragraph}</p>`).join('')}</div><section class="history-reader-facts"><h4>读到这里</h4><ul>${article.facts.map((fact) => `<li>${fact}</li>`).join('')}</ul></section><section class="history-reader-sources"><h4>资料来源</h4><div class="source-list">${sourceListHtml(article.sources)}</div></section>`;
+    dom.historyReaderProgress.textContent = `${selectedHistoryReaderIndex + 1} / ${LONG_MARCH_READER.length}`;
+  }
+  function selectHistoryReader(index, focus = false) {
+    selectedHistoryReaderIndex = clamp(Number(index) || 0, 0, LONG_MARCH_READER.length - 1);
+    renderHistoryReader();
+    if (focus) {
+      const button = dom.historyReaderToc?.querySelector(`[data-history-reader-index="${selectedHistoryReaderIndex}"]`);
+      if (button) activeGamepad ? focusGamepadElement(button) : button.focus({ preventScroll: true });
+    }
+  }
+  function openHistoryReader(index = 0) {
+    selectedHistoryReaderIndex = clamp(Number(index) || 0, 0, LONG_MARCH_READER.length - 1);
+    historyReaderReturnToManual = !!dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden');
+    if (historyReaderReturnToManual) closeManualMenu(false);
+    renderHistoryReader();
+    dom.historyReaderOverlay?.classList.remove('hidden');
+    setTimeout(() => {
+      const target = dom.historyReaderToc?.querySelector(`[data-history-reader-index="${selectedHistoryReaderIndex}"]`) || dom.historyReaderDone;
+      if (target) activeGamepad ? focusGamepadElement(target) : target.focus({ preventScroll: true });
+    }, 0);
+  }
+  function closeHistoryReader(restoreFocus = true) {
+    dom.historyReaderOverlay?.classList.add('hidden');
+    const returnToManual = historyReaderReturnToManual;
+    historyReaderReturnToManual = false;
+    if (!restoreFocus) return;
+    if (returnToManual) dom.manualMenuOverlay?.classList.remove('hidden');
+    setTimeout(() => {
+      if (activeGamepad && dom.historyReaderBtn) focusGamepadElement(dom.historyReaderBtn);
+      else dom.historyReaderBtn?.focus({ preventScroll: true });
+    }, 0);
+  }
   function openManualMenu() {
     dom.manualMenuOverlay?.classList.remove('hidden');
     setTimeout(() => {
@@ -4420,6 +4543,12 @@
     { ground: '#281b16', path: '#5b3c2d', edge: '#9d6a4d', fog: 'rgba(135,78,49,.16)', accent: '#e3ac72' }
   ];
 
+  const SINGLE_MAP_TRANSITION_INTERACT_RADIUS = 82;
+  function layerTransitionShortLabel(kind, side = 'a') {
+    if (side === 'a') return SINGLE_LAYER_TRANSITION_SHORT[kind] || '换层';
+    const reverse = { stairs_up: 'stairs_down', stairs_down: 'stairs_up', rope_up: 'rope_down', rope_down: 'rope_up', crawler: 'crawler', underground_drop: 'shaft_up', shaft_up: 'underground_drop', shaft_down: 'shaft_up' };
+    return SINGLE_LAYER_TRANSITION_SHORT[reverse[kind] || kind] || '换层';
+  }
   function layerTransitionLabel(kind, side = 'a') {
     if (side === 'a') return SINGLE_LAYER_TRANSITION_LABELS[kind] || '切换地势';
     const reverse = { stairs_up: 'stairs_down', stairs_down: 'stairs_up', rope_up: 'rope_down', rope_down: 'rope_up', crawler: 'crawler', underground_drop: 'shaft_up', shaft_up: 'underground_drop', shaft_down: 'shaft_up' };
@@ -5077,11 +5206,13 @@
       const blockedLabel = blockerId ? `请先击败 ${singleMapBlockerName(map, blockerId)}` : '';
       if (layer === transition.aLayer) {
         const distance = Math.hypot(p.x - transition.aX, p.y - transition.aY);
-        if (distance <= 52) actions.push({ kind: blockerId ? 'blocked' : 'transition', id: transition.id, side: 'a', distance, label: blockerId ? blockedLabel : layerTransitionLabel(transition.kind, 'a') });
+        const reachable = distance <= SINGLE_MAP_TRANSITION_INTERACT_RADIUS && singleMapMovementSurfacesConnect(map, p.x, p.y, transition.aX, transition.aY, map.player.r || 17, layer, p.pathId);
+        if (reachable) actions.push({ kind: blockerId ? 'blocked' : 'transition', id: transition.id, side: 'a', distance, label: blockerId ? blockedLabel : layerTransitionLabel(transition.kind, 'a') });
       }
       if (layer === transition.bLayer && (!transition.reverseRequiresDiscovery || transition.discovered)) {
         const distance = Math.hypot(p.x - transition.bX, p.y - transition.bY);
-        if (distance <= 52) actions.push({ kind: blockerId ? 'blocked' : 'transition', id: transition.id, side: 'b', distance: distance + 2, label: blockerId ? blockedLabel : layerTransitionLabel(transition.kind, 'b') });
+        const reachable = distance <= SINGLE_MAP_TRANSITION_INTERACT_RADIUS && singleMapMovementSurfacesConnect(map, p.x, p.y, transition.bX, transition.bY, map.player.r || 17, layer, p.pathId);
+        if (reachable) actions.push({ kind: blockerId ? 'blocked' : 'transition', id: transition.id, side: 'b', distance: distance + 2, label: blockerId ? blockedLabel : layerTransitionLabel(transition.kind, 'b') });
       }
     });
     (map.doors || []).forEach((door) => {
@@ -5804,6 +5935,29 @@
     ctx.restore();
   }
 
+  function drawSingleMapTransitionEndpoint(ctx, x, y, label, active, blocked, now) {
+    const pulse = .5 + .5 * Math.sin(now * .004 + x * .01 + y * .01);
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.strokeStyle = blocked ? 'rgba(226,91,71,.5)' : active ? 'rgba(255,224,150,.9)' : 'rgba(169,196,201,.56)';
+    ctx.lineWidth = active ? 2.4 : 1.8;
+    ctx.setLineDash(active ? [] : [3, 5]);
+    ctx.beginPath(); ctx.arc(0, 0, SINGLE_MAP_TRANSITION_INTERACT_RADIUS, 0, Math.PI * 2); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = blocked ? 'rgba(92,28,23,.82)' : active ? 'rgba(89,65,29,.9)' : 'rgba(27,48,51,.82)';
+    ctx.beginPath(); ctx.arc(0, 0, active ? 28 : 24, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = blocked ? '#ef806d' : active ? `rgba(255,226,151,${.7 + pulse * .3})` : 'rgba(178,211,214,.8)';
+    ctx.lineWidth = active ? 3.2 : 2.2;
+    ctx.beginPath(); ctx.arc(0, 0, active ? 31 + pulse * 2 : 27, 0, Math.PI * 2); ctx.stroke();
+    ctx.fillStyle = blocked ? '#ffd0c6' : active ? '#fff0bd' : '#dcebea';
+    ctx.font = `bold ${active ? 13 : 11}px "Noto Serif SC", serif`;
+    ctx.textAlign = 'center';
+    ctx.fillText(blocked ? '封锁' : label, 0, 4);
+    ctx.fillStyle = blocked ? '#f0a592' : active ? '#ffe2a0' : '#b7cdcb';
+    ctx.font = 'bold 11px "Noto Serif SC", serif';
+    ctx.fillText(blocked ? '先破强敌' : '站入圈内互动', 0, 47);
+    ctx.restore();
+  }
   function drawSingleMap(now) {
     const canvas = dom.singleMapCanvas, map = state.singleMap; if (!canvas || !map) return;
     if (!singleMapContextCache) singleMapContextCache = canvas.getContext('2d', { alpha: false, desynchronized: true });
@@ -5962,13 +6116,23 @@
       const a = singleMapRoom(map, transition.aId), b = singleMapRoom(map, transition.bId);
       if (!a || !b) return;
       const current = transition.aLayer === map.player.layer || transition.bLayer === map.player.layer;
-      const near = Math.min(Math.hypot(map.player.x - transition.aX, map.player.y - transition.aY), Math.hypot(map.player.x - transition.bX, map.player.y - transition.bY)) < 300;
+      const aDistance = Math.hypot(map.player.x - transition.aX, map.player.y - transition.aY);
+      const bDistance = Math.hypot(map.player.x - transition.bX, map.player.y - transition.bY);
+      const near = Math.min(aDistance, bDistance) < 300;
       if (!map.charts[transition.region] && !near) return;
       const blockerId = singleMapBlockedBy(map, transition), midX = (transition.aX + transition.bX) / 2, midY = (transition.aY + transition.bY) / 2;
       ctx.save(); ctx.globalAlpha = current ? .72 : .16; ctx.strokeStyle = blockerId ? '#e25b47' : '#a9c4c9'; ctx.lineWidth = blockerId ? 3 : 2; ctx.setLineDash(blockerId ? [4, 6] : [4, 8]);
       ctx.beginPath(); ctx.moveTo(transition.aX, transition.aY); ctx.lineTo(transition.bX, transition.bY); ctx.stroke(); ctx.setLineDash([]);
       if (blockerId) { ctx.beginPath(); ctx.moveTo(midX - 13, midY - 10); ctx.lineTo(midX + 13, midY + 10); ctx.moveTo(midX + 13, midY - 10); ctx.lineTo(midX - 13, midY + 10); ctx.stroke(); }
-      ctx.fillStyle = blockerId ? '#ffb09c' : '#dbe9e8'; ctx.font = 'bold 12px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText(blockerId ? '⚔' : (SINGLE_LAYER_TRANSITION_SHORT[transition.kind] || '↕'), midX, midY - 14); ctx.restore();
+      ctx.fillStyle = blockerId ? '#ffb09c' : '#dbe9e8'; ctx.font = 'bold 12px "Noto Serif SC", serif'; ctx.textAlign = 'center'; ctx.fillText('↕', midX, midY - 14); ctx.restore();
+      if (transition.aLayer === map.player.layer) {
+        const active = !!map.nearbyAction && map.nearbyAction.id === transition.id && map.nearbyAction.side === 'a';
+        drawSingleMapTransitionEndpoint(ctx, transition.aX, transition.aY, layerTransitionShortLabel(transition.kind, 'a'), active, !!blockerId, now);
+      }
+      if (transition.bLayer === map.player.layer && (!transition.reverseRequiresDiscovery || transition.discovered)) {
+        const active = !!map.nearbyAction && map.nearbyAction.id === transition.id && map.nearbyAction.side === 'b';
+        drawSingleMapTransitionEndpoint(ctx, transition.bX, transition.bY, layerTransitionShortLabel(transition.kind, 'b'), active, !!blockerId, now);
+      }
     });
     drawSingleMapPlayer(ctx, map, now);
     let targetPoint = null, targetRadius = 40;
@@ -5976,6 +6140,7 @@
     else if (map.nearbyAction?.kind === 'door') { const door = map.doors.find((item) => item.id === map.nearbyAction.id); if (door) { targetPoint = door; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'chest') { const chest = map.chests.find((item) => item.id === map.nearbyAction.id); if (chest) { targetPoint = chest; targetRadius = 34; } }
     else if (map.nearbyAction?.kind === 'npc') { const npc = map.npcs.find((item) => item.id === map.nearbyAction.id); if (npc) { targetPoint = npc; targetRadius = 38; } }
+    else if (map.nearbyAction?.kind === 'transition' || map.nearbyAction?.kind === 'blocked') { const transition = map.transitions.find((item) => item.id === map.nearbyAction.id); if (transition) { targetPoint = map.nearbyAction.side === 'b' ? { x: transition.bX, y: transition.bY } : { x: transition.aX, y: transition.aY }; targetRadius = 42; } }
     if (targetPoint) { ctx.save(); ctx.strokeStyle = map.nearbyAction?.kind === 'node' && targetPoint.type === 'boss' ? 'rgba(244,91,65,.9)' : 'rgba(244,209,124,.88)'; ctx.lineWidth = 3; ctx.setLineDash([6, 8]); ctx.beginPath(); ctx.arc(targetPoint.x, targetPoint.y, targetRadius, 0, Math.PI * 2); ctx.stroke(); ctx.restore(); }
     ctx.restore();
     ctx.fillStyle = '#e6cf9c'; ctx.font = 'bold 14px "Noto Serif SC", serif'; ctx.textAlign = 'left'; ctx.fillText(SINGLE_REGIONS[map.regionIndex].name, 18, 26);
@@ -8248,7 +8413,7 @@
       return [...dom.settingsSelectPopover.querySelectorAll('button:not([disabled])')]
         .filter((element) => element.getClientRects().length > 0);
     }
-    const modal = [dom.acquisitionOverlay, dom.relicDetailOverlay, dom.growthOverlay, dom.equipmentOverlay, dom.npcOverlay, dom.restartConfirmOverlay, dom.saveManagerOverlay, dom.runHistoryOverlay, dom.enemyCodexOverlay, dom.manualMenuOverlay, dom.trainingBriefOverlay, dom.trainingMenuOverlay, dom.testModeOverlay, dom.settingsOverlay, dom.buffDetailOverlay, dom.eventDetailOverlay, dom.choiceDetailOverlay, dom.tutorialOverlay]
+    const modal = [dom.acquisitionOverlay, dom.relicDetailOverlay, dom.growthOverlay, dom.equipmentOverlay, dom.npcOverlay, dom.restartConfirmOverlay, dom.saveManagerOverlay, dom.runHistoryOverlay, dom.enemyCodexOverlay, dom.historyReaderOverlay, dom.manualMenuOverlay, dom.trainingBriefOverlay, dom.trainingMenuOverlay, dom.testModeOverlay, dom.settingsOverlay, dom.buffDetailOverlay, dom.eventDetailOverlay, dom.choiceDetailOverlay, dom.tutorialOverlay]
       .find((overlay) => overlay && !overlay.classList.contains('hidden'));
     const screen = document.querySelector('.screen.active');
     const root = modal || screen || document;
@@ -8405,6 +8570,7 @@
 
   function gamepadPrimaryElement() {
     if (dom.restartConfirmOverlay && !dom.restartConfirmOverlay.classList.contains('hidden')) return dom.restartConfirmCancel;
+    if (dom.historyReaderOverlay && !dom.historyReaderOverlay.classList.contains('hidden')) return dom.historyReaderToc?.querySelector('.history-reader-toc-btn.active') || dom.historyReaderDone;
     if (dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden')) return dom.manualGuideBtn || dom.manualPracticeBtn;
     if (dom.saveManagerOverlay && !dom.saveManagerOverlay.classList.contains('hidden')) return dom.saveSlotNew || dom.saveManagerDone;
     if (dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden')) return dom.runHistoryDone;
@@ -8575,6 +8741,7 @@
     if (dom.buffDetailOverlay && !dom.buffDetailOverlay.classList.contains('hidden')) { closeBuffDetails(); return; }
     if (dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden')) { closeRunHistory(); return; }
     if (dom.enemyCodexOverlay && !dom.enemyCodexOverlay.classList.contains('hidden')) { closeEnemyCodex(); return; }
+    if (dom.historyReaderOverlay && !dom.historyReaderOverlay.classList.contains('hidden')) { closeHistoryReader(); return; }
     if (dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden')) { closeManualMenu(); return; }
     if (dom.trainingMenuOverlay && !dom.trainingMenuOverlay.classList.contains('hidden')) { closeTrainingMenu(); return; }
     if (dom.testModeOverlay && !dom.testModeOverlay.classList.contains('hidden')) { closeTestMode(); return; }
@@ -8666,6 +8833,7 @@
     const saveManagerOpen = !!dom.saveManagerOverlay && !dom.saveManagerOverlay.classList.contains('hidden');
     const enemyCodexOpen = !!dom.enemyCodexOverlay && !dom.enemyCodexOverlay.classList.contains('hidden');
     const manualMenuOpen = !!dom.manualMenuOverlay && !dom.manualMenuOverlay.classList.contains('hidden');
+    const historyReaderOpen = !!dom.historyReaderOverlay && !dom.historyReaderOverlay.classList.contains('hidden');
     const trainingMenuOpen = !!dom.trainingMenuOverlay && !dom.trainingMenuOverlay.classList.contains('hidden');
     const trainingBriefOpen = !!dom.trainingBriefOverlay && !dom.trainingBriefOverlay.classList.contains('hidden');
     const testModeOpen = !!dom.testModeOverlay && !dom.testModeOverlay.classList.contains('hidden');
@@ -8677,7 +8845,7 @@
     const bonfireOpen = !!dom.bonfireOverlay && !dom.bonfireOverlay.classList.contains('hidden');
     const restartOpen = !!dom.restartConfirmOverlay && !dom.restartConfirmOverlay.classList.contains('hidden');
     const detailOpen = (dom.choiceDetailOverlay && !dom.choiceDetailOverlay.classList.contains('hidden')) || (dom.eventDetailOverlay && !dom.eventDetailOverlay.classList.contains('hidden'));
-    const anyModalOpen = settingsOpen || pauseOpen || buffOpen || tutorialOpen || runHistoryOpen || enemyCodexOpen || saveManagerOpen || manualMenuOpen || trainingMenuOpen || trainingBriefOpen || testModeOpen || acquisitionOpen || relicDetailOpen || growthOpen || equipmentOpen || npcOpen || bonfireOpen || restartOpen || detailOpen;
+    const anyModalOpen = settingsOpen || pauseOpen || buffOpen || tutorialOpen || runHistoryOpen || enemyCodexOpen || saveManagerOpen || historyReaderOpen || manualMenuOpen || trainingMenuOpen || trainingBriefOpen || testModeOpen || acquisitionOpen || relicDetailOpen || growthOpen || equipmentOpen || npcOpen || bonfireOpen || restartOpen || detailOpen;
     const battleActive = state.screen === 'battle' && state.combat && !state.combat.finished && !state.player.postureBroken;
     const [axisX, axisY] = gamepadAxes(pad);
     let menuAxisX = Math.abs(axisX) >= GAMEPAD_MENU_DEADZONE ? Math.sign(axisX) : 0;
@@ -14332,6 +14500,11 @@ function breakPlayerPosture() {
     loadEnemyCodexState();
     renderSquads();
     state.rng = mulberry32(0x9e3779b9);
+    dom.historyReaderBtn?.addEventListener('click', () => openHistoryReader());
+    dom.historyReaderClose?.addEventListener('click', () => closeHistoryReader());
+    dom.historyReaderDone?.addEventListener('click', () => closeHistoryReader());
+    dom.historyReaderToc?.addEventListener('click', (event) => { const button = event.target.closest('[data-history-reader-index]'); if (!button) return; selectHistoryReader(Number(button.dataset.historyReaderIndex), activeGamepad); playSound('click'); });
+    dom.historyReaderOverlay?.addEventListener('pointerdown', (event) => { if (event.target === dom.historyReaderOverlay) closeHistoryReader(); });
     dom.tutorialBtn.addEventListener('click', openManualMenu);
     dom.manualMenuClose?.addEventListener('click', () => closeManualMenu());
     dom.manualGuideBtn?.addEventListener('click', openManualGuide);
@@ -14686,6 +14859,9 @@ function breakPlayerPosture() {
         } else if (dom.npcOverlay && !dom.npcOverlay.classList.contains('hidden')) {
           event.preventDefault();
           closeNpcPanel();
+        } else if (dom.historyReaderOverlay && !dom.historyReaderOverlay.classList.contains('hidden')) {
+          event.preventDefault();
+          closeHistoryReader();
         } else if (dom.saveManagerOverlay && !dom.saveManagerOverlay.classList.contains('hidden')) {
           event.preventDefault();
           closeSaveManager();
@@ -14812,6 +14988,7 @@ function breakPlayerPosture() {
       setActionState();
     });
     window.addEventListener('keydown', (event) => {
+      if (event.defaultPrevented) return;
       if (state.bindingCapture?.kind === 'key' && performance.now() >= (state.bindingCapture.armedAt || 0)) {
         event.preventDefault();
         event.stopPropagation();
@@ -14857,6 +15034,10 @@ function breakPlayerPosture() {
           event.preventDefault();
           closeRestartConfirm();
         }
+        return;
+      }
+      if (dom.historyReaderOverlay && !dom.historyReaderOverlay.classList.contains('hidden')) {
+        if (event.code === 'Escape') { event.preventDefault(); closeHistoryReader(); }
         return;
       }
       if (dom.runHistoryOverlay && !dom.runHistoryOverlay.classList.contains('hidden')) {
@@ -15030,7 +15211,7 @@ function breakPlayerPosture() {
 
   [RELICS, CONSUMABLES, MATERIALS, EQUIPMENT_ITEMS, SHOP_ITEMS, UPGRADES, ROUTE_TYPES, EVENTS, SQUADS, CHAPTERS, GAME_MODES, DIFFICULTY_LEVELS, SINGLE_ROOM_INFO, SINGLE_PICKUP_INFO, SINGLE_INTERACTION_INFO, TRAP_INFO, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_VARIANTS, NPC_DEFINITIONS, TALENT_TREE, PLAYER_TECHNIQUES].forEach((entries) => normalizeIconObjects(entries));
 
-  window.__longMarch = { state, GAME_VERSION, applyQualityMode, qualityProfile, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, triggerMapTrap, buildEventChoices, talentVariantFor, talentCanUnlock, talentMissingPrerequisites, talentNodeState, unlockTalent, ensureSingleMapEnemyState, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
+  window.__longMarch = { state, GAME_VERSION, applyQualityMode, qualityProfile, openTestMode, startTestRun, exitTestMode, startTestEnemy, startTestSingleMap, grantRelic, unlockTechnique, acquireEquipment, triggerMapTrap, buildEventChoices, LONG_MARCH_READER, openHistoryReader, renderHistoryReader, talentVariantFor, talentCanUnlock, talentMissingPrerequisites, talentNodeState, unlockTalent, ensureSingleMapEnemyState, equipEquipmentUnit, unequipEquipmentUnit, grantKey, openMapChest, openMapDoor, openNpcPanel, revealHiddenVaultForMap, unlockHiddenAreaForMap, migrateSingleMapV7, interactSingleMap, resolveSinglePickup, resolveSingleInteraction, mapActionFor, singleMapBlockedBy, singleMapBlockerName, currentNpcSpawn, checkAchievements, ACHIEVEMENTS, openPauseMenu, closePauseMenu, saveAndExitToTitle, captureCombatSnapshot, confirmAcquisition, openGrowthPanel, renderGrowthPanel, openRelicDetail, renderTopRelics, relicArtSvg, saveCurrentRun, loadCurrentRunSave, applySavedPlayerState, updateMetaBars, renderSingleMapTasks, finishDefeat, getTestModeDebug: () => ({ testMode: state.testMode, testRunActive, testModeSavedRun, hasFormalSnapshot: !!testModeFormalSnapshot, formalSnapshotSavedAt: testModeFormalSnapshot?.savedAt || null, exitPending: !!testModeExitTimer, epoch: testRunEpoch }), RELICS, RELIC_SYNERGIES, PLAYER_TECHNIQUES, EQUIPMENT_ITEMS, EQUIPMENT_RARITIES, KEYS, TALENT_TREE, NPC_DEFINITIONS, ROGUELIKE_ACTS, ROGUELIKE_STEPS, beginPlayerAttack, getCombatDebug: () => ({ comboStage: state.combat?.comboStage || 0, comboExpiresAt: state.combat?.comboExpiresAt || 0, actionHistory: [...(state.combat?.actionHistory || [])], attack: scene.playerAttack ? { type: scene.playerAttack.type, comboStage: scene.playerAttack.comboStage, techniqueId: scene.playerAttack.techniqueId || null, windup: scene.playerAttack.windup, active: scene.playerAttack.active, recovery: scene.playerAttack.recovery } : null, techniques: [...(state.player?.techniques || [])] }), getAudioState: () => ({ mode: musicMode, contextState: audioCtx?.state || 'none', musicGain: musicBus?.gain?.value || 0, masterGain: audioMaster?.gain?.value || 0, sfxGain: sfxBus?.gain?.value || 0, hasMusicBus: !!musicBus, hasSfxBus: !!sfxBus, step: musicStep }), playSound, SOURCES, CHAPTERS, SQUADS, UPGRADES, SHOP_ITEMS, EVENTS, ENEMY_TYPES, ENEMY_CODEX_ENTRIES, ELITE_SPECIALS, LATE_ELITE_POOLS, discoveredEnemyCodexIds, renderRouteScreen, showRoute, showChapterEvent, startBattle, showRewards, proceedAfterReward, generateSingleMap, renderSingleMap, singleMapPointWalkable, openShop, purchaseShopItem, makeEnemy, createEnemies, openEnemyCodex, renderEnemyCodex, openSaveManager, renderSaveManager, createNewSaveSlot, switchToSaveSlot, deleteSaveSlot, archiveRun, renderRunHistory, PLAYER_COMBO_PROFILES, ELITE_VARIANTS, addPlayerPosture, breakEnemyPosture, performRealtimeEnemyAction, updateEnemyMovement, performDodge, enemyAttack, gainXp, applyEventChoiceBonuses };
   window.__longMarch.pressGuardInput = pressGuardInput;
   window.__longMarch.releaseGuardInput = releaseGuardInput;
   window.__longMarch.performJump = performJump;
@@ -15052,6 +15233,8 @@ function breakPlayerPosture() {
   window.__longMarch.singleMapMovementSurfacesConnect = singleMapMovementSurfacesConnect;
   window.__longMarch.singleMapDoorGeometry = singleMapDoorGeometry;
   window.__longMarch.singleMapDoorBlocks = singleMapDoorBlocks;
+  window.__longMarch.SINGLE_MAP_TRANSITION_INTERACT_RADIUS = SINGLE_MAP_TRANSITION_INTERACT_RADIUS;
+  window.__longMarch.layerTransitionShortLabel = layerTransitionShortLabel;
   window.__longMarch.resolveSingleMapMovement = resolveSingleMapMovement;
   window.__longMarch.updateSingleMap = updateSingleMap;
   document.addEventListener('DOMContentLoaded', init);

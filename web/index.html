@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>长征·星火征途</title>
   <link rel="icon" href="app-icon.ico">
-  <link rel="stylesheet" href="style.css?v=0.32.0">
+  <link rel="stylesheet" href="style.css?v=0.32.1">
 </head>
 <body data-screen="title">
   <div id="app">
@@ -13,7 +13,7 @@
       <div class="topbar-left">
         <div class="brand">
           <span class="brand-star">★</span>
-          <div><strong>长征 · 星火征途</strong><small>v0.32.0</small></div>
+          <div><strong>长征 · 星火征途</strong><small>v0.32.1</small></div>
         </div>
         <div id="merit-hud" class="merit-hud hidden" aria-label="当前军功">
           <div class="merit-main"><span class="merit-star">★</span><span class="merit-label">军功</span><strong id="meta-merit">0</strong></div>
@@ -566,6 +566,7 @@
         <div class="manual-menu-options">
           <button id="manual-guide-btn" class="manual-menu-choice" type="button">玩法说明</button>
           <button id="manual-practice-btn" class="manual-menu-choice" type="button">战前演练</button>
+          <button id="manual-history-btn" class="manual-menu-choice" type="button">长征史馆</button>
         </div>
       </div>
     </div>
@@ -690,6 +691,26 @@
         </div>
         <p class="training-input-hint">左摇杆 / 十字键选择 · A 查看详情 · B 返回</p>
         <button id="enemy-codex-done" class="brush-btn primary codex-done" type="button">返回</button>
+      </div>
+    </div>
+
+    <div id="history-reader-overlay" class="training-menu-overlay history-reader-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="history-reader-title">
+      <div class="training-menu-panel history-reader-panel">
+        <button id="history-reader-close" class="tutorial-close" type="button" aria-label="关闭长征史馆">×</button>
+        <header class="history-reader-head">
+          <p class="eyebrow">长征历史 · 时间线阅读</p>
+          <h2 id="history-reader-title">长征史馆</h2>
+          <p>从战略转移走到胜利会师。选择左侧篇章，按时间顺序阅读长征。</p>
+        </header>
+        <div class="history-reader-layout">
+          <nav id="history-reader-toc" class="history-reader-toc" aria-label="长征历史篇章"></nav>
+          <article id="history-reader-article" class="history-reader-article" aria-live="polite"></article>
+        </div>
+        <footer class="history-reader-footer">
+          <span id="history-reader-progress">1 / 8</span>
+          <button id="history-reader-done" class="brush-btn primary" type="button">返回主界面</button>
+        </footer>
+        <p class="training-input-hint">左摇杆 / 十字键选择 · A 阅读 · B / Esc 返回</p>
       </div>
     </div>
 
@@ -862,6 +883,6 @@
     <div id="level-toast" class="level-toast hidden">等级提升</div>
     <pre id="runtime-error" class="runtime-error hidden"></pre>
   </div>
-  <script src="game.js?v=0.32.0"></script>
+  <script src="game.js?v=0.32.1"></script>
 </body>
 </html>
