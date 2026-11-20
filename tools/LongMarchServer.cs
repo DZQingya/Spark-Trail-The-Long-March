@@ -45,9 +45,11 @@ static class LongMarchServer
         AppRoot = FindAppRoot(args);
         WebRoot = Path.Combine(AppRoot, "web");
         SaveRoot = Environment.GetEnvironmentVariable("LONGMARCH_SAVE_ROOT");
-        if (String.IsNullOrWhiteSpace(SaveRoot))
-            SaveRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "长征·星火征途存档");
+        bool useDefaultSaveRoot = String.IsNullOrWhiteSpace(SaveRoot);
+        if (useDefaultSaveRoot)
+            SaveRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "雄关回锋存档");
         SaveRoot = Path.GetFullPath(SaveRoot);
+        if (useDefaultSaveRoot) MigrateLegacySaveRoot();
         Directory.CreateDirectory(Path.Combine(SaveRoot, "saves"));
         EnsureReadme();
         SyncLibraryFromFolders();
@@ -80,6 +82,24 @@ static class LongMarchServer
         }
     }
 
+    static void MigrateLegacySaveRoot()
+    {
+        if (Directory.Exists(SaveRoot)) return;
+        string legacy = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "长征·星火征途存档");
+        if (!Directory.Exists(legacy)) return;
+        try { CopyDirectory(legacy, SaveRoot); }
+        catch { }
+    }
+
+    static void CopyDirectory(string source, string destination)
+    {
+        Directory.CreateDirectory(destination);
+        foreach (string file in Directory.GetFiles(source))
+            File.Copy(file, Path.Combine(destination, Path.GetFileName(file)), true);
+        foreach (string directory in Directory.GetDirectories(source))
+            CopyDirectory(directory, Path.Combine(destination, Path.GetFileName(directory)));
+    }
+
     static bool HasArgument(string[] args, string expected)
     {
         foreach (string value in args) if (String.Equals(value, expected, StringComparison.OrdinalIgnoreCase)) return true;
@@ -96,7 +116,7 @@ static class LongMarchServer
             if (length <= 0) return true;
             var title = new StringBuilder(length + 1);
             NativeMethods.GetWindowText(handle, title, title.Capacity);
-            if (!String.Equals(title.ToString().Trim(), "长征·星火征途", StringComparison.OrdinalIgnoreCase)) return true;
+            if (!String.Equals(title.ToString().Trim(), "雄关回锋", StringComparison.OrdinalIgnoreCase)) return true;
             found = handle;
             return false;
         }, IntPtr.Zero);
@@ -224,7 +244,7 @@ static class LongMarchServer
     {
         string path = Path.Combine(SaveRoot, "存档说明.txt");
         if (File.Exists(path)) return;
-        string text = "长征·星火征途存档目录\r\n\r\nlibrary.json 保存存档列表。\r\nsaves 下的每个子文件夹是一份独立存档，内含 meta.json 与 run.json，可整体复制备份或迁移。\r\n卸载游戏不会删除此文件夹；删除游戏本体前请先保留这里的存档。\r\n";
+        string text = "雄关回锋存档目录\r\n\r\nlibrary.json 保存存档列表。\r\nsaves 下的每个子文件夹是一份独立存档，内含 meta.json 与 run.json，可整体复制备份或迁移。\r\n卸载游戏不会删除此文件夹；删除游戏本体前请先保留这里的存档。\r\n";
         File.WriteAllText(path, text, new UTF8Encoding(false));
     }
 

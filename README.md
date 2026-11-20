@@ -1,10 +1,10 @@
-# Spark Trail: The Long March
+# Xiong Guan Hui Feng: The Turning Blade
 
-## 长征·星火征途
+## 雄关回锋
 
 A real-time action roguelike inspired by the Long March, built with JavaScript and Canvas.
 
-Current version: **v0.32.2**
+Current version: **v0.33.0**
 
 Platform: **Windows 10/11**
 
@@ -77,7 +77,7 @@ All bindings can be changed in Settings.
 The installed/local-service version stores saves in:
 
 ```text
-%USERPROFILE%\Documents\长征·星火征途存档
+%USERPROFILE%\Documents\雄关回锋存档
 ```
 
 Each save slot has its own subfolder and separate run history.
